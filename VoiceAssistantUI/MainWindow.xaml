@@ -5,59 +5,69 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VoiceAssistantUI"
         mc:Ignorable="d"
-        Title="Voice Assistant" Height="450" Width="800" Initialized="Window_Initialized" Loaded="Window_Loaded" Closing="Window_Closing" Background="#FF232323">
-    <TabControl>
-        <TabItem Header="Choices" FontFamily="Consolas" Margin="-3,-2,0,0" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FF848484" FontSize="18">
-            <Grid Background="#FFE5E5E5" Height="203" Width="279"/>
+        Title="Voice Assistant" Height="450" Width="800" Initialized="Window_Initialized" Loaded="Window_Loaded" Closing="Window_Closing" Background="#FF1F1E2B" SizeChanged="Window_SizeChanged">
+
+    <TabControl x:Name="mainTabControl">
+        <TabControl.Resources>
+            <Style TargetType="{x:Type TabItem}">
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TabItem}">
+                            <Grid>
+                                <Border x:Name="border" 
+                                            CornerRadius="5,5,0,0"
+                                            Background="#FF424242"/>
+                                <ContentPresenter x:Name="TabItemContent" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="12,2,12,2" RecognizesAccessKey="True"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border"
+                                        Property="Background"
+                                        Value="#FF2e2e2e" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="border"
+                                        Property="Background"
+                                        Value="#FF212121" />
+                                    <Setter Property="Panel.ZIndex" Value="100" />
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="TextElement.Foreground" TargetName="TabItemContent" Value="#FF94A9FF"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="TextElement.Foreground" Value="Black" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
+            </Style>
+        </TabControl.Resources>
+        <TabItem Header="Choices" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="100" Height="30" Margin="-4,0,0,0">
+            <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
+
+            </Grid>
         </TabItem>
-        <TabItem Header="Grammar" FontFamily="Consolas" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="-3,-2,0,0" Foreground="#FF848484" FontSize="18">
-            <Grid Background="#FFE5E5E5"/>
+        <TabItem Header="Grammar" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="100" Height="30" Margin="-4,0,0,0">
+            <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
+
+            </Grid>
         </TabItem>
-        <TabItem FontFamily="Consolas" Header="Debug" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="-3,-2,0,0" Foreground="#FF848484" FontSize="18">
-            <Grid Background="#FFE5E5E5"/>
+        <TabItem x:Name="debugTab" Header="Debug" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Height="30" Margin="396,0,-400,0" Width="100">
+            <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
+
+            </Grid>
         </TabItem>
-        <TabItem FontFamily="Consolas" Header="Settings" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="-3,-2,0,0" Foreground="#FF848484" FontSize="18">
-            <Grid Background="#FFE5E5E5"/>
+        <TabItem x:Name="settingsTab" Header="Settings" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="100" Height="30" Margin="0,0,-496,0" Padding="6,2,6,2">
+            <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="187*"/>
+                    <ColumnDefinition Width="13*"/>
+                </Grid.ColumnDefinitions>
+
+            </Grid>
         </TabItem>
     </TabControl>
-
-    <Window.Resources>
-        <Style TargetType="{x:Type TabItem}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TabItem}">
-
-                        <Border>
-                            <Grid>
-                                <Grid>
-                                    <Border x:Name="border" 
-                                            CornerRadius="5,5,0,0"
-                                            Background="#FF404040"/>
-                                </Grid>
-                                <ContentPresenter ContentSource="Header"
-                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                            </Grid>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter TargetName="border"
-                                        Property="Background"
-                                        Value="#FF121212" />
-                            </Trigger>
-                            <Trigger Property="IsSelected"
-                                     Value="True">
-                                <Setter TargetName="border"
-                                        Property="Background"
-                                        Value="#FF1C1C1C" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
 
 </Window>

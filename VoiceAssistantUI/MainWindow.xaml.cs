@@ -1,20 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
 using System.Windows.Forms;
-using System.Drawing;
 
 namespace VoiceAssistantUI
 {
@@ -28,6 +16,22 @@ namespace VoiceAssistantUI
         public MainWindow()
         {
             InitializeComponent();
+            ConsoleManager.ShowConsoleWindow();
+            MoveTabs();
+        }
+
+        private void MoveTabs()
+        {
+            double tabsWidth = 0;
+            foreach (var item in mainTabControl.Items)
+            {
+                tabsWidth += (item as TabItem).Width;
+            }
+
+            double marginSpace = Width - tabsWidth;
+            Console.WriteLine(marginSpace);
+            settingsTab.Margin = new Thickness(marginSpace - 10, 0, -marginSpace + 10, 0);
+            debugTab.Margin = new Thickness(marginSpace - 10, 0, -marginSpace + 10, 0);
         }
 
         private void Window_Initialized(object sender, EventArgs e)
@@ -35,7 +39,7 @@ namespace VoiceAssistantUI
             trayIcon = new NotifyIcon();
             //trayIcon.Click += new EventHandler(TrayIconClick);
             trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
-            trayIcon.Icon = new Icon(@"C:\Users\ovrae\OneDrive\VisualStudio2022\VoiceAssistant\VoiceAssistantUI\src\img\tray.ico");
+            trayIcon.Icon = new Icon(@"..\..\..\src\img\tray.ico");
         }
 
         private void TrayIconClick(object sender, EventArgs e)
@@ -66,7 +70,13 @@ namespace VoiceAssistantUI
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            trayIcon.Visible = true;
+            trayIcon.Visible = false;
+            trayIcon = null;
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            MoveTabs();
         }
     }
 }
