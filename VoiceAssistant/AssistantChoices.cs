@@ -3,8 +3,12 @@ using System.Speech.Recognition;
 
 namespace VoiceAssistant
 {
-    public static class AssistantChoices
+    public class AssistantChoices
     {
+        public string Name { get; private set; }
+        public Choices Choices { get; private set; }
+        public List<string> ChoicesValues { get; private set; } = new List<string>();
+
         public static readonly Choices Initiaton = CreateInitiaton();
         public static readonly Choices Show = BuildChoices("show", "print", "display");
         public static readonly Choices Apps = BuildChoices("applications", "apps", "programs");
@@ -14,6 +18,32 @@ namespace VoiceAssistant
         public static readonly Choices MediaControl = BuildChoices("play", "pause", "stop");
         public static readonly Choices MediaType = BuildChoices("music", "video", "media");
         public static readonly Choices PC_Control = BuildChoices("shutdown", "reboot", "restart");
+
+        public AssistantChoices(string name, List<string> choicesValues)
+        {
+            Name = name;
+            ChoicesValues = choicesValues;
+            Choices = BuildChoices();
+        }
+
+        public void AddChoicesValue(string value)
+        {
+            if (ChoicesValues.Contains(value))
+                return;
+
+            ChoicesValues.Add(value);
+            Choices = BuildChoices(ChoicesValues.ToArray());
+        }
+
+        public void RemoveChoicesValue(string value)
+        {
+            if (!ChoicesValues.Contains(value))
+                return;
+
+            ChoicesValues.Remove(value);
+            Choices = BuildChoices(ChoicesValues.ToArray());
+        }
+
 
         private static Choices CreateInitiaton()
         {
