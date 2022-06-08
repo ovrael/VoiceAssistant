@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using VoiceAssistant;
+using Interaction = Microsoft.VisualBasic.Interaction;
+using MessageBox = System.Windows.MessageBox;
 
 namespace VoiceAssistantUI
 {
@@ -54,7 +56,7 @@ namespace VoiceAssistantUI
             }
 
             double marginSpace = Width - tabsWidth;
-            int offset = 18;
+            int offset = 16;
             settingsTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
             debugTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
         }
@@ -140,14 +142,14 @@ namespace VoiceAssistantUI
             if (choicesListBox.Items.Count == 0)
                 return;
 
-            AssistantChoices currentChoices = GetCurrentAssistantChoices();
+            AssistantChoices currentChoices = GetCurrentAssistantChoice();
             if (currentChoices is null)
                 return;
 
-            string nextValue = Microsoft.VisualBasic.Interaction.InputBox("Provide choice value", "Choice value");
+            string nextValue = Interaction.InputBox("Provide choice value", "Choice value");
             if (nextValue == string.Empty)
             {
-                System.Windows.MessageBox.Show("Value cannot be empty!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Value cannot be empty!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -157,7 +159,7 @@ namespace VoiceAssistantUI
 
         private void UpdateChoiceValuesTab()
         {
-            AssistantChoices currentChoices = GetCurrentAssistantChoices();
+            AssistantChoices currentChoices = GetCurrentAssistantChoice();
             if (currentChoices is null)
             {
                 return;
@@ -171,7 +173,7 @@ namespace VoiceAssistantUI
             }
         }
 
-        private AssistantChoices GetCurrentAssistantChoices()
+        private AssistantChoices GetCurrentAssistantChoice()
         {
             return Assistant.AssistantChoices
                 .Where(c => c.Name == (string)choicesListBox.SelectedItem)
@@ -181,38 +183,6 @@ namespace VoiceAssistantUI
         private string GetCurrentAssistantChoiceValue()
         {
             return (string)choicesValueListBox.SelectedItem;
-        }
-
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (currentClick == CurrentClick.Choices)
-            {
-                if (choicesListBox.Items.Count == 0)
-                    return;
-
-                var currentChoices = GetCurrentAssistantChoices();
-                var result = System.Windows.MessageBox.Show($"Are you sure to delete \"{currentChoices.Name}\" choice?", "Delete quesiton", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    Assistant.AssistantChoices.Remove(currentChoices);
-                    UpdateChoicesTab();
-                }
-            }
-
-            if (currentClick == CurrentClick.ChoicesValues)
-            {
-                var currentChoices = GetCurrentAssistantChoices();
-
-                if (currentChoices.ChoiceValues.Count == 1)
-                {
-                    System.Windows.MessageBox.Show("You can't delete last value of choice.\nDelete choice instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                currentChoices.RemoveChoicesValue(GetCurrentAssistantChoiceValue());
-                UpdateChoiceValuesTab();
-            }
         }
 
         private void UpdateChoicesTab(bool clearValuesTab = true)
@@ -235,6 +205,128 @@ namespace VoiceAssistantUI
         private void choicesValueListBox_GotFocus(object sender, RoutedEventArgs e)
         {
             currentClick = CurrentClick.ChoicesValues;
+        }
+
+        private enum Operation
+        {
+            Edit,
+            Delete
+        }
+
+        private void DeleteChoice(AssistantChoices choice)
+        {
+            var result = MessageBox.Show($"Are you sure to delete \"{choice.Name}\" choice?", "Delete quesiton", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Assistant.AssistantChoices.Remove(choice);
+            }
+        }
+
+        private void DeleteChoiceValues(AssistantChoices choice)
+        {
+            if (choice.ChoiceValues.Count == 1)
+            {
+                MessageBox.Show("You can't delete last value of choice.\nDelete choice instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            choice.RemoveChoicesValue(GetCurrentAssistantChoiceValue());
+        }
+
+        private void EditChoice(AssistantChoices choice)
+        {
+            string newName = Interaction.InputBox($"Provide new choice name for choice \"{choice.Name}\"", "Changing choice name");
+
+            if (Assistant.AssistantChoices.Any(c => c.Name == newName))
+            {
+                MessageBox.Show("Couldn't change name! Choice with that name already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (newName.Length < 1)
+            {
+                MessageBox.Show("Name cannot be blank!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            choice.Name = newName;
+        }
+
+        private void EditChoiceValue(AssistantChoices choice)
+        {
+            string oldValue = GetCurrentAssistantChoiceValue();
+            string newValue = Interaction.InputBox($"Provide new choice value for \"{oldValue}\"", "Changing choice name");
+
+            if (Assistant.AssistantChoices.Any(c => c.Name == newValue))
+            {
+                MessageBox.Show("Couldn't change value! That value already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (newValue.Length < 1)
+            {
+                MessageBox.Show("Value cannot be blank!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            choice.RemoveChoicesValue(oldValue);
+            choice.AddChoicesValue(newValue);
+        }
+
+
+        private void ManageButton_Click(object sender, RoutedEventArgs e)
+        {
+            Operation operation = Operation.Edit;
+            if ((sender as System.Windows.Controls.Button).Name.ToLower().Contains("delete"))
+                operation = Operation.Delete;
+
+            if (currentClick == CurrentClick.Choices)
+            {
+                if (choicesListBox.Items.Count == 0)
+                    return;
+
+                var currentChoice = GetCurrentAssistantChoice();
+                if (currentChoice is null)
+                    return;
+
+                switch (operation)
+                {
+                    case Operation.Edit:
+                        EditChoice(currentChoice);
+                        break;
+                    case Operation.Delete:
+                        DeleteChoice(currentChoice);
+                        break;
+                    default:
+                        break;
+                }
+
+                UpdateChoicesTab();
+            }
+
+            if (currentClick == CurrentClick.ChoicesValues)
+            {
+                if (choicesValueListBox.Items.Count == 0)
+                    return;
+
+                var currentChoice = GetCurrentAssistantChoice();
+                if (currentChoice is null)
+                    return;
+
+                switch (operation)
+                {
+                    case Operation.Edit:
+                        EditChoiceValue(currentChoice);
+                        break;
+                    case Operation.Delete:
+                        DeleteChoiceValues(currentChoice);
+                        break;
+                    default:
+                        break;
+                }
+
+                UpdateChoiceValuesTab();
+            }
         }
     }
 }

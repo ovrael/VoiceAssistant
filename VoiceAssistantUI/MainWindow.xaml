@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:VoiceAssistantUI"
         xmlns:VisualBasic="clr-namespace:Microsoft.VisualBasic;assembly=Microsoft.VisualBasic.Core" x:Class="VoiceAssistantUI.MainWindow"
         mc:Ignorable="d"
-        Title="Voice Assistant" Height="450" Width="800" Initialized="Window_Initialized" Loaded="Window_Loaded" Closing="Window_Closing" Background="#FFAAA8C8" SizeChanged="Window_SizeChanged" MinWidth="800" MaxWidth="1200" MinHeight="450" MaxHeight="900">
+        Title="Voice Assistant" Height="500" Width="700" Initialized="Window_Initialized" Loaded="Window_Loaded" Closing="Window_Closing" Background="#FFAAA8C8" SizeChanged="Window_SizeChanged" MinWidth="700" MaxWidth="800" MinHeight="500" MaxHeight="900" HorizontalContentAlignment="Center">
 
     <TabControl x:Name="mainTabControl" Background="White">
         <TabControl.Resources>
@@ -54,27 +54,18 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="255"/>
                     <ColumnDefinition Width="255"/>
-                    <ColumnDefinition Width="264"/>
-                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="190"/>
                 </Grid.ColumnDefinitions>
                 <ListBox x:Name="choicesListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,0,10,10" Background="#FF171717" Foreground="#FF8A8A8A" SelectionChanged="ChoicesListBox_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Grid.Row="1" FontSize="16" FontWeight="Normal" FontStyle="Normal" GotFocus="choicesListBox_GotFocus"/>
                 <Label Content="Available choices" Foreground="#FF6782D2" FontFamily="Consolas" VerticalContentAlignment="Bottom" Margin="10,0,10,0" HorizontalContentAlignment="Center"/>
                 <Label Content="Choices' values" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom" Foreground="#FF6782D2" FontFamily="Consolas" Grid.Column="1" Margin="11,0,10,0"/>
                 <ListBox x:Name="choicesValueListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,0,10,10" Background="#FF171717" Foreground="#FF8A8A8A" SelectionChanged="ChoicesValueListBox_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Grid.Column="1" Grid.Row="1" FontSize="16" FontWeight="Normal" FontStyle="Normal" GotFocus="choicesValueListBox_GotFocus"/>
-                <Label Content="Manage" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom" Foreground="#FF6782D2" FontFamily="Consolas" Grid.Column="2" Margin="30,0,16,0"/>
-                <Grid Grid.Column="2" Grid.Row="1" Margin="0,0,0,10" Background="#FF171717">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40"/>
-                        <RowDefinition/>
-                        <RowDefinition Height="40"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="136.5"/>
-                        <ColumnDefinition Width="136.5"/>
-                    </Grid.ColumnDefinitions>
-                    <Button x:Name="newChoicesButton" Content="New choice" Height="26" Width="110" FontSize="12" Margin="13,7,14,7" Background="#7F80DA4F" Click="NewChoicesButton_Click"/>
-                    <Button x:Name="deleteButton" Content="DELETE" HorizontalAlignment="Left" VerticalAlignment="Center" Height="26" Width="243" Grid.Row="2" FontSize="12" Grid.ColumnSpan="2" Margin="13,0,0,0" Background="#7FDE3E3E" Click="DeleteButton_Click"/>
-                    <Button x:Name="newChoiceValueButton" Content="Add value" Height="26" Width="110" FontSize="12" Grid.Column="1" Margin="10,7,17,7" Background="#7F80DA4F" Click="NewChoiceValueButton_Click"/>
+                <Label Content="Manage" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom" Foreground="#FF6782D2" FontFamily="Consolas" Grid.Column="2" Margin="10,0,20,0"/>
+                <Grid Grid.Column="2" Grid.Row="1" Margin="10,0,20,115" Background="#FF171717" ScrollViewer.VerticalScrollBarVisibility="Disabled" Width="160" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button x:Name="newChoiceValueButton" Content="Add choice value" FontSize="12" Background="#7F80DA4F" Click="NewChoiceValueButton_Click" Margin="0,51,0,0" Width="120" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalAlignment="Center" Height="25" VerticalAlignment="Top"/>
+                    <Button x:Name="newChoicesButton" Content="New choice" Height="25" Width="120" FontSize="12" Background="#7F80DA4F" Click="NewChoicesButton_Click" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalContentAlignment="Center" Margin="0,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <Button x:Name="editButton" Content="Edit" HorizontalAlignment="Center" VerticalAlignment="Top" Background="#7FDFA231" Width="120" FontSize="12" Height="25" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" Click="ManageButton_Click" Margin="0,100,0,0"/>
+                    <Button x:Name="deleteButton" Content="DELETE" Width="120" FontSize="12" Background="#7FDE3E3E" Click="ManageButton_Click" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalAlignment="Center" Panel.ZIndex="5" Margin="0,0,0,8" Height="25" VerticalAlignment="Bottom"/>
                 </Grid>
 
             </Grid>
@@ -87,10 +78,6 @@
         </TabItem>
         <TabItem x:Name="settingsTab" Header="Settings" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="125" Height="30" Padding="6,2,6,2" FontFamily="Consolas">
             <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="187*"/>
-                    <ColumnDefinition Width="13*"/>
-                </Grid.ColumnDefinitions>
 
             </Grid>
         </TabItem>

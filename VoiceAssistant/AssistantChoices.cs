@@ -4,7 +4,7 @@ namespace VoiceAssistant
 {
     public class AssistantChoices
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
         public Choices Choice { get; private set; }
         public List<string> ChoiceValues { get; private set; } = new List<string>();
 
