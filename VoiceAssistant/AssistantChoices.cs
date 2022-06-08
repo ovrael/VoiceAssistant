@@ -1,13 +1,12 @@
-﻿using Microsoft.Win32;
-using System.Speech.Recognition;
+﻿using System.Speech.Recognition;
 
 namespace VoiceAssistant
 {
     public class AssistantChoices
     {
         public string Name { get; private set; }
-        public Choices Choices { get; private set; }
-        public List<string> ChoicesValues { get; private set; } = new List<string>();
+        public Choices Choice { get; private set; }
+        public List<string> ChoiceValues { get; private set; } = new List<string>();
 
         public static readonly Choices Initiaton = CreateInitiaton();
         public static readonly Choices Show = BuildChoices("show", "print", "display");
@@ -22,26 +21,26 @@ namespace VoiceAssistant
         public AssistantChoices(string name, List<string> choicesValues)
         {
             Name = name;
-            ChoicesValues = choicesValues;
-            Choices = BuildChoices();
+            ChoiceValues = choicesValues;
+            Choice = BuildChoices();
         }
 
         public void AddChoicesValue(string value)
         {
-            if (ChoicesValues.Contains(value))
+            if (ChoiceValues.Contains(value))
                 return;
 
-            ChoicesValues.Add(value);
-            Choices = BuildChoices(ChoicesValues.ToArray());
+            ChoiceValues.Add(value);
+            Choice = BuildChoices(ChoiceValues.ToArray());
         }
 
         public void RemoveChoicesValue(string value)
         {
-            if (!ChoicesValues.Contains(value))
+            if (!ChoiceValues.Contains(value))
                 return;
 
-            ChoicesValues.Remove(value);
-            Choices = BuildChoices(ChoicesValues.ToArray());
+            ChoiceValues.Remove(value);
+            Choice = BuildChoices(ChoiceValues.ToArray());
         }
 
 

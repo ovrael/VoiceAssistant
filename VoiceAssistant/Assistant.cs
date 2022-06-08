@@ -9,7 +9,8 @@ namespace VoiceAssistant
         // Create an in-process speech recognizer for the en-US locale.
         public static readonly string language = "en-US";
         public static readonly string AssistantName = "Kaladin";
-        private static bool isCalled = false;
+
+        public static List<AssistantChoices> AssistantChoices = new List<AssistantChoices>();
 
         public static void StartListening()
         {
