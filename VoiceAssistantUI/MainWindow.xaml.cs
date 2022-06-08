@@ -18,50 +18,126 @@ namespace VoiceAssistantUI
     {
         NotifyIcon trayIcon;
         CurrentClick currentClick = CurrentClick.Choices;
-        List<object> choicesManagementControls = new List<object>();
-        List<object> choicesValueManagementControls = new List<object>();
 
         public MainWindow()
         {
             InitializeComponent();
             ConsoleManager.ShowConsoleWindow();
             MoveTabs();
+
             TestChoices();
-            FilterControls();
+            TestGrammar();
+
             UpdateChoicesTab();
             UpdateGrammarTab();
         }
 
-        private void UpdateGrammarTab()
-        {
-            availableChoicesListBox.Items.Clear();
-            foreach (var choice in Assistant.AssistantChoices)
-            {
-                ListBoxItem item = new ListBoxItem();
-                item.Name = choice.Name;
-
-                availableChoicesListBox.Items.Add(choice.Name);
-
-            }
-
-        }
-
-        private void FilterControls()
-        {
-            choicesValueManagementControls.Add(newChoiceValueButton);
-        }
-
+        #region Tests
         private void TestChoices()
         {
-            AssistantChoices show = new AssistantChoices("show", new List<string>() { "show", "print", "display" });
-            AssistantChoices apps = new AssistantChoices("apps", new List<string>() { "applications", "apps", "programs" });
-            AssistantChoices open = new AssistantChoices("open", new List<string>() { "open", "run" });
+            AssistantChoice show = new AssistantChoice("show", new List<string>() { "show", "print", "display" });
+            AssistantChoice apps = new AssistantChoice("apps", new List<string>() { "applications", "apps", "programs" });
+            AssistantChoice open = new AssistantChoice("open", new List<string>() { "open", "run" });
 
-            Assistant.AssistantChoices.Add(show);
-            Assistant.AssistantChoices.Add(apps);
-            Assistant.AssistantChoices.Add(open);
+            Assistant.Choices.Add(show);
+            Assistant.Choices.Add(apps);
+            Assistant.Choices.Add(open);
         }
 
+        private void TestGrammar()
+        {
+            AssistantGrammar printApss = new AssistantGrammar("Print apps", "show", "apps");
+            AssistantGrammar openApps = new AssistantGrammar("Open apps", "open", "apps");
+
+            Assistant.Grammar.Add(printApss);
+            Assistant.Grammar.Add(openApps);
+        }
+        #endregion
+
+        #region Main Window
+        private void Window_Initialized(object sender, EventArgs e)
+        {
+            trayIcon = new NotifyIcon();
+            trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
+            trayIcon.Icon = new Icon(@"..\..\..\src\img\tray.ico");
+        }
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            trayIcon.Visible = true;
+        }
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            trayIcon.Visible = false;
+            trayIcon = null;
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            MoveTabs();
+        }
+
+        protected override void OnStateChanged(EventArgs e)
+        {
+            if (WindowState == WindowState.Minimized)
+            {
+                Hide();
+                trayIcon.ShowBalloonTip(1000, "App is still working.", "Will listen to you waiting for call " + VoiceAssistant.Assistant.AssistantName, ToolTipIcon.Info);
+            }
+
+            base.OnStateChanged(e);
+        }
+        #endregion
+
+        #region Tray Icon
+        private void TrayIconClick(object sender, EventArgs e)
+        {
+            trayIcon.ShowBalloonTip(800, "App is still working", "Will listen to you waiting for call.", ToolTipIcon.Info);
+        }
+
+        private void TrayIconDoubleClick(object sender, EventArgs e)
+        {
+            Show();
+            WindowState = WindowState.Normal;
+        }
+
+        #endregion
+
+        #region Updates
+        private void UpdateGrammarTab()
+        {
+            grammarListBox.Items.Clear();
+
+            foreach (var grammar in Assistant.Grammar)
+            {
+                grammarListBox.Items.Add(grammar.Name);
+            }
+        }
+        private void UpdateChoiceWordsTab()
+        {
+            AssistantChoice currentChoices = GetCurrentAssistantChoice();
+            if (currentChoices is null)
+            {
+                return;
+            }
+
+            choiceWordsListBox.Items.Clear();
+            choicesListBox.AllowDrop = true;
+            foreach (var value in currentChoices.Words)
+            {
+                choiceWordsListBox.Items.Add(value);
+            }
+        }
+        private void UpdateChoicesTab(bool clearValuesTab = true)
+        {
+            choicesListBox.Items.Clear();
+            foreach (var choice in Assistant.Choices)
+            {
+                choicesListBox.Items.Add(choice.Name);
+            }
+
+            if (clearValuesTab)
+                choiceWordsListBox.Items.Clear();
+        }
         private void MoveTabs()
         {
             double tabsWidth = 0;
@@ -75,70 +151,39 @@ namespace VoiceAssistantUI
             settingsTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
             debugTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
         }
+        #endregion
 
-        private void Window_Initialized(object sender, EventArgs e)
+        #region Gets
+        private AssistantChoice GetCurrentAssistantChoice()
         {
-            trayIcon = new NotifyIcon();
-            trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
-            trayIcon.Icon = new Icon(@"..\..\..\src\img\tray.ico");
+            return Assistant.Choices
+                .Where(c => c.Name == (string)choicesListBox.SelectedItem)
+                .FirstOrDefault();
+        }
+        private AssistantGrammar GetCurrentAssistantGrammar()
+        {
+            return Assistant.Grammar
+                .Where(g => g.Name == (string)grammarListBox.SelectedItem)
+                .FirstOrDefault();
+        }
+        private string GetCurrentAssistantChoiceWord()
+        {
+            return (string)choiceWordsListBox.SelectedItem;
         }
 
-        private void TrayIconClick(object sender, EventArgs e)
+        #endregion
+
+        #region Choices
+        private void ChoicesListBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            trayIcon.ShowBalloonTip(800, "App is still working", "Will listen to you waiting for call.", ToolTipIcon.Info);
+            currentClick = CurrentClick.Choices;
         }
-
-        private void TrayIconDoubleClick(object sender, EventArgs e)
-        {
-            Show();
-            WindowState = WindowState.Normal;
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            trayIcon.Visible = true;
-        }
-
-        protected override void OnStateChanged(EventArgs e)
-        {
-            if (WindowState == WindowState.Minimized)
-            {
-                Hide();
-                trayIcon.ShowBalloonTip(1000, "App is still working.", "Will listen to you waiting for call " + VoiceAssistant.Assistant.AssistantName, ToolTipIcon.Info);
-            }
-
-            base.OnStateChanged(e);
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            trayIcon.Visible = false;
-            trayIcon = null;
-        }
-
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            MoveTabs();
-        }
-
         private void ChoicesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             currentClick = CurrentClick.Choices;
-            UpdateChoiceValuesTab();
+            UpdateChoiceWordsTab();
         }
-
-        private void ChoicesValueListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            currentClick = CurrentClick.ChoicesValues;
-        }
-
-        private enum CurrentClick
-        {
-            Choices,
-            ChoicesValues
-        }
-
-        private void NewChoicesButton_Click(object sender, RoutedEventArgs e)
+        private void NewChoiceButton_Click(object sender, RoutedEventArgs e)
         {
             CreateChoicesWindow choicesCreator = new CreateChoicesWindow();
             choicesCreator.Show();
@@ -152,12 +197,23 @@ namespace VoiceAssistantUI
             IsEnabled = false;
         }
 
-        private void NewChoiceValueButton_Click(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region Choice Words
+        private void ChoiceWordsListBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            currentClick = CurrentClick.ChoiceWords;
+        }
+        private void ChoiceWordsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            currentClick = CurrentClick.ChoiceWords;
+        }
+        private void NewChoiceWordButton_Click(object sender, RoutedEventArgs e)
         {
             if (choicesListBox.Items.Count == 0)
                 return;
 
-            AssistantChoices currentChoices = GetCurrentAssistantChoice();
+            AssistantChoice currentChoices = GetCurrentAssistantChoice();
             if (currentChoices is null)
                 return;
 
@@ -169,126 +225,64 @@ namespace VoiceAssistantUI
             }
 
             currentChoices.AddChoicesValue(nextValue);
-            UpdateChoiceValuesTab();
+            UpdateChoiceWordsTab();
         }
 
-        private void UpdateChoiceValuesTab()
+        #endregion
+
+        #region Grammar
+        private void GrammarListBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            AssistantChoices currentChoices = GetCurrentAssistantChoice();
-            if (currentChoices is null)
+            currentClick = CurrentClick.Grammar;
+        }
+        private void GrammarListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            grammarChoicesListBox.Items.Clear();
+
+            var currentGrammar = GetCurrentAssistantGrammar();
+
+            foreach (var choice in currentGrammar.ChoiceNames)
             {
-                return;
+                ListBoxItem listItem = new ListBoxItem();
+                listItem.Content = choice;
+                listItem.ToolTip = CreateChoiceTooltip(choice);
+                grammarChoicesListBox.Items.Add(listItem);
             }
 
-            choicesValueListBox.Items.Clear();
-            choicesListBox.AllowDrop = true;
-            foreach (var value in currentChoices.ChoiceValues)
+        }
+        string CreateChoiceTooltip(string choiceName)
+        {
+            var choice = Assistant.GetChoice(choiceName);
+
+            string tooltip = string.Empty;
+
+            for (int i = 0; i < choice.Words.Count; i++)
             {
-                choicesValueListBox.Items.Add(value);
-            }
-        }
 
-        private AssistantChoices GetCurrentAssistantChoice()
-        {
-            return Assistant.AssistantChoices
-                .Where(c => c.Name == (string)choicesListBox.SelectedItem)
-                .FirstOrDefault();
-        }
-
-        private string GetCurrentAssistantChoiceValue()
-        {
-            return (string)choicesValueListBox.SelectedItem;
-        }
-
-        private void UpdateChoicesTab(bool clearValuesTab = true)
-        {
-            choicesListBox.Items.Clear();
-            foreach (var choice in Assistant.AssistantChoices)
-            {
-                choicesListBox.Items.Add(choice.Name);
+                tooltip += $"{ choice.Words[i]}";
+                if (i < choice.Words.Count - 1)
+                    tooltip += ", ";
             }
 
-            if (clearValuesTab)
-                choicesValueListBox.Items.Clear();
+            return tooltip;
         }
 
-        private void choicesListBox_GotFocus(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region Enums
+        private enum CurrentClick
         {
-            currentClick = CurrentClick.Choices;
+            Choices,
+            ChoiceWords,
+            Grammar
         }
-
-        private void choicesValueListBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            currentClick = CurrentClick.ChoicesValues;
-        }
-
         private enum Operation
         {
             Edit,
             Delete
         }
 
-        private void DeleteChoice(AssistantChoices choice)
-        {
-            var result = MessageBox.Show($"Are you sure to delete \"{choice.Name}\" choice?", "Delete quesiton", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                Assistant.AssistantChoices.Remove(choice);
-            }
-        }
-
-        private void DeleteChoiceValues(AssistantChoices choice)
-        {
-            if (choice.ChoiceValues.Count == 1)
-            {
-                MessageBox.Show("You can't delete last value of choice.\nDelete choice instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            choice.RemoveChoicesValue(GetCurrentAssistantChoiceValue());
-        }
-
-        private void EditChoice(AssistantChoices choice)
-        {
-            string newName = Interaction.InputBox($"Provide new choice name for choice \"{choice.Name}\"", "Changing choice name");
-
-            if (Assistant.AssistantChoices.Any(c => c.Name == newName))
-            {
-                MessageBox.Show("Couldn't change name! Choice with that name already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (newName.Length < 1)
-            {
-                MessageBox.Show("Name cannot be blank!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            choice.Name = newName;
-        }
-
-        private void EditChoiceValue(AssistantChoices choice)
-        {
-            string oldValue = GetCurrentAssistantChoiceValue();
-            string newValue = Interaction.InputBox($"Provide new choice value for \"{oldValue}\"", "Changing choice name");
-
-            if (Assistant.AssistantChoices.Any(c => c.Name == newValue))
-            {
-                MessageBox.Show("Couldn't change value! That value already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (newValue.Length < 1)
-            {
-                MessageBox.Show("Value cannot be blank!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            choice.RemoveChoicesValue(oldValue);
-            choice.AddChoicesValue(newValue);
-        }
-
-
+        #endregion
         private void ManageButton_Click(object sender, RoutedEventArgs e)
         {
             Operation operation = Operation.Edit;
@@ -319,9 +313,9 @@ namespace VoiceAssistantUI
                 UpdateChoicesTab();
             }
 
-            if (currentClick == CurrentClick.ChoicesValues)
+            if (currentClick == CurrentClick.ChoiceWords)
             {
-                if (choicesValueListBox.Items.Count == 0)
+                if (choiceWordsListBox.Items.Count == 0)
                     return;
 
                 var currentChoice = GetCurrentAssistantChoice();
@@ -331,33 +325,126 @@ namespace VoiceAssistantUI
                 switch (operation)
                 {
                     case Operation.Edit:
-                        EditChoiceValue(currentChoice);
+                        EditChoiceWord(currentChoice);
                         break;
                     case Operation.Delete:
-                        DeleteChoiceValues(currentChoice);
+                        DeleteChoiceWords(currentChoice);
                         break;
                     default:
                         break;
                 }
 
-                UpdateChoiceValuesTab();
+                UpdateChoiceWordsTab();
+            }
+
+            if (currentClick == CurrentClick.Choices)
+            {
+                if (grammarListBox.Items.Count == 0)
+                    return;
+
+                var currentGrammar = GetCurrentAssistantGrammar();
+                if (currentGrammar is null)
+                    return;
+
+                switch (operation)
+                {
+                    case Operation.Edit:
+                        EditGrammar(currentGrammar);
+                        break;
+                    case Operation.Delete:
+                        DeleteGrammar(currentGrammar);
+                        break;
+                    default:
+                        break;
+                }
+
+                UpdateGrammarTab();
             }
         }
 
-        string copyChoiceName = String.Empty;
-
-        private void grammarChoicesListBox_Drop(object sender, System.Windows.DragEventArgs e)
+        #region Manage choices
+        private void EditChoice(AssistantChoice choice)
         {
-            grammarChoicesListBox.Items.Add(copyChoiceName);
+            string newName = Interaction.InputBox($"Provide new choice name for choice \"{choice.Name}\"", "Changing choice name");
 
+            if (Assistant.Choices.Any(c => c.Name == newName))
+            {
+                MessageBox.Show("Couldn't change name! Choice with that name already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (newName.Length < 1)
+            {
+                MessageBox.Show("Name cannot be blank!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            choice.Name = newName;
+        }
+        private void DeleteChoice(AssistantChoice choice)
+        {
+            var result = MessageBox.Show($"Are you sure to delete \"{choice.Name}\" choice?", "Delete quesiton", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Assistant.Choices.Remove(choice);
+            }
         }
 
-        private void availableChoicesListBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        #endregion
+
+        #region Manage choice wrods
+        private void EditChoiceWord(AssistantChoice choice)
         {
-            object item = availableChoicesListBox.SelectedItem;
-            copyChoiceName = (string)availableChoicesListBox.SelectedItem;
-            if (item != null)
-                DragDrop.DoDragDrop(availableChoicesListBox, item, System.Windows.DragDropEffects.Move);
+            if (choiceWordsListBox.SelectedIndex < 0)
+                return;
+
+            string oldWord = GetCurrentAssistantChoiceWord();
+            string newWord = Interaction.InputBox($"Provide new choice word for \"{oldWord}\"", "Changing choice name");
+
+            if (choice.Words.Any(c => c == newWord))
+            {
+                Console.WriteLine("TESTOWY");
+                MessageBox.Show("Couldn't change word! That word already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (newWord.Length < 1)
+            {
+                MessageBox.Show("Word cannot be blank!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            choice.RemoveChoicesValue(oldWord);
+            choice.AddChoicesValue(newWord);
         }
+        private void DeleteChoiceWords(AssistantChoice choice)
+        {
+            if (choice.Words.Count == 1)
+            {
+                MessageBox.Show("You can't delete last value of choice.\nDelete choice instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            choice.RemoveChoicesValue(GetCurrentAssistantChoiceWord());
+        }
+
+        #endregion
+
+        #region Manage grammar
+        private void EditGrammar(AssistantGrammar grammar)
+        {
+            throw new Exception("CREATE NEW WINDOW WITH GRAMMAR ARGUMENT");
+        }
+        private void DeleteGrammar(AssistantGrammar grammar)
+        {
+            var result = MessageBox.Show($"Are you sure to delete \"{grammar.Name}\" grammar?", "Delete quesiton", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Assistant.Grammar.Remove(grammar);
+            }
+        }
+
+        #endregion
     }
 }

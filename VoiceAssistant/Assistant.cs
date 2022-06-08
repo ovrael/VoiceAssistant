@@ -10,7 +10,8 @@ namespace VoiceAssistant
         public static readonly string language = "en-US";
         public static readonly string AssistantName = "Kaladin";
 
-        public static List<AssistantChoices> AssistantChoices = new List<AssistantChoices>();
+        public static List<AssistantChoice> Choices = new List<AssistantChoice>();
+        public static List<AssistantGrammar> Grammar = new List<AssistantGrammar>();
 
         public static void StartListening()
         {
@@ -21,10 +22,10 @@ namespace VoiceAssistant
                 // Create and load grammar.
                 //recognizer.LoadGrammar(new DictationGrammar());
 
-                recognizer.LoadGrammar(AssistantGrammar.InstalledApps);
-                recognizer.LoadGrammar(AssistantGrammar.OpenApp);
-                recognizer.LoadGrammar(AssistantGrammar.ControlMedia);
-                recognizer.LoadGrammar(AssistantGrammar.ControlPC);
+                //recognizer.LoadGrammar(AssistantGrammar.InstalledApps);
+                //recognizer.LoadGrammar(AssistantGrammar.OpenApp);
+                //recognizer.LoadGrammar(AssistantGrammar.ControlMedia);
+                //recognizer.LoadGrammar(AssistantGrammar.ControlPC);
 
                 // Add a handler for the speech recognized event.  
                 recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
@@ -59,26 +60,36 @@ namespace VoiceAssistant
             string grammarName = e.Result.Grammar.Name;
             switch (grammarName)
             {
-                case nameof(AssistantGrammar.InstalledApps):
-                    InstalledApps();
-                    break;
+                //case nameof(AssistantGrammar.InstalledApps):
+                //    InstalledApps();
+                //    break;
 
-                case nameof(AssistantGrammar.OpenApp):
-                    OpenApp(e.Result.Text);
-                    break;
+                //case nameof(AssistantGrammar.OpenApp):
+                //    OpenApp(e.Result.Text);
+                //    break;
 
-                case nameof(AssistantGrammar.ControlMedia):
-                    ControlMedia(e.Result.Text);
-                    break;
+                //case nameof(AssistantGrammar.ControlMedia):
+                //    ControlMedia(e.Result.Text);
+                //    break;
 
-                case nameof(AssistantGrammar.ControlPC):
-                    ControlPC(e.Result.Text);
-                    break;
+                //case nameof(AssistantGrammar.ControlPC):
+                //    ControlPC(e.Result.Text);
+                //    break;
 
                 default:
                     Console.WriteLine($"Grammar {grammarName} is not available yet! (wtf?)");
                     break;
             }
+        }
+
+        public static AssistantGrammar GetGrammar(string grammarName)
+        {
+            return Grammar.Where(g => g.Name == grammarName).FirstOrDefault();
+        }
+
+        public static AssistantChoice GetChoice(string choiceName)
+        {
+            return Choices.Where(c => c.Name == choiceName).FirstOrDefault();
         }
 
         private static void InstalledApps()

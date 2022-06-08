@@ -111,14 +111,14 @@ namespace VoiceAssistantUI
 
         private void createButton_Click(object sender, RoutedEventArgs e)
         {
-            if (VoiceAssistant.Assistant.AssistantChoices.Any(c => c.Name == choiceName))
+            if (VoiceAssistant.Assistant.Choices.Any(c => c.Name == choiceName))
             {
                 MessageBox.Show("Choice with that namy already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            VoiceAssistant.AssistantChoices newChoice = new VoiceAssistant.AssistantChoices(choiceName, choiceValues);
-            VoiceAssistant.Assistant.AssistantChoices.Add(newChoice);
+            VoiceAssistant.AssistantChoice newChoice = new VoiceAssistant.AssistantChoice(choiceName, choiceValues);
+            VoiceAssistant.Assistant.Choices.Add(newChoice);
             Close();
         }
 
