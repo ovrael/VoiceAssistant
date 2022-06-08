@@ -29,6 +29,21 @@ namespace VoiceAssistantUI
             TestChoices();
             FilterControls();
             UpdateChoicesTab();
+            UpdateGrammarTab();
+        }
+
+        private void UpdateGrammarTab()
+        {
+            availableChoicesListBox.Items.Clear();
+            foreach (var choice in Assistant.AssistantChoices)
+            {
+                ListBoxItem item = new ListBoxItem();
+                item.Name = choice.Name;
+
+                availableChoicesListBox.Items.Add(choice.Name);
+
+            }
+
         }
 
         private void FilterControls()
@@ -327,6 +342,22 @@ namespace VoiceAssistantUI
 
                 UpdateChoiceValuesTab();
             }
+        }
+
+        string copyChoiceName = String.Empty;
+
+        private void grammarChoicesListBox_Drop(object sender, System.Windows.DragEventArgs e)
+        {
+            grammarChoicesListBox.Items.Add(copyChoiceName);
+
+        }
+
+        private void availableChoicesListBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            object item = availableChoicesListBox.SelectedItem;
+            copyChoiceName = (string)availableChoicesListBox.SelectedItem;
+            if (item != null)
+                DragDrop.DoDragDrop(availableChoicesListBox, item, System.Windows.DragDropEffects.Move);
         }
     }
 }
