@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -20,23 +21,41 @@ namespace VoiceAssistantUI
     {
         NotifyIcon trayIcon;
         CurrentClick currentClick = CurrentClick.Choices;
-        char workingMode = 'd'; // d - develop, r - release
+        char workingMode = 'r'; // d - develop, r - release
 
         public MainWindow()
         {
             InitializeComponent();
+
             if (workingMode == 'd')
                 ConsoleManager.ShowConsoleWindow();
             MoveTabs();
 
             Assistant.LoadDataFromFile();
-
-            Thread assistantThread = new Thread(() => Assistant.StartListening());
-            assistantThread.Start();
+            Assistant.InitListBoxes(outputListBox, logsListBox);
 
             ListBoxHelpers.UpdateChoices(choicesListBox);
             ListBoxHelpers.UpdateGrammar(grammarListBox);
+            App.Current.Exit += new ExitEventHandler(OnApplicationExit);
+            Closed += new EventHandler(OnApplicationExit);
         }
+
+
+        private void OnApplicationExit(object sender, EventArgs e)
+        {
+            try
+            {
+                if (trayIcon != null)
+                {
+                    trayIcon.Visible = false;
+                    trayIcon.Icon = null;
+                    trayIcon.Dispose();
+                    trayIcon = null;
+                }
+            }
+            catch { }
+        }
+
 
         #region Tests
         private void TestChoices()
@@ -66,11 +85,23 @@ namespace VoiceAssistantUI
             trayIcon = new NotifyIcon();
             trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
             trayIcon.Icon = new Icon(@"..\..\..\src\img\tray.ico");
-        }
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
             trayIcon.Visible = true;
         }
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await Task.Run(() =>
+                {
+                    Assistant.StartListening();
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             trayIcon.Visible = false;
@@ -131,7 +162,7 @@ namespace VoiceAssistantUI
         }
         private AssistantGrammar GetCurrentAssistantGrammar()
         {
-            if (grammarListBox.Items.Count == 0)
+            if (grammarListBox.Items.Count == 0 || grammarListBox.SelectedItem is null)
                 return null;
 
             return Assistant.Grammar
@@ -397,7 +428,7 @@ namespace VoiceAssistantUI
             string oldWord = GetCurrentAssistantChoiceWord();
             string newWord = Interaction.InputBox($"Provide new choice word for \"{oldWord}\"", "Changing choice name");
 
-            if (choice.Words.Any(c => c == newWord))
+            if (choice.Sentences.Any(c => c == newWord))
             {
                 Console.WriteLine("TESTOWY");
                 MessageBox.Show("Couldn't change word! That word already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -415,7 +446,7 @@ namespace VoiceAssistantUI
         }
         private void DeleteChoiceWords(AssistantChoice choice)
         {
-            if (choice.Words.Count == 1)
+            if (choice.Sentences.Count == 1)
             {
                 MessageBox.Show("You can't delete last value of choice.\nDelete choice instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -440,8 +471,43 @@ namespace VoiceAssistantUI
             }
         }
 
+
         #endregion
 
+        private void mainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var tabControl = sender as System.Windows.Controls.TabControl;
+            if (tabControl.SelectedIndex < 0)
+                return;
 
+            var currentTabHeader = (string)(tabControl.SelectedItem as TabItem).Header;
+
+            SetWindowWidth(currentTabHeader);
+        }
+
+        private void SetWindowWidth(string header)
+        {
+            if (header == "Logs")
+            {
+                MaxWidth = 1600;
+                if (Width < 1000)
+                    Width = 1000;
+
+                return;
+            }
+
+            if (header == "Output")
+            {
+                MaxWidth = 1400;
+                if (Width < 900)
+                    Width = 900;
+
+                return;
+            }
+
+            MaxWidth = 710;
+            if (Width < 710)
+                Width = 710;
+        }
     }
 }

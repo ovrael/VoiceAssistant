@@ -1,4 +1,5 @@
-﻿using System.Speech.Recognition;
+﻿using System.Collections.Generic;
+using System.Speech.Recognition;
 
 namespace VoiceAssistant
 {
@@ -6,7 +7,10 @@ namespace VoiceAssistant
     {
         public string Name { get; set; }
         public Choices Choice { get; private set; }
-        public List<string> Words { get; private set; } = new List<string>();
+        public List<string> Sentences { get; private set; } = new List<string>();
+        public bool CanBeEdited { get; private set; } = true;
+        public bool CanBeDeleted { get; private set; } = true;
+        public bool CanBeMoved { get; private set; } = true;
 
         //public static readonly Choices Initiaton = CreateInitiaton();
         //public static readonly Choices Show = BuildChoices("show", "print", "display");
@@ -18,30 +22,34 @@ namespace VoiceAssistant
         //public static readonly Choices MediaType = BuildChoices("music", "video", "media");
         //public static readonly Choices PC_Control = BuildChoices("shutdown", "reboot", "restart");
 
-        public AssistantChoice(string name, List<string> choicesValues)
+        public AssistantChoice(string name, List<string> choicesValues, bool canBeEdited = true, bool canBeDeleted = true, bool canBeMoved = true)
         {
+            CanBeEdited = canBeEdited;
+            CanBeDeleted = canBeDeleted;
+            CanBeMoved = canBeMoved;
+
             Name = name;
-            Words = choicesValues;
+            Sentences = choicesValues;
 
             Choice = BuildChoices(choicesValues.ToArray());
         }
 
         public void AddChoicesValue(string value)
         {
-            if (Words.Contains(value))
+            if (Sentences.Contains(value))
                 return;
 
-            Words.Add(value);
-            Choice = BuildChoices(Words.ToArray());
+            Sentences.Add(value);
+            Choice = BuildChoices(Sentences.ToArray());
         }
 
         public void RemoveChoicesValue(string value)
         {
-            if (!Words.Contains(value))
+            if (!Sentences.Contains(value))
                 return;
 
-            Words.Remove(value);
-            Choice = BuildChoices(Words.ToArray());
+            Sentences.Remove(value);
+            Choice = BuildChoices(Sentences.ToArray());
         }
 
 

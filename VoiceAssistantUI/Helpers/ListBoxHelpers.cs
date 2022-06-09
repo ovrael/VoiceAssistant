@@ -27,6 +27,9 @@ namespace VoiceAssistantUI
                 ListBoxItem item = new ListBoxItem();
                 item.Content = choice.Name;
                 item.ToolTip = CreateChoiceTooltip(choice.Name);
+
+                item.IsEnabled = choice.CanBeMoved;
+
                 listBox.Items.Add(item);
             }
         }
@@ -52,7 +55,7 @@ namespace VoiceAssistantUI
             }
 
             listBox.Items.Clear();
-            foreach (var value in currentChoice.Words)
+            foreach (var value in currentChoice.Sentences)
             {
                 listBox.Items.Add(value);
             }
@@ -66,7 +69,7 @@ namespace VoiceAssistantUI
             }
 
             listBox.Items.Clear();
-            foreach (var value in currentChoice.Words)
+            foreach (var value in currentChoice.Sentences)
             {
                 listBox.Items.Add(value);
             }
@@ -92,11 +95,11 @@ namespace VoiceAssistantUI
 
             string tooltip = string.Empty;
 
-            for (int i = 0; i < choice.Words.Count; i++)
+            for (int i = 0; i < choice.Sentences.Count; i++)
             {
 
-                tooltip += $"{ choice.Words[i]}";
-                if (i < choice.Words.Count - 1)
+                tooltip += $"{ choice.Sentences[i]}";
+                if (i < choice.Sentences.Count - 1)
                     tooltip += ", ";
             }
 

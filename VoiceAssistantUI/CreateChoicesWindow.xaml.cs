@@ -12,29 +12,39 @@ namespace VoiceAssistantUI
     public partial class CreateChoicesWindow : Window
     {
         private string choiceName = string.Empty;
-        private List<string> choiceWords = new List<string>();
+        private List<string> choiceSentences = new List<string>();
 
         public CreateChoicesWindow()
         {
             InitializeComponent();
         }
 
-        private void NewChoiceWordTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void NewChoiceSentenceTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Return)
                 return;
 
-            TextBox choiceWordTextBox = (TextBox)sender;
-            if (choiceWords.Contains(choiceWordTextBox.Text))
+            string choiceSentence = (sender as TextBox).Text;
+            if (choiceSentences.Contains(choiceSentence))
                 return;
 
-            if (choiceWordTextBox.Text.Length < 1)
+            if (choiceSentence.Length < 1)
                 return;
 
-            choiceWords.Add(choiceWordTextBox.Text);
-            choiceWordTextBox.Text = string.Empty;
+            int assistantNameIndex = choiceSentence.IndexOf("{AssistantName}");
+            if (assistantNameIndex > 0)
+            {
+                string left = choiceSentence.Substring(0, assistantNameIndex);
+                string right = choiceSentence.Substring(assistantNameIndex + "{AssistantName}".Length);
 
-            if (choiceWords.Count > 0)
+                choiceSentence = left + VoiceAssistant.Assistant.AssistantName + right;
+            }
+
+            choiceSentences.Add(choiceSentence);
+
+            (sender as TextBox).Text = string.Empty;
+
+            if (choiceSentences.Count > 0)
                 enterChoiceValueWatermark.Text = "Enter next choice value";
 
             UpdateValuesListBox();
@@ -42,9 +52,9 @@ namespace VoiceAssistantUI
 
         private void UpdateValuesListBox()
         {
-            choiceWords.Sort();
+            choiceSentences.Sort();
             choicesValueListBox.Items.Clear();
-            foreach (var value in choiceWords)
+            foreach (var value in choiceSentences)
             {
                 choicesValueListBox.Items.Add(value);
             }
@@ -84,12 +94,12 @@ namespace VoiceAssistantUI
             if (newValue.Length < 1)
                 return;
 
-            if (choiceWords.Contains(newValue))
+            if (choiceSentences.Contains(newValue))
                 return;
 
             changedValueTextBox.Text = string.Empty;
-            choiceWords.Remove(value);
-            choiceWords.Add(newValue);
+            choiceSentences.Remove(value);
+            choiceSentences.Add(newValue);
 
             UpdateValuesListBox();
         }
@@ -100,7 +110,7 @@ namespace VoiceAssistantUI
             if (value == string.Empty)
                 return;
 
-            choiceWords.Remove(value);
+            choiceSentences.Remove(value);
             UpdateValuesListBox();
         }
 
@@ -120,7 +130,7 @@ namespace VoiceAssistantUI
                 return;
             }
 
-            VoiceAssistant.AssistantChoice newChoice = new VoiceAssistant.AssistantChoice(choiceName, choiceWords);
+            VoiceAssistant.AssistantChoice newChoice = new VoiceAssistant.AssistantChoice(choiceName, choiceSentences);
             VoiceAssistant.Assistant.Choices.Add(newChoice);
             Close();
         }
@@ -141,7 +151,7 @@ namespace VoiceAssistantUI
 
         private void CreateButton_LayoutUpdated(object sender, System.EventArgs e)
         {
-            if (choiceName.Length > 0 && choiceWords.Count > 0)
+            if (choiceName.Length > 0 && choiceSentences.Count > 0)
             {
                 createButton.IsEnabled = true;
                 createButton.ToolTip = "Choice has to have name and at least one value!";

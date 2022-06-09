@@ -1,12 +1,28 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Media;
 using System.Globalization;
+using System.Linq;
 using System.Speech.Recognition;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows;
 
 namespace VoiceAssistant
 {
+    public enum MessageType
+    {
+        Normal,
+        Success,
+        Warning,
+        Error
+    }
+
     public static class Assistant
     {
         // Create an in-process speech recognizer for the en-US locale.
+        public static double ConfidenceThreshold = 0.7;
         public static string Language = "en-US";
         public static string AssistantName = "Kaladin";
         public static string DataFilePath = @"..\..\..\src\data\data.vad";
@@ -14,17 +30,34 @@ namespace VoiceAssistant
         public static List<AssistantChoice> Choices = new List<AssistantChoice>();
         public static List<AssistantGrammar> Grammar = new List<AssistantGrammar>();
 
-        private static int outputHistoryLength = 300;
-        public static List<string> outputHistory;
+        public static ListBox outputListBox;
+        private static readonly int outputHistoryLength = 300;
+
+        public static ListBox logsListBox;
+        private static readonly int logsHistoryLength = 300;
+
+        public static void InitListBoxes(ListBox output, ListBox logs)
+        {
+            outputListBox = output;
+            logsListBox = logs;
+            outputListBox.Items.Clear();
+            logsListBox.Items.Clear();
+        }
 
         public static void StartListening()
         {
             CultureInfo cultureInfo = new CultureInfo(Language);
 
+
             using (SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(cultureInfo))
             {
                 // Create and load grammar.
                 //recognizer.LoadGrammar(new DictationGrammar());
+
+                //AssistantChoice ac = new AssistantChoice("Welcome", new List<string>() { "Hi " + AssistantName, "Okay " + AssistantName, "Hello " + AssistantName }, canBeMoved: false);
+                //Choices.Add(ac);
+                //AssistantGrammar ag = new AssistantGrammar("Full open app", "Open app by calling assistant name", "Welcome", "open", "apps");
+                //Grammar.Add(ag);
 
                 foreach (var grammar in Grammar)
                 {
@@ -47,10 +80,50 @@ namespace VoiceAssistant
             }
         }
 
+        private static SolidColorBrush PickBrush(MessageType msgType)
+        {
+            return msgType switch
+            {
+                MessageType.Normal => Brushes.White,
+                MessageType.Success => Brushes.Green,
+                MessageType.Warning => Brushes.Orange,
+                MessageType.Error => Brushes.Red,
+                _ => Brushes.White,
+            };
+        }
+
+        public static void WriteLog(string message, MessageType type = MessageType.Normal)
+        {
+            if (logsListBox.Items.Count >= logsHistoryLength)
+                logsListBox.Items.RemoveAt(0);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                ListBoxItem boxItem = new ListBoxItem();
+                boxItem.Content = message;
+                boxItem.Foreground = PickBrush(type);
+                logsListBox.Items.Add(boxItem);
+            });
+        }
+
+        public static void WriteOutput(string message, MessageType type = MessageType.Normal)
+        {
+            if (outputListBox.Items.Count >= outputHistoryLength)
+                outputListBox.Items.RemoveAt(0);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                ListBoxItem boxItem = new ListBoxItem();
+                boxItem.Content = message;
+                boxItem.Foreground = PickBrush(type);
+                outputListBox.Items.Add(boxItem);
+            });
+        }
+
         // Handle the SpeechRecognized event.  
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
         {
-            Console.WriteLine($"You said: {e.Result.Text} grammar: {e.Result.Grammar.Name}");
+            WriteLog($"You said \"{e.Result.Text}\" with {e.Result.Confidence:F2} confidence => runs \"{e.Result.Grammar.Name}\" grammar.");
 
             int nameIndex = e.Result.Text.IndexOf(AssistantName);
             if (nameIndex < 0)
@@ -58,7 +131,7 @@ namespace VoiceAssistant
                 return;
             }
 
-            if (e.Result.Confidence < 0.75)
+            if (e.Result.Confidence < ConfidenceThreshold)
                 return;
 
             string grammarName = e.Result.Grammar.Name;
@@ -105,13 +178,13 @@ namespace VoiceAssistant
             for (int i = 0; i < Choices.Count; i++)
             {
                 choices += "\tName: " + Choices[i].Name + "\n";
-                choices += "\tWords: ";
+                choices += "\tSentences: ";
 
-                for (int j = 0; j < Choices[i].Words.Count; j++)
+                for (int j = 0; j < Choices[i].Sentences.Count; j++)
                 {
-                    choices += Choices[i].Words[j];
+                    choices += Choices[i].Sentences[j];
 
-                    if (j < Choices[i].Words.Count - 1)
+                    if (j < Choices[i].Sentences.Count - 1)
                         choices += ",";
                 }
 
@@ -159,9 +232,9 @@ namespace VoiceAssistant
             for (int i = choicesIndex + 1; i < grammarIndex; i += 2)
             {
                 string name = data[i].Split(':')[1].Trim(' ');
-                string[] words = data[i + 1].Split(':')[1].Trim(' ').Split(',');
+                string[] sentences = data[i + 1].Split(':')[1].Trim(' ').Split(',');
 
-                AssistantChoice assistantChoice = new AssistantChoice(name, words.ToList());
+                AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList());
                 Choices.Add(assistantChoice);
             }
 

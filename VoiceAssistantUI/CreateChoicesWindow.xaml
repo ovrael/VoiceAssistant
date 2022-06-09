@@ -27,7 +27,7 @@
             </TextBlock.Style>
         </TextBlock>
         <Label Content="Word" HorizontalAlignment="Left" Margin="48,98,0,0" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="100" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas"/>
-        <TextBox x:Name="newChoiceValueTextBox" HorizontalAlignment="Left" Margin="10,139,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="178" Background="#FF191818" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyDown="NewChoiceWordTextBox_KeyDown"/>
+        <TextBox x:Name="newChoiceValueTextBox" HorizontalAlignment="Left" Margin="10,139,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="178" Background="#FF191818" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyDown="NewChoiceSentenceTextBox_KeyDown"/>
         <TextBlock x:Name="enterChoiceValueWatermark" IsHitTestVisible="False" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="16,144,0,0" Foreground="DarkGray" Height="20" Width="130" TextAlignment="Left">
             <TextBlock.Style>
                 <Style TargetType="{x:Type TextBlock}">

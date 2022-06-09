@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:VoiceAssistantUI"
         xmlns:VisualBasic="clr-namespace:Microsoft.VisualBasic;assembly=Microsoft.VisualBasic.Core" x:Class="VoiceAssistantUI.MainWindow"
         mc:Ignorable="d"
-        Title="Voice Assistant" Height="500" Width="700" Initialized="Window_Initialized" Loaded="Window_Loaded" Closing="Window_Closing" Background="#FFAAA8C8" SizeChanged="Window_SizeChanged" MinWidth="700" MaxWidth="800" MinHeight="500" MaxHeight="900" HorizontalContentAlignment="Center">
+        Title="Voice Assistant" Height="500" Width="710" Initialized="Window_Initialized" Loaded="Window_Loaded" Closing="Window_Closing" Background="#FFAAA8C8" SizeChanged="Window_SizeChanged" MinWidth="710" MaxWidth="710" MinHeight="500" MaxHeight="900" HorizontalContentAlignment="Center">
 
-    <TabControl x:Name="mainTabControl" Background="White">
+    <TabControl x:Name="mainTabControl" Background="White" SelectionChanged="mainTabControl_SelectionChanged">
         <TabControl.Resources>
             <Style TargetType="{x:Type TabItem}">
 
@@ -58,11 +58,11 @@
                 </Grid.ColumnDefinitions>
                 <Label Content="Available choices" Foreground="#FF6782D2" FontFamily="Consolas" VerticalContentAlignment="Bottom" Margin="10,0,10,0" HorizontalContentAlignment="Center"/>
                 <ListBox x:Name="choicesListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,0,10,10" Background="#FF171717" Foreground="#FF8A8A8A" SelectionChanged="ChoicesListBox_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Grid.Row="1" FontSize="16" FontWeight="Normal" FontStyle="Normal" GotFocus="ChoicesListBox_GotFocus"/>
-                <Label Content="Choices' words" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom" Foreground="#FF6782D2" FontFamily="Consolas" Grid.Column="1" Margin="11,0,10,0"/>
+                <Label Content="Choices' sentences" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom" Foreground="#FF6782D2" FontFamily="Consolas" Grid.Column="1" Margin="11,0,10,0"/>
                 <ListBox x:Name="choiceWordsListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,0,10,10" Background="#FF171717" Foreground="#FF8A8A8A" SelectionChanged="ChoiceWordsListBox_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Grid.Column="1" Grid.Row="1" FontSize="16" FontWeight="Normal" FontStyle="Normal" GotFocus="ChoiceWordsListBox_GotFocus"/>
                 <Label Content="Manage" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom" Foreground="#FF6782D2" FontFamily="Consolas" Grid.Column="2" Margin="10,0,20,0"/>
                 <Grid Grid.Column="2" Grid.Row="1" Margin="10,0,20,115" Background="#FF171717" ScrollViewer.VerticalScrollBarVisibility="Disabled" Width="160" Height="250" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Button x:Name="newChoiceWordButton" Content="Add choice word" FontSize="12" Background="#7F80DA4F" Click="NewChoiceWordButton_Click" Margin="0,51,0,0" Width="120" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalAlignment="Center" Height="25" VerticalAlignment="Top"/>
+                    <Button x:Name="newChoiceWordButton" Content="Add sentence" FontSize="12" Background="#7F80DA4F" Click="NewChoiceWordButton_Click" Margin="0,51,0,0" Width="120" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalAlignment="Center" Height="25" VerticalAlignment="Top"/>
                     <Button x:Name="newChoicesButton" Content="New choice" Height="25" Width="120" FontSize="12" Background="#7F80DA4F" Click="NewChoiceButton_Click" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalContentAlignment="Center" Margin="0,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                     <Button x:Name="editButton" Content="Edit" HorizontalAlignment="Center" VerticalAlignment="Top" Background="#7FDFA231" Width="120" FontSize="12" Height="25" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" Click="ManageButton_Click" Margin="0,100,0,0"/>
                     <Button x:Name="deleteButton" Content="DELETE" Width="120" FontSize="12" Background="#7FDE3E3E" Click="ManageButton_Click" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalAlignment="Center" Panel.ZIndex="5" Margin="0,0,0,8" Height="25" VerticalAlignment="Bottom"/>
@@ -101,14 +101,7 @@
         </TabItem>
         <TabItem x:Name="logsTab" Header="Logs" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Height="30" Width="125" FontFamily="Consolas">
             <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
-                <ListView d:ItemsSource="{d:SampleData ItemCount=5}" Margin="112,177,112,177">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-
+                <ListBox x:Name="logsListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Background="#FF0C0C0C" Margin="20,20,20,20" Foreground="Gray" FontSize="14" FontWeight="Normal"/>
             </Grid>
         </TabItem>
         <TabItem x:Name="settingsTab" Header="Settings" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="125" Height="30" Padding="6,2,6,2" FontFamily="Consolas">

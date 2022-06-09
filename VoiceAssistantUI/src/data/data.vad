@@ -2,11 +2,11 @@ Language: en-US
 AssistantName: Kaladin
 Choices:
 	Name: show
-	Words: show,print,display
+	Sentences: show,print,display
 	Name: apps
-	Words: applications,apps,programs
+	Sentences: applications,apps,programs
 	Name: open
-	Words: open,run
+	Sentences: open,run
 Grammar:
 	Name: Print apps
 	Description: dsc

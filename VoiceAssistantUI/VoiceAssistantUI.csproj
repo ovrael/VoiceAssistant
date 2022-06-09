@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\VoiceAssistant\VoiceAssistant.csproj" />
+	  <PackageReference Include="System.Speech" Version="6.0.0" />
 	</ItemGroup>
 
 </Project>
