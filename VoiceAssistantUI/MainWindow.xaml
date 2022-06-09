@@ -94,7 +94,12 @@
                 </Grid>
             </Grid>
         </TabItem>
-        <TabItem x:Name="debugTab" Header="Debug" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Height="30" Width="125" FontFamily="Consolas">
+        <TabItem x:Name="outputTab" Header="Output" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Height="30" Width="125" FontFamily="Consolas" Margin="-4,0,0,0">
+            <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
+                <ListBox x:Name="outputListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Background="#FF0C0C0C" Margin="20,20,20,20" Foreground="Gray" FontSize="14"/>
+            </Grid>
+        </TabItem>
+        <TabItem x:Name="logsTab" Header="Logs" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Height="30" Width="125" FontFamily="Consolas">
             <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
                 <ListView d:ItemsSource="{d:SampleData ItemCount=5}" Margin="112,177,112,177">
                     <ListView.View>
@@ -108,6 +113,10 @@
         </TabItem>
         <TabItem x:Name="settingsTab" Header="Settings" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="125" Height="30" Padding="6,2,6,2" FontFamily="Consolas">
             <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
+                <Grid Margin="52,80,0,0" Background="#FF171717" ScrollViewer.VerticalScrollBarVisibility="Disabled" Width="160" Height="250" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <!--<Button x:Name="newChoiceValueButton" Content="Add choice value" FontSize="12" Background="#7F80DA4F" Click="NewChoiceValueButton_Click" Margin="0,51,0,0" Width="120" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalAlignment="Center" Height="25" VerticalAlignment="Top"/>-->
+                    <!--<Button x:Name="editButton" Content="Edit" HorizontalAlignment="Center" VerticalAlignment="Top" Background="#7FDFA231" Width="120" FontSize="12" Height="25" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" Click="ManageButton_Click" Margin="0,100,0,0"/>-->
+                </Grid>
 
             </Grid>
         </TabItem>

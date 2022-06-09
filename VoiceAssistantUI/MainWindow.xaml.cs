@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -18,16 +20,19 @@ namespace VoiceAssistantUI
     {
         NotifyIcon trayIcon;
         CurrentClick currentClick = CurrentClick.Choices;
+        char workingMode = 'd'; // d - develop, r - release
 
         public MainWindow()
         {
-
             InitializeComponent();
-            //ConsoleManager.ShowConsoleWindow();
+            if (workingMode == 'd')
+                ConsoleManager.ShowConsoleWindow();
             MoveTabs();
 
             Assistant.LoadDataFromFile();
-            Assistant.StartListening();
+
+            Thread assistantThread = new Thread(() => Assistant.StartListening());
+            assistantThread.Start();
 
             ListBoxHelpers.UpdateChoices(choicesListBox);
             ListBoxHelpers.UpdateGrammar(grammarListBox);
@@ -88,7 +93,7 @@ namespace VoiceAssistantUI
             double marginSpace = Width - tabsWidth;
             int offset = 16;
             settingsTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
-            debugTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
+            logsTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
         }
 
         protected override void OnStateChanged(EventArgs e)
