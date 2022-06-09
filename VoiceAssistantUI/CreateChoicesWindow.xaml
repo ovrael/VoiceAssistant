@@ -13,7 +13,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Label Content="Name" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="100" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="48,11,0,0"/>
-        <TextBox x:Name="newChoiceTextBox" HorizontalAlignment="Left" Margin="10,50,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="178" Background="#FF191818" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyDown="newChoiceTextBox_KeyDown"/>
+        <TextBox x:Name="newChoiceTextBox" HorizontalAlignment="Left" Margin="10,50,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="178" Background="#FF191818" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyDown="NewChoiceTextBox_KeyDown"/>
         <TextBlock x:Name="enterChoiceNameWatermark" IsHitTestVisible="False" Text="Enter new choice name" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="16,55,0,0" Foreground="DarkGray" Height="20" Width="130" TextAlignment="Left">
             <TextBlock.Style>
                 <Style TargetType="{x:Type TextBlock}">
@@ -26,8 +26,8 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
-        <Label Content="Value" HorizontalAlignment="Left" Margin="48,98,0,0" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="100" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas"/>
-        <TextBox x:Name="newChoiceValueTextBox" HorizontalAlignment="Left" Margin="10,139,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="178" Background="#FF191818" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyDown="newChoiceValueTextBox_KeyDown"/>
+        <Label Content="Word" HorizontalAlignment="Left" Margin="48,98,0,0" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="100" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas"/>
+        <TextBox x:Name="newChoiceValueTextBox" HorizontalAlignment="Left" Margin="10,139,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="178" Background="#FF191818" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyDown="NewChoiceWordTextBox_KeyDown"/>
         <TextBlock x:Name="enterChoiceValueWatermark" IsHitTestVisible="False" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="16,144,0,0" Foreground="DarkGray" Height="20" Width="130" TextAlignment="Left">
             <TextBlock.Style>
                 <Style TargetType="{x:Type TextBlock}">
@@ -38,13 +38,13 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </TextBlock.Style><Run Language="pl-pl" Text="Enter choice value"/></TextBlock>
-        <ListBox x:Name="choicesValueListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="202,50,202,10" Background="#FF171717" Foreground="#FF8A8A8A" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" FontSize="16" FontWeight="Normal" FontStyle="Normal" SelectionChanged="choicesValueListBox_SelectionChanged"/>
+            </TextBlock.Style><Run Text="Enter choice "/><Run Language="pl-pl" Text="word"/></TextBlock>
+        <ListBox x:Name="choicesValueListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="202,50,202,10" Background="#FF171717" Foreground="#FF8A8A8A" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" FontSize="16" FontWeight="Normal" FontStyle="Normal" SelectionChanged="ChoicesValueListBox_SelectionChanged"/>
         <Label x:Name="choiceValuesLabel" Content="Choice values" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="196" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="0,11,0,0"/>
-        <Label x:Name="choiceValuesLabel_Copy" Content="Manage values" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="140" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="445,11,0,0"/>
-        <Button x:Name="editButton" Content="Edit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="138" Background="#7FFFC93C" Margin="447,78,0,0" Click="editButton_Click" Height="20"/>
-        <Button x:Name="deleteButton" Content="DELETE" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80" Background="#7FFA2626" Margin="475,144,0,0" Click="deleteButton_Click" Height="20"/>
-        <TextBox x:Name="changedValueTextBox" HorizontalAlignment="Left" Margin="446,50,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="140" Background="#FF191818" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyDown="changedValueTextBox_KeyDown"/>
+        <Label x:Name="choiceValuesLabel_Copy" Content="Manage words" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="140" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="445,11,0,0"/>
+        <Button x:Name="editButton" Content="Edit" HorizontalAlignment="Left" VerticalAlignment="Top" Width="138" Background="#7FFFC93C" Margin="447,78,0,0" Click="EditButton_Click" Height="20"/>
+        <Button x:Name="deleteButton" Content="DELETE" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80" Background="#7FFA2626" Margin="475,144,0,0" Click="DeleteButton_Click" Height="20"/>
+        <TextBox x:Name="changedValueTextBox" HorizontalAlignment="Left" Margin="446,50,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="140" Background="#FF191818" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyDown="ChangedValueTextBox_KeyDown"/>
         <TextBlock x:Name="changeChoiceValueWatermark" IsHitTestVisible="False" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="450,55,0,0" Foreground="DarkGray" Height="20" Width="130" TextAlignment="Left">
             <TextBlock.Style>
                 <Style TargetType="{x:Type TextBlock}">
@@ -55,9 +55,9 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </TextBlock.Style><Run Text="Enter "/><Run Language="pl-pl" Text="changed"/><Run Text=" value"/></TextBlock>
-        <Button x:Name="createButton" Content="Create choice" HorizontalAlignment="Left" Margin="447,310,0,0" Background="#7F41DA39" Height="30" VerticalAlignment="Top" Width="138" FontSize="16" Click="createButton_Click" IsEnabled="False" LayoutUpdated="createButton_LayoutUpdated"/>
-        <Button x:Name="abortButton" Content="Abort" HorizontalAlignment="Left" Margin="16,320,0,0" Background="#7FFF0000" Height="20" VerticalAlignment="Top" Width="65" FontSize="11" Click="abortButton_Click"/>
+            </TextBlock.Style><Run Text="Enter "/><Run Text="changed"/><Run Text=" "/><Run Language="pl-pl" Text="word"/></TextBlock>
+        <Button x:Name="createButton" Content="Create choice" HorizontalAlignment="Left" Margin="447,310,0,0" Background="#7F41DA39" Height="30" VerticalAlignment="Top" Width="138" FontSize="16" Click="CreateButton_Click" IsEnabled="False" LayoutUpdated="CreateButton_LayoutUpdated"/>
+        <Button x:Name="abortButton" Content="Abort" HorizontalAlignment="Left" Margin="16,320,0,0" Background="#7FFF0000" Height="20" VerticalAlignment="Top" Width="65" FontSize="11" Click="AbortButton_Click"/>
         <!--<TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="50,119,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="65" Width="190"/>-->
     </Grid>
 </Window>

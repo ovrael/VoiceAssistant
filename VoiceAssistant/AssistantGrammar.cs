@@ -13,6 +13,7 @@ namespace VoiceAssistant
         public string Name { get; set; }
         public Grammar Grammar { get; set; }
         public List<string> ChoiceNames { get; set; }
+        public string Description { get; set; }
 
         //public static readonly Grammar InstalledApps = InstalledAppsBuilder();
         //public static readonly Grammar OpenApp = OpenAppBuilder();
@@ -88,9 +89,10 @@ namespace VoiceAssistant
             return new Grammar(grammarBuilder) { Name = this.Name };
         }
 
-        public AssistantGrammar(string name, params string[] choices)
+        public AssistantGrammar(string name, string description, params string[] choices)
         {
             Name = name;
+            Description = description;
             ChoiceNames = choices.ToList();
 
             Grammar = GrammarCreator(choices);

@@ -12,26 +12,29 @@ namespace VoiceAssistantUI
     public partial class CreateChoicesWindow : Window
     {
         private string choiceName = string.Empty;
-        private List<string> choiceValues = new List<string>();
+        private List<string> choiceWords = new List<string>();
 
         public CreateChoicesWindow()
         {
             InitializeComponent();
         }
 
-        private void newChoiceValueTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void NewChoiceWordTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Return)
                 return;
 
-            TextBox choiceValueTB = (TextBox)sender;
-            if (choiceValues.Contains(choiceValueTB.Text))
+            TextBox choiceWordTextBox = (TextBox)sender;
+            if (choiceWords.Contains(choiceWordTextBox.Text))
                 return;
 
-            choiceValues.Add(choiceValueTB.Text);
-            choiceValueTB.Text = string.Empty;
+            if (choiceWordTextBox.Text.Length < 1)
+                return;
 
-            if (choiceValues.Count > 0)
+            choiceWords.Add(choiceWordTextBox.Text);
+            choiceWordTextBox.Text = string.Empty;
+
+            if (choiceWords.Count > 0)
                 enterChoiceValueWatermark.Text = "Enter next choice value";
 
             UpdateValuesListBox();
@@ -39,31 +42,31 @@ namespace VoiceAssistantUI
 
         private void UpdateValuesListBox()
         {
-            choiceValues.Sort();
+            choiceWords.Sort();
             choicesValueListBox.Items.Clear();
-            foreach (var value in choiceValues)
+            foreach (var value in choiceWords)
             {
                 choicesValueListBox.Items.Add(value);
             }
         }
 
-        private void newChoiceTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void NewChoiceTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Return)
                 return;
 
-            TextBox choiceValueTB = (TextBox)sender;
-            if (choiceValueTB.Text.Length < 1)
+            TextBox choiceNameTextBox = (TextBox)sender;
+            if (choiceNameTextBox.Text.Length < 1)
                 return;
 
-            choiceName = choiceValueTB.Text;
-            choiceValueTB.Text = string.Empty;
+            choiceName = choiceNameTextBox.Text;
+            choiceNameTextBox.Text = string.Empty;
 
             enterChoiceNameWatermark.Text = $"Change \"{choiceName}\" name";
             choiceValuesLabel.Content = $"{choiceName} values";
         }
 
-        private string GetChoiceValue()
+        private string GetChoiceWord()
         {
             if (choicesValueListBox.SelectedIndex < 0)
                 return string.Empty;
@@ -71,9 +74,9 @@ namespace VoiceAssistantUI
             return (string)choicesValueListBox.SelectedItem;
         }
 
-        private void editButton_Click(object sender, RoutedEventArgs e)
+        private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            string value = GetChoiceValue();
+            string value = GetChoiceWord();
             string newValue = changedValueTextBox.Text;
             if (value == string.Empty)
                 return;
@@ -81,35 +84,35 @@ namespace VoiceAssistantUI
             if (newValue.Length < 1)
                 return;
 
-            if (choiceValues.Contains(newValue))
+            if (choiceWords.Contains(newValue))
                 return;
 
             changedValueTextBox.Text = string.Empty;
-            choiceValues.Remove(value);
-            choiceValues.Add(newValue);
+            choiceWords.Remove(value);
+            choiceWords.Add(newValue);
 
             UpdateValuesListBox();
         }
 
-        private void deleteButton_Click(object sender, RoutedEventArgs e)
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            string value = GetChoiceValue();
+            string value = GetChoiceWord();
             if (value == string.Empty)
                 return;
 
-            choiceValues.Remove(value);
+            choiceWords.Remove(value);
             UpdateValuesListBox();
         }
 
-        private void choicesValueListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ChoicesValueListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (choicesValueListBox.SelectedIndex >= 0)
-                changeChoiceValueWatermark.Text = $"Change \"{GetChoiceValue()}\" value";
+                changeChoiceValueWatermark.Text = $"Change \"{GetChoiceWord()}\" value";
             else
                 changeChoiceValueWatermark.Text = "Select value";
         }
 
-        private void createButton_Click(object sender, RoutedEventArgs e)
+        private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
             if (VoiceAssistant.Assistant.Choices.Any(c => c.Name == choiceName))
             {
@@ -117,12 +120,12 @@ namespace VoiceAssistantUI
                 return;
             }
 
-            VoiceAssistant.AssistantChoice newChoice = new VoiceAssistant.AssistantChoice(choiceName, choiceValues);
+            VoiceAssistant.AssistantChoice newChoice = new VoiceAssistant.AssistantChoice(choiceName, choiceWords);
             VoiceAssistant.Assistant.Choices.Add(newChoice);
             Close();
         }
 
-        private void abortButton_Click(object sender, RoutedEventArgs e)
+        private void AbortButton_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show("Are you sure?", "Exit", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
@@ -130,15 +133,15 @@ namespace VoiceAssistantUI
                 Close();
         }
 
-        private void changedValueTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void ChangedValueTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
-                editButton_Click(sender, e);
+                EditButton_Click(sender, e);
         }
 
-        private void createButton_LayoutUpdated(object sender, System.EventArgs e)
+        private void CreateButton_LayoutUpdated(object sender, System.EventArgs e)
         {
-            if (choiceName.Length > 0 && choiceValues.Count > 0)
+            if (choiceName.Length > 0 && choiceWords.Count > 0)
             {
                 createButton.IsEnabled = true;
                 createButton.ToolTip = "Choice has to have name and at least one value!";

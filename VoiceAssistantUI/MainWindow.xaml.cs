@@ -28,8 +28,8 @@ namespace VoiceAssistantUI
             TestChoices();
             TestGrammar();
 
-            UpdateChoicesTab();
-            UpdateGrammarTab();
+            ListBoxHelpers.UpdateChoices(choicesListBox);
+            ListBoxHelpers.UpdateGrammar(grammarListBox);
         }
 
         #region Tests
@@ -46,8 +46,8 @@ namespace VoiceAssistantUI
 
         private void TestGrammar()
         {
-            AssistantGrammar printApss = new AssistantGrammar("Print apps", "show", "apps");
-            AssistantGrammar openApps = new AssistantGrammar("Open apps", "open", "apps");
+            AssistantGrammar printApss = new AssistantGrammar("Print apps", "dsc", "show", "apps");
+            AssistantGrammar openApps = new AssistantGrammar("Open apps", "dsc", "open", "apps");
 
             Assistant.Grammar.Add(printApss);
             Assistant.Grammar.Add(openApps);
@@ -69,11 +69,25 @@ namespace VoiceAssistantUI
         {
             trayIcon.Visible = false;
             trayIcon = null;
+            App.Current.Shutdown();
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             MoveTabs();
+        }
+        private void MoveTabs()
+        {
+            double tabsWidth = 0;
+            foreach (var item in mainTabControl.Items)
+            {
+                tabsWidth += (item as TabItem).Width;
+            }
+
+            double marginSpace = Width - tabsWidth;
+            int offset = 16;
+            settingsTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
+            debugTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
         }
 
         protected override void OnStateChanged(EventArgs e)
@@ -100,57 +114,6 @@ namespace VoiceAssistantUI
             WindowState = WindowState.Normal;
         }
 
-        #endregion
-
-        #region Updates
-        private void UpdateGrammarTab()
-        {
-            grammarListBox.Items.Clear();
-
-            foreach (var grammar in Assistant.Grammar)
-            {
-                grammarListBox.Items.Add(grammar.Name);
-            }
-        }
-        private void UpdateChoiceWordsTab()
-        {
-            AssistantChoice currentChoices = GetCurrentAssistantChoice();
-            if (currentChoices is null)
-            {
-                return;
-            }
-
-            choiceWordsListBox.Items.Clear();
-            choicesListBox.AllowDrop = true;
-            foreach (var value in currentChoices.Words)
-            {
-                choiceWordsListBox.Items.Add(value);
-            }
-        }
-        private void UpdateChoicesTab(bool clearValuesTab = true)
-        {
-            choicesListBox.Items.Clear();
-            foreach (var choice in Assistant.Choices)
-            {
-                choicesListBox.Items.Add(choice.Name);
-            }
-
-            if (clearValuesTab)
-                choiceWordsListBox.Items.Clear();
-        }
-        private void MoveTabs()
-        {
-            double tabsWidth = 0;
-            foreach (var item in mainTabControl.Items)
-            {
-                tabsWidth += (item as TabItem).Width;
-            }
-
-            double marginSpace = Width - tabsWidth;
-            int offset = 16;
-            settingsTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
-            debugTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
-        }
         #endregion
 
         #region Gets
@@ -181,7 +144,7 @@ namespace VoiceAssistantUI
         private void ChoicesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             currentClick = CurrentClick.Choices;
-            UpdateChoiceWordsTab();
+            ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, GetCurrentAssistantChoice());
         }
         private void NewChoiceButton_Click(object sender, RoutedEventArgs e)
         {
@@ -191,7 +154,7 @@ namespace VoiceAssistantUI
             choicesCreator.Closing += delegate
             {
                 IsEnabled = true;
-                UpdateChoicesTab();
+                ListBoxHelpers.UpdateChoices(choicesListBox);
             };
 
             IsEnabled = false;
@@ -225,7 +188,7 @@ namespace VoiceAssistantUI
             }
 
             currentChoices.AddChoicesValue(nextValue);
-            UpdateChoiceWordsTab();
+            ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, GetCurrentAssistantChoice());
         }
 
         #endregion
@@ -237,34 +200,8 @@ namespace VoiceAssistantUI
         }
         private void GrammarListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            grammarChoicesListBox.Items.Clear();
-
-            var currentGrammar = GetCurrentAssistantGrammar();
-
-            foreach (var choice in currentGrammar.ChoiceNames)
-            {
-                ListBoxItem listItem = new ListBoxItem();
-                listItem.Content = choice;
-                listItem.ToolTip = CreateChoiceTooltip(choice);
-                grammarChoicesListBox.Items.Add(listItem);
-            }
-
-        }
-        string CreateChoiceTooltip(string choiceName)
-        {
-            var choice = Assistant.GetChoice(choiceName);
-
-            string tooltip = string.Empty;
-
-            for (int i = 0; i < choice.Words.Count; i++)
-            {
-
-                tooltip += $"{ choice.Words[i]}";
-                if (i < choice.Words.Count - 1)
-                    tooltip += ", ";
-            }
-
-            return tooltip;
+            //currentClick = CurrentClick.Grammar;
+            ListBoxHelpers.UpdateGrammarChoices(grammarChoicesListBox, GetCurrentAssistantGrammar());
         }
 
         #endregion
@@ -310,7 +247,7 @@ namespace VoiceAssistantUI
                         break;
                 }
 
-                UpdateChoicesTab();
+                ListBoxHelpers.UpdateChoices(choicesListBox);
             }
 
             if (currentClick == CurrentClick.ChoiceWords)
@@ -334,10 +271,10 @@ namespace VoiceAssistantUI
                         break;
                 }
 
-                UpdateChoiceWordsTab();
+                ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, GetCurrentAssistantChoice());
             }
 
-            if (currentClick == CurrentClick.Choices)
+            if (currentClick == CurrentClick.Grammar)
             {
                 if (grammarListBox.Items.Count == 0)
                     return;
@@ -358,7 +295,8 @@ namespace VoiceAssistantUI
                         break;
                 }
 
-                UpdateGrammarTab();
+                ListBoxHelpers.UpdateGrammar(grammarListBox);
+                grammarChoicesListBox.Items.Clear();
             }
         }
 
@@ -446,5 +384,39 @@ namespace VoiceAssistantUI
         }
 
         #endregion
+
+        private void NewGrammarButton_Click(object sender, RoutedEventArgs e)
+        {
+            CreateGrammarWindow createGrammarWindow = new CreateGrammarWindow();
+
+            createGrammarWindow.Show();
+            createGrammarWindow.Activate();
+            createGrammarWindow.Closing += delegate
+            {
+                IsEnabled = true;
+                ListBoxHelpers.UpdateGrammar(grammarListBox);
+            };
+
+            IsEnabled = false;
+        }
+
+        private void editGrammarButton_Click(object sender, RoutedEventArgs e)
+        {
+            var currentGrammar = GetCurrentAssistantGrammar();
+            if (currentGrammar is null)
+                return;
+
+            CreateGrammarWindow createGrammarWindow = new CreateGrammarWindow(currentGrammar);
+
+            createGrammarWindow.Show();
+            createGrammarWindow.Activate();
+            createGrammarWindow.Closing += delegate
+            {
+                IsEnabled = true;
+                ListBoxHelpers.UpdateGrammar(grammarListBox);
+            };
+
+            IsEnabled = false;
+        }
     }
 }
