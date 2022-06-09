@@ -34,9 +34,12 @@ namespace VoiceAssistantUI
         public static void UpdateGrammar(ListBox listBox)
         {
             listBox.Items.Clear();
-            foreach (var choice in Assistant.Grammar)
+            foreach (var grammar in Assistant.Grammar)
             {
-                listBox.Items.Add(choice.Name);
+                ListBoxItem item = new ListBoxItem();
+                item.Content = grammar.Name;
+                item.ToolTip = grammar.Description;
+                listBox.Items.Add(item);
             }
         }
 
@@ -99,6 +102,5 @@ namespace VoiceAssistantUI
 
             return tooltip;
         }
-
     }
 }

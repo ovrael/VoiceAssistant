@@ -80,7 +80,7 @@
                     <ColumnDefinition Width="255"/>
                     <ColumnDefinition Width="190"/>
                 </Grid.ColumnDefinitions>
-                <Label Content="Available grammar" Foreground="#FF6782D2" FontFamily="Consolas" VerticalContentAlignment="Bottom" Margin="10,0,10,0" HorizontalContentAlignment="Center"/>
+                <Label Content="Grammars" Foreground="#FF6782D2" FontFamily="Consolas" VerticalContentAlignment="Bottom" Margin="10,0,10,0" HorizontalContentAlignment="Center"/>
                 <ListBox x:Name="grammarListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,0,10,10" Background="#FF171717" Foreground="#FF8A8A8A" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Grid.Row="1" FontSize="16" FontWeight="Normal" FontStyle="Normal" SelectionChanged="GrammarListBox_SelectionChanged" GotFocus="GrammarListBox_GotFocus"/>
                 <Label Content="Grammar's choices" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom" Foreground="#FF6782D2" FontFamily="Consolas" Grid.Column="1" Margin="11,0,10,0"/>
                 <ListBox x:Name="grammarChoicesListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,0,10,10" Background="#FF171717" Foreground="#FF8A8A8A" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" Grid.Column="1" Grid.Row="1" FontSize="16" FontWeight="Normal" FontStyle="Normal"/>
@@ -90,12 +90,21 @@
                     <Button x:Name="newGrammarButton" Content="New" Height="25" Width="120" FontSize="12" Background="#7F80DA4F" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalContentAlignment="Center" Margin="0,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="NewGrammarButton_Click"/>
                     <!--<Button x:Name="editButton" Content="Edit" HorizontalAlignment="Center" VerticalAlignment="Top" Background="#7FDFA231" Width="120" FontSize="12" Height="25" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" Click="ManageButton_Click" Margin="0,100,0,0"/>-->
                     <Button x:Name="deleteGrammarButton" Content="DELETE" Width="120" FontSize="12" Background="#7FDE3E3E" Click="ManageButton_Click" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalAlignment="Center" Panel.ZIndex="5" Margin="0,0,0,8" Height="25" VerticalAlignment="Bottom"/>
-                    <Button x:Name="editGrammarButton" Content="Edit" Height="25" Width="120" FontSize="12" Background="#7FFFCA3A" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalContentAlignment="Center" Margin="0,66,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="editGrammarButton_Click"/>
+                    <Button x:Name="editGrammarButton" Content="Edit" Height="25" Width="120" FontSize="12" Background="#7FFFCA3A" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalContentAlignment="Center" Margin="0,66,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Click="EditGrammarButton_Click"/>
                 </Grid>
             </Grid>
         </TabItem>
         <TabItem x:Name="debugTab" Header="Debug" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Height="30" Width="125" FontFamily="Consolas">
-            <Grid Background="#FF212121" Margin="-3,-3,-3,-3"/>
+            <Grid Background="#FF212121" Margin="-3,-3,-3,-3">
+                <ListView d:ItemsSource="{d:SampleData ItemCount=5}" Margin="112,177,112,177">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+            </Grid>
         </TabItem>
         <TabItem x:Name="settingsTab" Header="Settings" Foreground="#FFBABABA" FontSize="18" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="125" Height="30" Padding="6,2,6,2" FontFamily="Consolas">
             <Grid Background="#FF212121" Margin="-3,-3,-3,-3">

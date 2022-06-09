@@ -20,13 +20,13 @@ namespace VoiceAssistantUI
     /// <summary>
     /// Logika interakcji dla klasy CreateGrammar.xaml
     /// </summary>
-    public partial class CreateGrammarWindow : Window
+    public partial class CreateEditGrammarWindow : Window
     {
         private char mode = 'c'; // c - create, e - edit
         List<ListBoxItem> chosenChoicesList = new List<ListBoxItem>();
         AssistantGrammar grammarForEdit = null;
 
-        public CreateGrammarWindow()
+        public CreateEditGrammarWindow()
         {
             InitializeComponent();
             mode = 'c';
@@ -40,7 +40,7 @@ namespace VoiceAssistantUI
             chosenChoicesListBox.ItemContainerStyle = itemContainerStyle;
         }
 
-        public CreateGrammarWindow(AssistantGrammar grammar)
+        public CreateEditGrammarWindow(AssistantGrammar grammar)
         {
             InitializeComponent();
             grammarForEdit = grammar;

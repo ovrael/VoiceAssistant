@@ -7,15 +7,16 @@ namespace VoiceAssistant
     public static class Assistant
     {
         // Create an in-process speech recognizer for the en-US locale.
-        public static readonly string language = "en-US";
-        public static readonly string AssistantName = "Kaladin";
+        public static string Language = "en-US";
+        public static string AssistantName = "Kaladin";
+        public static string DataFilePath = @"..\..\..\data\data.vad";
 
         public static List<AssistantChoice> Choices = new List<AssistantChoice>();
         public static List<AssistantGrammar> Grammar = new List<AssistantGrammar>();
 
         public static void StartListening()
         {
-            CultureInfo cultureInfo = new CultureInfo(language);
+            CultureInfo cultureInfo = new CultureInfo(Language);
 
             using (SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(cultureInfo))
             {
@@ -90,6 +91,86 @@ namespace VoiceAssistant
         public static AssistantChoice GetChoice(string choiceName)
         {
             return Choices.Where(c => c.Name == choiceName).FirstOrDefault();
+        }
+
+        public static void SaveDataToFile()
+        {
+            string language = "Language: " + Language;
+            string assistantName = "AssistantName: " + AssistantName;
+            string choices = "Choices:\n";
+
+            for (int i = 0; i < Choices.Count; i++)
+            {
+                choices += "\tName: " + Choices[i].Name + "\n";
+                choices += "\tWords: ";
+
+                for (int j = 0; j < Choices[i].Words.Count; j++)
+                {
+                    choices += Choices[i].Words[j];
+
+                    if (j < Choices[i].Words.Count - 1)
+                        choices += ",";
+                }
+
+                if (i < Choices.Count - 1)
+                    choices += "\n";
+            }
+
+            string grammars = "Grammar:\n";
+
+            for (int i = 0; i < Grammar.Count; i++)
+            {
+                grammars += "\tName: " + Grammar[i].Name + "\n";
+                grammars += "\tDescription: " + Grammar[i].Description + "\n";
+                grammars += "\tChoiceNames: ";
+
+                for (int j = 0; j < Grammar[i].ChoiceNames.Count; j++)
+                {
+                    grammars += Grammar[i].ChoiceNames[j];
+
+                    if (j < Grammar[i].ChoiceNames.Count - 1)
+                        grammars += ",";
+                }
+                if (i < Grammar.Count - 1)
+                    grammars += "\n";
+            }
+
+            List<string> toSave = new List<string>();
+            toSave.Add(language);
+            toSave.Add(assistantName);
+            toSave.Add(choices);
+            toSave.Add(grammars);
+
+            FileManager.SaveToFile(toSave, DataFilePath);
+        }
+
+        public static void LoadDataFromFile()
+        {
+            List<string> data = FileManager.LoadFromFile(DataFilePath);
+            AssistantName = data.Where(l => l.Contains("AssistantName")).First().Split(':')[1].Trim(' ');
+            Language = data.Where(l => l.Contains("Language")).First().Split(':')[1].Trim(' ');
+
+            int choicesIndex = data.IndexOf(data.Where(l => l.Contains("Choices:")).First());
+            int grammarIndex = data.IndexOf(data.Where(l => l.Contains("Grammar:")).First());
+
+            for (int i = choicesIndex + 1; i < grammarIndex; i += 2)
+            {
+                string name = data[i].Split(':')[1].Trim(' ');
+                string[] words = data[i + 1].Split(':')[1].Trim(' ').Split(',');
+
+                AssistantChoice assistantChoice = new AssistantChoice(name, words.ToList());
+                Choices.Add(assistantChoice);
+            }
+
+            for (int i = grammarIndex + 1; i < data.Count; i += 3)
+            {
+                string name = data[i].Split(':')[1].Trim(' ');
+                string description = data[i + 1].Split(':')[1].Trim(' ');
+                string[] choiceNames = data[i + 2].Split(':')[1].Trim(' ').Split(',');
+
+                AssistantGrammar assistantGrammar = new AssistantGrammar(name, description, choiceNames);
+                Grammar.Add(assistantGrammar);
+            }
         }
 
         private static void InstalledApps()

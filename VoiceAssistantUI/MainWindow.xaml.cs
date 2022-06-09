@@ -21,12 +21,13 @@ namespace VoiceAssistantUI
 
         public MainWindow()
         {
+
             InitializeComponent();
-            ConsoleManager.ShowConsoleWindow();
+            //ConsoleManager.ShowConsoleWindow();
             MoveTabs();
 
-            TestChoices();
-            TestGrammar();
+            Assistant.LoadDataFromFile();
+            Assistant.StartListening();
 
             ListBoxHelpers.UpdateChoices(choicesListBox);
             ListBoxHelpers.UpdateGrammar(grammarListBox);
@@ -125,8 +126,11 @@ namespace VoiceAssistantUI
         }
         private AssistantGrammar GetCurrentAssistantGrammar()
         {
+            if (grammarListBox.Items.Count == 0)
+                return null;
+
             return Assistant.Grammar
-                .Where(g => g.Name == (string)grammarListBox.SelectedItem)
+                .Where(g => g.Name == (grammarListBox.SelectedItem as ListBoxItem).Content)
                 .FirstOrDefault();
         }
         private string GetCurrentAssistantChoiceWord()
@@ -156,6 +160,10 @@ namespace VoiceAssistantUI
                 IsEnabled = true;
                 ListBoxHelpers.UpdateChoices(choicesListBox);
             };
+            choicesCreator.Closed += delegate
+            {
+                Assistant.SaveDataToFile();
+            };
 
             IsEnabled = false;
         }
@@ -176,18 +184,20 @@ namespace VoiceAssistantUI
             if (choicesListBox.Items.Count == 0)
                 return;
 
-            AssistantChoice currentChoices = GetCurrentAssistantChoice();
-            if (currentChoices is null)
+            AssistantChoice currentChoice = GetCurrentAssistantChoice();
+            if (currentChoice is null)
                 return;
 
-            string nextValue = Interaction.InputBox("Provide choice value", "Choice value");
-            if (nextValue == string.Empty)
+            string nextWord = Interaction.InputBox("Provide choice value", "Choice value");
+            if (nextWord == string.Empty)
             {
                 MessageBox.Show("Value cannot be empty!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            currentChoices.AddChoicesValue(nextValue);
+            currentChoice.AddChoicesValue(nextWord);
+            Assistant.SaveDataToFile();
+
             ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, GetCurrentAssistantChoice());
         }
 
@@ -202,6 +212,46 @@ namespace VoiceAssistantUI
         {
             //currentClick = CurrentClick.Grammar;
             ListBoxHelpers.UpdateGrammarChoices(grammarChoicesListBox, GetCurrentAssistantGrammar());
+        }
+        private void NewGrammarButton_Click(object sender, RoutedEventArgs e)
+        {
+            CreateEditGrammarWindow createEditGrammarWindow = new CreateEditGrammarWindow();
+
+            createEditGrammarWindow.Show();
+            createEditGrammarWindow.Activate();
+            createEditGrammarWindow.Closing += delegate
+            {
+                IsEnabled = true;
+                ListBoxHelpers.UpdateGrammar(grammarListBox);
+            };
+            createEditGrammarWindow.Closed += delegate
+            {
+                Assistant.SaveDataToFile();
+            };
+
+            IsEnabled = false;
+        }
+        private void EditGrammarButton_Click(object sender, RoutedEventArgs e)
+        {
+            var currentGrammar = GetCurrentAssistantGrammar();
+            if (currentGrammar is null)
+                return;
+
+            CreateEditGrammarWindow createEditGrammarWindow = new CreateEditGrammarWindow(currentGrammar);
+
+            createEditGrammarWindow.Show();
+            createEditGrammarWindow.Activate();
+            createEditGrammarWindow.Closing += delegate
+            {
+                IsEnabled = true;
+                ListBoxHelpers.UpdateGrammar(grammarListBox);
+            };
+            createEditGrammarWindow.Closed += delegate
+            {
+                Assistant.SaveDataToFile();
+            };
+
+            IsEnabled = false;
         }
 
         #endregion
@@ -298,6 +348,8 @@ namespace VoiceAssistantUI
                 ListBoxHelpers.UpdateGrammar(grammarListBox);
                 grammarChoicesListBox.Items.Clear();
             }
+
+            Assistant.SaveDataToFile();
         }
 
         #region Manage choices
@@ -385,38 +437,6 @@ namespace VoiceAssistantUI
 
         #endregion
 
-        private void NewGrammarButton_Click(object sender, RoutedEventArgs e)
-        {
-            CreateGrammarWindow createGrammarWindow = new CreateGrammarWindow();
 
-            createGrammarWindow.Show();
-            createGrammarWindow.Activate();
-            createGrammarWindow.Closing += delegate
-            {
-                IsEnabled = true;
-                ListBoxHelpers.UpdateGrammar(grammarListBox);
-            };
-
-            IsEnabled = false;
-        }
-
-        private void editGrammarButton_Click(object sender, RoutedEventArgs e)
-        {
-            var currentGrammar = GetCurrentAssistantGrammar();
-            if (currentGrammar is null)
-                return;
-
-            CreateGrammarWindow createGrammarWindow = new CreateGrammarWindow(currentGrammar);
-
-            createGrammarWindow.Show();
-            createGrammarWindow.Activate();
-            createGrammarWindow.Closing += delegate
-            {
-                IsEnabled = true;
-                ListBoxHelpers.UpdateGrammar(grammarListBox);
-            };
-
-            IsEnabled = false;
-        }
     }
 }

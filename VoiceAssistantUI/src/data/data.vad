@@ -1,0 +1,16 @@
+Language: en-US
+AssistantName: Kaladin
+Choices:
+	Name: show
+	Words: show,print,display
+	Name: apps
+	Words: applications,apps,programs
+	Name: open
+	Words: open,run
+Grammar:
+	Name: Print apps
+	Description: dsc
+	ChoiceNames: show,apps
+	Name: Open apps
+	Description: dsc
+	ChoiceNames: open,apps

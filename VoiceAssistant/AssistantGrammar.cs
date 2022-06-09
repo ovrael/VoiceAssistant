@@ -11,9 +11,9 @@ namespace VoiceAssistant
     public class AssistantGrammar
     {
         public string Name { get; set; }
+        public string Description { get; set; }
         public Grammar Grammar { get; set; }
         public List<string> ChoiceNames { get; set; }
-        public string Description { get; set; }
 
         //public static readonly Grammar InstalledApps = InstalledAppsBuilder();
         //public static readonly Grammar OpenApp = OpenAppBuilder();
@@ -84,7 +84,7 @@ namespace VoiceAssistant
                 }
             }
 
-            grammarBuilder.Culture = new System.Globalization.CultureInfo(Assistant.language);
+            grammarBuilder.Culture = new System.Globalization.CultureInfo(Assistant.Language);
 
             return new Grammar(grammarBuilder) { Name = this.Name };
         }
