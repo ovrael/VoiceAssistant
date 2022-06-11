@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,6 +20,50 @@ namespace VoiceAssistantUI
             InitializeComponent();
         }
 
+        string ReplaceSpecialVariables(string text)
+        {
+            string customText = string.Empty;
+            bool isSpecialVariable = false;
+            string specialVariableName = string.Empty;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (isSpecialVariable)
+                {
+                    if (text[i] == '}')
+                    {
+                        if (VoiceAssistant.Assistant.ChangeableVariables.ContainsKey(specialVariableName))
+                        {
+                            customText += VoiceAssistant.Assistant.ChangeableVariables[specialVariableName];
+                        }
+                        else
+                        {
+                            VoiceAssistant.Assistant.WriteLog($"{specialVariableName} special variable doesn't exist in the program!");
+                        }
+
+                        isSpecialVariable = false;
+                        specialVariableName = string.Empty;
+                        continue;
+                    }
+
+                    specialVariableName += text[i];
+                }
+
+                if (text[i] == '{')
+                {
+                    isSpecialVariable = true;
+                }
+
+                if (!isSpecialVariable)
+                {
+
+                    customText += text[i];
+                }
+            }
+
+            return customText;
+        }
+
         private void NewChoiceSentenceTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Return)
@@ -31,14 +76,7 @@ namespace VoiceAssistantUI
             if (choiceSentence.Length < 1)
                 return;
 
-            int assistantNameIndex = choiceSentence.IndexOf("{AssistantName}");
-            if (assistantNameIndex > 0)
-            {
-                string left = choiceSentence.Substring(0, assistantNameIndex);
-                string right = choiceSentence.Substring(assistantNameIndex + "{AssistantName}".Length);
-
-                choiceSentence = left + VoiceAssistant.Assistant.AssistantName + right;
-            }
+            choiceSentence = ReplaceSpecialVariables(choiceSentence);
 
             choiceSentences.Add(choiceSentence);
 

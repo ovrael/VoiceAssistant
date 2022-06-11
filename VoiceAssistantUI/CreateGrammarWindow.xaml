@@ -5,35 +5,56 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VoiceAssistantUI"
         mc:Ignorable="d"
-        Title="Create new grammar" ResizeMode="NoResize" Background="#FF212121" Width="600" Height="350" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" WindowStyle="None" MinWidth="600" MaxWidth="600" MinHeight="350" MaxHeight="350">
-    <Grid Background="#FF212121">
-        <Rectangle HorizontalAlignment="Left" Height="291" Margin="432,49,0,0" VerticalAlignment="Top" Width="158" Fill="#FF171717"/>
-        <ListBox x:Name="availableChoicesListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="10,49,394,11" Background="#FF171717" Foreground="#FF8A8A8A" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" FontSize="16" FontWeight="Normal" FontStyle="Normal" MouseDoubleClick="AvailableChoicesListBox_MouseDoubleClick"/>
-        <Label x:Name="choiceValuesLabel" Content="Available choices" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="196" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="10,10,0,0"/>
-        <ListBox x:Name="chosenChoicesListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="222,49,182,11" Background="#FF171717" Foreground="#FF8A8A8A" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" FontSize="16" FontWeight="Normal" FontStyle="Normal" MouseDoubleClick="ChosenChoicesListBox_MouseDoubleClick" Drop="ChosenChoicesListBox_Drop" PreviewMouseLeftButtonDown="PreviewMouseLeftButtonDown"/>
-        <Label x:Name="choiceValuesLabel_Copy" Content="Chosen choices" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="196" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="222,10,0,0"/>
-        <Label x:Name="choiceValuesLabel_Copy1" Content="Move choice" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="156" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="432,13,0,0"/>
-        <Button x:Name="createEditButton" Content="Create" Background="#7F61FF1C" Height="26" VerticalAlignment="Top" Margin="500,306,19,0" FontFamily="Consolas" Click="createEditButton_Click"/>
-        <Button x:Name="abortButton" Content="Abort" Background="#7FFF2D2D" Width="41" Height="26" HorizontalAlignment="Left" VerticalAlignment="Top" Click="AbortButton_Click" Margin="442,306,0,0" FontFamily="Consolas"/>
-        <Button x:Name="removeChoiceButton" Content="&lt;- Remove" HorizontalAlignment="Left" Margin="441,60,0,0" VerticalAlignment="Top" Background="#BFF36D6D" Width="70" Height="25" FontFamily="Consolas" Click="removeChoiceButton_Click" FontSize="11"/>
-        <Button x:Name="addChoiceButton" Content="Add -&gt;" HorizontalAlignment="Left" Margin="511,60,0,0" VerticalAlignment="Top" Background="#BFBAFFA7" Width="70" Height="25" FontFamily="Consolas" Click="addChoiceButton_Click" FontSize="11"/>
-        <Button x:Name="moveUpButton" Content="/\&#xD;&#xA;UP" HorizontalAlignment="Left" Margin="486,90,0,0" VerticalAlignment="Top" Width="50" Height="36" FontFamily="Consolas" Click="moveUpButton_Click" FontSize="11"/>
-        <Button x:Name="moveDownButton" Content="DOWN&#xD;&#xA; \/" HorizontalAlignment="Left" Margin="486,126,0,0" VerticalAlignment="Top" Width="50" Height="36" FontFamily="Consolas" Click="moveDownButton_Click" FontSize="11"/>
-        <Label x:Name="grammarNameLabel" Content="Name" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="152" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="435,176,0,0"/>
-        <TextBox x:Name="grammarNameTextBox" HorizontalAlignment="Left" Margin="442,207,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="140" Background="#FF100F0F" Height="25" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyUp="grammarNameTextBox_KeyUp"/>
-        <TextBlock x:Name="enterGrammarNameWatermark" IsHitTestVisible="False" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="448,212,0,0" Foreground="DarkGray" Height="20" Width="124" TextAlignment="Left">
-            <TextBlock.Style>
-                <Style TargetType="{x:Type TextBlock}">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Text, ElementName=grammarNameTextBox}" Value="">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style><Run Text="Enter "/><Run Text="grammar"/><Run Text=" name"/></TextBlock>
-        <Label x:Name="warningLabel" Content="Wrong grammar name!" HorizontalAlignment="Left" Margin="444,237,0,0" VerticalAlignment="Top" Background="#00000000" Foreground="Red" FontFamily="Consolas" Width="137" FontSize="11" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Visibility="Visible" Opacity="0"/>
-        <CheckBox x:Name="descriptionCheckBox" Content="Create description?" HorizontalAlignment="Left" Margin="448,278,0,0" VerticalAlignment="Top" Width="124" Foreground="#FF9A9A9A"/>
+        Title="Create new grammar" ResizeMode="NoResize" Background="#FF212121" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" MinWidth="600" MaxWidth="600" MinHeight="400" MaxHeight="400" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SizeToContent="WidthAndHeight">
+    <Grid Background="#FF212121" Margin="0,0,0,1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="43*"/>
+            <RowDefinition Height="302*"/>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="18*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="9.962"/>
+            <ColumnDefinition Width="199*"/>
+            <ColumnDefinition Width="10.107"/>
+            <ColumnDefinition Width="201*"/>
+            <ColumnDefinition Width="9.967"/>
+            <ColumnDefinition Width="159.468"/>
+            <ColumnDefinition Width="10.035"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="5" Background="#FF171717" Grid.ColumnSpan="2" Margin="1,43,10,0" Grid.RowSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="createEditButton" Content="Create" Background="#7F61FF1C" Height="25" VerticalAlignment="Bottom" FontFamily="Consolas" Click="createEditButton_Click" HorizontalAlignment="Right" Width="71" Margin="0,0,8,10" Grid.Column="1"/>
+            <Button x:Name="moveUpButton" Content="/\&#xA;UP" Margin="54,46,54,0" Height="36" FontFamily="Consolas" Click="moveUpButton_Click" FontSize="11" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+            <Button x:Name="moveDownButton" Content="DOWN&#xA; \/" Margin="54,82,54,0" Height="36" FontFamily="Consolas" Click="moveDownButton_Click" FontSize="11" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+            <Label x:Name="grammarNameLabel" Content="Name" Foreground="#FF3277C9" FontSize="20" Height="31" Width="92" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="34,128,33,0" RenderTransformOrigin="0.462,4.13" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+            <TextBox x:Name="grammarNameTextBox" Margin="10,164,9,0" TextWrapping="NoWrap" Width="140" Background="#FF100F0F" Height="24" FontSize="15" FontFamily="Consolas" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" BorderBrush="{x:Null}" Foreground="#FF878787" KeyUp="grammarNameTextBox_KeyUp" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+            <TextBlock x:Name="enterGrammarNameWatermark" IsHitTestVisible="False" Margin="13,166,22,0" Foreground="DarkGray" Height="20" Width="124" TextAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text, ElementName=grammarNameTextBox}" Value="">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style><Run Text="Enter "/><Run Text="grammar"/><Run Text=" name"/></TextBlock>
+            <CheckBox x:Name="descriptionCheckBox" Content="Create description?" Margin="18,230,17,0" Width="124" Foreground="#FF9A9A9A" Height="15" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+            <Label x:Name="warningLabel" Content="Wrong grammar name!" Margin="12,193,11,0" Background="#00000000" Foreground="Red" FontFamily="Consolas" Width="136" FontSize="11" ScrollViewer.VerticalScrollBarVisibility="Hidden" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Visibility="Visible" Opacity="0" Height="23" VerticalAlignment="Top" Grid.ColumnSpan="2"/>
+            <Button x:Name="removeChoiceButton" Content="&lt;- Remove" Margin="10,10,0,0" Background="#BFF36D6D" Width="70" Height="25" FontFamily="Consolas" Click="removeChoiceButton_Click" FontSize="11" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.ColumnSpan="2"/>
+            <Button x:Name="addChoiceButton" Content="Add -&gt;" Margin="78,10,0,0" Background="#BFBAFFA7" Width="70" Height="25" FontFamily="Consolas" Click="addChoiceButton_Click" FontSize="11" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.ColumnSpan="2"/>
+            <Button x:Name="abortButton" Content="Abort" Background="#7FFF2D2D" Width="41" Height="26" Click="AbortButton_Click" Margin="0,0,28,9" FontFamily="Consolas" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+        </Grid>
+        <ListBox x:Name="availableChoicesListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Background="#FF171717" Foreground="#FF8A8A8A" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" FontSize="16" FontWeight="Normal" FontStyle="Normal" MouseDoubleClick="AvailableChoicesListBox_MouseDoubleClick" Grid.Column="1" Margin="0,43,0,5" Grid.RowSpan="2"/>
+        <Label x:Name="choiceValuesLabel" Content="Available choices" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="199" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="0,5,0,0" Grid.Column="1"/>
+        <ListBox x:Name="chosenChoicesListBox" d:ItemsSource="{d:SampleData ItemCount=5}" Background="#FF171717" Foreground="#FF8A8A8A" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden" FontSize="16" FontWeight="Normal" FontStyle="Normal" MouseDoubleClick="ChosenChoicesListBox_MouseDoubleClick" Drop="ChosenChoicesListBox_Drop" PreviewMouseLeftButtonDown="PreviewMouseLeftButtonDown" Grid.ColumnSpan="2" Grid.Column="2" Margin="10,43,1,0" Grid.RowSpan="3"/>
+        <Label x:Name="choiceValuesLabel_Copy" Content="Chosen choices" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FF3277C9" FontSize="20" Height="36" Width="202" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="0,5,0,0" Grid.Column="3"/>
+        <Label x:Name="choiceValuesLabel_Copy1" Content="Move choice" HorizontalAlignment="Center" Foreground="#FF3277C9" FontSize="20" Width="158" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontFamily="Consolas" Margin="0,5,0,2" Grid.Column="5"/>
+        <Button x:Name="newChoiceButton" Content="Create new choice" Width="199" FontSize="12" Background="#7F80DA4F" Click="newChoiceButton_Click" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" Grid.Row="2" Grid.Column="1" VerticalAlignment="Stretch"/>
 
     </Grid>
 </Window>

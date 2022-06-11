@@ -275,5 +275,23 @@ namespace VoiceAssistantUI
 
             Close();
         }
+
+        private void newChoiceButton_Click(object sender, RoutedEventArgs e)
+        {
+            CreateChoicesWindow choicesCreator = new CreateChoicesWindow();
+            choicesCreator.Show();
+            choicesCreator.Activate();
+            choicesCreator.Closing += delegate
+            {
+                IsEnabled = true;
+                ListBoxHelpers.UpdateChoices(availableChoicesListBox);
+            };
+            choicesCreator.Closed += delegate
+            {
+                Assistant.SaveDataToFile();
+            };
+
+            IsEnabled = false;
+        }
     }
 }

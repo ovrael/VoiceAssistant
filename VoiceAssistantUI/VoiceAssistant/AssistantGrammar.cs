@@ -79,8 +79,7 @@ namespace VoiceAssistant
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"ERROR: {e}");
-                    Console.ReadKey();
+                    Assistant.WriteLog($"ERROR: {e}", MessageType.Error);
                 }
             }
 

@@ -21,7 +21,8 @@ namespace VoiceAssistantUI
     {
         NotifyIcon trayIcon;
         CurrentClick currentClick = CurrentClick.Choices;
-        char workingMode = 'r'; // d - develop, r - release
+        char workingMode = 'd'; // d - develop, r - release
+        Task assistantListening;
 
         public MainWindow()
         {
@@ -30,9 +31,12 @@ namespace VoiceAssistantUI
             if (workingMode == 'd')
                 ConsoleManager.ShowConsoleWindow();
             MoveTabs();
+            //Assistant.SaveDataToFile();
 
-            Assistant.LoadDataFromFile();
+            //Assistant.InitBasicHello();
             Assistant.InitListBoxes(outputListBox, logsListBox);
+            Assistant.LoadDataFromFile();
+            assistantListening = new Task(() => Assistant.StartListening());
 
             ListBoxHelpers.UpdateChoices(choicesListBox);
             ListBoxHelpers.UpdateGrammar(grammarListBox);
@@ -91,10 +95,12 @@ namespace VoiceAssistantUI
         {
             try
             {
-                await Task.Run(() =>
-                {
-                    Assistant.StartListening();
-                });
+                assistantListening.Start();
+
+                //await Task.Run(() =>
+                //{
+                //    Assistant.StartListening();
+                //});
             }
             catch (Exception ex)
             {
@@ -132,7 +138,7 @@ namespace VoiceAssistantUI
             if (WindowState == WindowState.Minimized)
             {
                 Hide();
-                trayIcon.ShowBalloonTip(1000, "App is still working.", "Will listen to you waiting for call " + VoiceAssistant.Assistant.AssistantName, ToolTipIcon.Info);
+                trayIcon.ShowBalloonTip(1000, "App is still working.", "Will listen to you waiting for call " + Assistant.ChangeableVariables["AssistantName"], ToolTipIcon.Info);
             }
 
             base.OnStateChanged(e);
@@ -262,7 +268,7 @@ namespace VoiceAssistantUI
             };
             createEditGrammarWindow.Closed += delegate
             {
-                Assistant.SaveDataToFile();
+                ResetAssistant();
             };
 
             IsEnabled = false;
@@ -284,13 +290,23 @@ namespace VoiceAssistantUI
             };
             createEditGrammarWindow.Closed += delegate
             {
-                Assistant.SaveDataToFile();
+                ResetAssistant();
             };
 
             IsEnabled = false;
         }
 
         #endregion
+
+        private void ResetAssistant()
+        {
+            Assistant.SaveDataToFile();
+
+            Assistant.IsListening = false;
+            assistantListening = null;
+            assistantListening = new Task(() => Assistant.StartListening());
+            assistantListening.Start();
+        }
 
         #region Enums
         private enum CurrentClick
@@ -468,6 +484,7 @@ namespace VoiceAssistantUI
             if (result == MessageBoxResult.Yes)
             {
                 Assistant.Grammar.Remove(grammar);
+                ResetAssistant();
             }
         }
 

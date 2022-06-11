@@ -22,9 +22,14 @@ namespace VoiceAssistant
     public static class Assistant
     {
         // Create an in-process speech recognizer for the en-US locale.
+        public static bool IsListening = true;
         public static double ConfidenceThreshold = 0.7;
         public static string Language = "en-US";
-        public static string AssistantName = "Kaladin";
+        public static Dictionary<string, string> ChangeableVariables = new Dictionary<string, string>()
+        {
+            {"AssistantName", "Kaladin" }
+        };
+
         public static string DataFilePath = @"..\..\..\src\data\data.vad";
 
         public static List<AssistantChoice> Choices = new List<AssistantChoice>();
@@ -44,20 +49,42 @@ namespace VoiceAssistant
             logsListBox.Items.Clear();
         }
 
+        public static void InitBasicHello()
+        {
+            //AssistantChoice ac = new AssistantChoice("Welcome", new List<string>() { "Hi " + AssistantName, "Okay " + AssistantName, "Hello " + AssistantName }, canBeMoved: false);
+            //Choices.Add(ac);
+            //AssistantGrammar ag = new AssistantGrammar("Full open app", "Open app by calling assistant name", "Welcome", "open", "apps");
+            //Grammar.Add(ag);
+
+            //AssistantChoice Installed = new AssistantChoice("installed", new List<string>() { "available", "installed", "all" });
+            //AssistantChoice MediaControl = new AssistantChoice("MediaControl", new List<string>() { "play", "pause", "stop" });
+            //AssistantChoice MediaType = new AssistantChoice("MediaType", new List<string>() { "music", "video", "media" });
+            //AssistantChoice PC_Control = new AssistantChoice("PC_Control", new List<string>() { "shutdown", "reboot", "restart" });
+            //Choices.Add(Installed);
+            //Choices.Add(MediaControl);
+            //Choices.Add(MediaType);
+            //Choices.Add(PC_Control);
+
+            //AssistantGrammar shut = new AssistantGrammar("shutdown", "Open app by calling assistant name", "Welcome", "PC_Control");
+            //Grammar.Add(shut);
+        }
+
         public static void StartListening()
         {
-            CultureInfo cultureInfo = new CultureInfo(Language);
+            IsListening = true;
+            if (Grammar.Count == 0)
+            {
+                WriteLog("At least 1 grammar must exist to work!", MessageType.Warning);
+                return;
+            }
 
+            CultureInfo cultureInfo = new CultureInfo(Language);
 
             using (SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(cultureInfo))
             {
+                recognizer.UnloadAllGrammars();
                 // Create and load grammar.
                 //recognizer.LoadGrammar(new DictationGrammar());
-
-                //AssistantChoice ac = new AssistantChoice("Welcome", new List<string>() { "Hi " + AssistantName, "Okay " + AssistantName, "Hello " + AssistantName }, canBeMoved: false);
-                //Choices.Add(ac);
-                //AssistantGrammar ag = new AssistantGrammar("Full open app", "Open app by calling assistant name", "Welcome", "open", "apps");
-                //Grammar.Add(ag);
 
                 foreach (var grammar in Grammar)
                 {
@@ -74,7 +101,7 @@ namespace VoiceAssistant
                 recognizer.RecognizeAsync(RecognizeMode.Multiple);
 
                 // Keep the console window open.  
-                while (true)
+                while (IsListening)
                 {
                 }
             }
@@ -125,11 +152,11 @@ namespace VoiceAssistant
         {
             WriteLog($"You said \"{e.Result.Text}\" with {e.Result.Confidence:F2} confidence => runs \"{e.Result.Grammar.Name}\" grammar.");
 
-            int nameIndex = e.Result.Text.IndexOf(AssistantName);
-            if (nameIndex < 0)
-            {
-                return;
-            }
+            //int nameIndex = e.Result.Text.IndexOf(AssistantName);
+            //if (nameIndex < 0)
+            //{
+            //    return;
+            //}
 
             if (e.Result.Confidence < ConfidenceThreshold)
                 return;
@@ -149,9 +176,9 @@ namespace VoiceAssistant
                 //    ControlMedia(e.Result.Text);
                 //    break;
 
-                //case nameof(AssistantGrammar.ControlPC):
-                //    ControlPC(e.Result.Text);
-                //    break;
+                case "shutdown":
+                    ControlPC(e.Result.Text);
+                    break;
 
                 default:
                     Console.WriteLine($"Grammar {grammarName} is not available yet! (wtf?)");
@@ -172,7 +199,12 @@ namespace VoiceAssistant
         public static void SaveDataToFile()
         {
             string language = "Language: " + Language;
-            string assistantName = "AssistantName: " + AssistantName;
+            string changeableVariables = "ChangeableVariables:";
+            foreach (var variableKey in ChangeableVariables.Keys)
+            {
+                changeableVariables += $"\n\t{variableKey}: {ChangeableVariables[variableKey]}";
+            }
+
             string choices = "Choices:\n";
 
             for (int i = 0; i < Choices.Count; i++)
@@ -213,7 +245,7 @@ namespace VoiceAssistant
 
             List<string> toSave = new List<string>();
             toSave.Add(language);
-            toSave.Add(assistantName);
+            toSave.Add(changeableVariables);
             toSave.Add(choices);
             toSave.Add(grammars);
 
@@ -222,30 +254,46 @@ namespace VoiceAssistant
 
         public static void LoadDataFromFile()
         {
+            ChangeableVariables = new Dictionary<string, string>();
             List<string> data = FileManager.LoadFromFile(DataFilePath);
-            AssistantName = data.Where(l => l.Contains("AssistantName")).First().Split(':')[1].Trim(' ');
             Language = data.Where(l => l.Contains("Language")).First().Split(':')[1].Trim(' ');
 
+            int variablesIndex = data.IndexOf(data.Where(l => l.Contains("ChangeableVariables:")).First());
             int choicesIndex = data.IndexOf(data.Where(l => l.Contains("Choices:")).First());
             int grammarIndex = data.IndexOf(data.Where(l => l.Contains("Grammar:")).First());
 
-            for (int i = choicesIndex + 1; i < grammarIndex; i += 2)
+            if (data[variablesIndex + 1].Length > 0)
             {
-                string name = data[i].Split(':')[1].Trim(' ');
-                string[] sentences = data[i + 1].Split(':')[1].Trim(' ').Split(',');
-
-                AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList());
-                Choices.Add(assistantChoice);
+                for (int i = variablesIndex + 1; i < choicesIndex; i++)
+                {
+                    string[] variableData = data[i].Split(':');
+                    ChangeableVariables.Add(variableData[0].Trim(' ').TrimStart('\t'), variableData[1].Trim(' '));
+                }
             }
 
-            for (int i = grammarIndex + 1; i < data.Count; i += 3)
+            if (data[choicesIndex + 1].Length > 0)
             {
-                string name = data[i].Split(':')[1].Trim(' ');
-                string description = data[i + 1].Split(':')[1].Trim(' ');
-                string[] choiceNames = data[i + 2].Split(':')[1].Trim(' ').Split(',');
+                for (int i = choicesIndex + 1; i < grammarIndex; i += 2)
+                {
+                    string name = data[i].Split(':')[1].Trim(' ');
+                    string[] sentences = data[i + 1].Split(':')[1].Trim(' ').Split(',');
 
-                AssistantGrammar assistantGrammar = new AssistantGrammar(name, description, choiceNames);
-                Grammar.Add(assistantGrammar);
+                    AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList());
+                    Choices.Add(assistantChoice);
+                }
+            }
+
+            if (data[grammarIndex + 1].Length > 0)
+            {
+                for (int i = grammarIndex + 1; i < data.Count; i += 3)
+                {
+                    string name = data[i].Split(':')[1].Trim(' ');
+                    string description = data[i + 1].Split(':')[1].Trim(' ');
+                    string[] choiceNames = data[i + 2].Split(':')[1].Trim(' ').Split(',');
+
+                    AssistantGrammar assistantGrammar = new AssistantGrammar(name, description, choiceNames);
+                    Grammar.Add(assistantGrammar);
+                }
             }
         }
 

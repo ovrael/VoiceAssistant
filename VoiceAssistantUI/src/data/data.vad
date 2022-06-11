@@ -1,16 +1,17 @@
 Language: en-US
-AssistantName: Kaladin
+ChangeableVariables:
+	AssistantName: Kaladin
 Choices:
-	Name: show
-	Sentences: show,print,display
-	Name: apps
-	Sentences: applications,apps,programs
 	Name: open
 	Sentences: open,run
+	Name: apps
+	Sentences: apps,programs
+	Name: Welcome
+	Sentences: Hi Kaladin
 Grammar:
-	Name: Print apps
-	Description: dsc
-	ChoiceNames: show,apps
-	Name: Open apps
-	Description: dsc
-	ChoiceNames: open,apps
+	Name: apps open
+	Description: 
+	ChoiceNames: apps,open,Welcome
+	Name: full open app
+	Description: 
+	ChoiceNames: Welcome,open,apps
