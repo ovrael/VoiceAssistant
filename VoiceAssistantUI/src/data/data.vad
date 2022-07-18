@@ -2,16 +2,26 @@ Language: en-US
 ChangeableVariables:
 	AssistantName: Kaladin
 Choices:
+	Name: number
+	Sentences: Tries to,recognize,number
 	Name: open
 	Sentences: open,run
 	Name: apps
 	Sentences: apps,programs
-	Name: Welcome
-	Sentences: Hi Kaladin
+	Name: set
+	Sentences: change,set
+	Name: volume
+	Sentences: speakers value,volume,volume value
+	Name: to
+	Sentences: at,to
+	Name: welcome
+	Sentences: hello,hey,hi
+	Name: assistant
+	Sentences: {AssistantName}
 Grammar:
-	Name: apps open
+	Name: setVolume
+	Description: Sets volume at given value
+	ChoiceNames: set,volume,to,number
+	Name: start
 	Description: 
-	ChoiceNames: apps,open,Welcome
-	Name: full open app
-	Description: 
-	ChoiceNames: Welcome,open,apps
+	ChoiceNames: welcome,assistant

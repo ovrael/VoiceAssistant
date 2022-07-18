@@ -19,51 +19,6 @@ namespace VoiceAssistantUI
         {
             InitializeComponent();
         }
-
-        string ReplaceSpecialVariables(string text)
-        {
-            string customText = string.Empty;
-            bool isSpecialVariable = false;
-            string specialVariableName = string.Empty;
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                if (isSpecialVariable)
-                {
-                    if (text[i] == '}')
-                    {
-                        if (VoiceAssistant.Assistant.ChangeableVariables.ContainsKey(specialVariableName))
-                        {
-                            customText += VoiceAssistant.Assistant.ChangeableVariables[specialVariableName];
-                        }
-                        else
-                        {
-                            VoiceAssistant.Assistant.WriteLog($"{specialVariableName} special variable doesn't exist in the program!");
-                        }
-
-                        isSpecialVariable = false;
-                        specialVariableName = string.Empty;
-                        continue;
-                    }
-
-                    specialVariableName += text[i];
-                }
-
-                if (text[i] == '{')
-                {
-                    isSpecialVariable = true;
-                }
-
-                if (!isSpecialVariable)
-                {
-
-                    customText += text[i];
-                }
-            }
-
-            return customText;
-        }
-
         private void NewChoiceSentenceTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key != Key.Return)
@@ -76,9 +31,10 @@ namespace VoiceAssistantUI
             if (choiceSentence.Length < 1)
                 return;
 
-            choiceSentence = ReplaceSpecialVariables(choiceSentence);
+            choiceSentence = VoiceAssistant.Assistant.ReplaceSpecialVariablesKeysToValues(choiceSentence);
 
-            choiceSentences.Add(choiceSentence);
+            if (choiceSentence.Length > 0)
+                choiceSentences.Add(choiceSentence);
 
             (sender as TextBox).Text = string.Empty;
 
@@ -114,7 +70,7 @@ namespace VoiceAssistantUI
             choiceValuesLabel.Content = $"{choiceName} values";
         }
 
-        private string GetChoiceWord()
+        private string GetChoiceSentence()
         {
             if (choicesValueListBox.SelectedIndex < 0)
                 return string.Empty;
@@ -124,27 +80,31 @@ namespace VoiceAssistantUI
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            string value = GetChoiceWord();
-            string newValue = changedValueTextBox.Text;
-            if (value == string.Empty)
+            string currentSentence = GetChoiceSentence();
+            string editedSentence = changedValueTextBox.Text;
+            if (currentSentence == string.Empty)
                 return;
 
-            if (newValue.Length < 1)
+            if (editedSentence.Length < 1)
                 return;
 
-            if (choiceSentences.Contains(newValue))
+            if (choiceSentences.Contains(editedSentence))
                 return;
+
+            editedSentence = VoiceAssistant.Assistant.ReplaceSpecialVariablesKeysToValues(editedSentence);
 
             changedValueTextBox.Text = string.Empty;
-            choiceSentences.Remove(value);
-            choiceSentences.Add(newValue);
+            choiceSentences.Remove(currentSentence);
+
+            if (editedSentence.Length > 0)
+                choiceSentences.Add(editedSentence);
 
             UpdateValuesListBox();
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            string value = GetChoiceWord();
+            string value = GetChoiceSentence();
             if (value == string.Empty)
                 return;
 
@@ -155,7 +115,7 @@ namespace VoiceAssistantUI
         private void ChoicesValueListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (choicesValueListBox.SelectedIndex >= 0)
-                changeChoiceValueWatermark.Text = $"Change \"{GetChoiceWord()}\" value";
+                changeChoiceValueWatermark.Text = $"Change \"{GetChoiceSentence()}\" value";
             else
                 changeChoiceValueWatermark.Text = "Select value";
         }

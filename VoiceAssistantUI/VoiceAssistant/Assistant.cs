@@ -8,6 +8,9 @@ using System.Speech.Recognition;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows;
+using System.Threading.Tasks;
+using System.Windows.Media.Animation;
+using VoiceAssistantBackend;
 
 namespace VoiceAssistant
 {
@@ -41,72 +44,20 @@ namespace VoiceAssistant
         public static ListBox logsListBox;
         private static readonly int logsHistoryLength = 300;
 
-        public static void InitListBoxes(ListBox output, ListBox logs)
+
+        static Assistant()
+        {
+            AddDictationChoices();
+        }
+
+        #region Consoles
+        public static void InitConsoles(ListBox output, ListBox logs)
         {
             outputListBox = output;
             logsListBox = logs;
             outputListBox.Items.Clear();
             logsListBox.Items.Clear();
         }
-
-        public static void InitBasicHello()
-        {
-            //AssistantChoice ac = new AssistantChoice("Welcome", new List<string>() { "Hi " + AssistantName, "Okay " + AssistantName, "Hello " + AssistantName }, canBeMoved: false);
-            //Choices.Add(ac);
-            //AssistantGrammar ag = new AssistantGrammar("Full open app", "Open app by calling assistant name", "Welcome", "open", "apps");
-            //Grammar.Add(ag);
-
-            //AssistantChoice Installed = new AssistantChoice("installed", new List<string>() { "available", "installed", "all" });
-            //AssistantChoice MediaControl = new AssistantChoice("MediaControl", new List<string>() { "play", "pause", "stop" });
-            //AssistantChoice MediaType = new AssistantChoice("MediaType", new List<string>() { "music", "video", "media" });
-            //AssistantChoice PC_Control = new AssistantChoice("PC_Control", new List<string>() { "shutdown", "reboot", "restart" });
-            //Choices.Add(Installed);
-            //Choices.Add(MediaControl);
-            //Choices.Add(MediaType);
-            //Choices.Add(PC_Control);
-
-            //AssistantGrammar shut = new AssistantGrammar("shutdown", "Open app by calling assistant name", "Welcome", "PC_Control");
-            //Grammar.Add(shut);
-        }
-
-        public static void StartListening()
-        {
-            IsListening = true;
-            if (Grammar.Count == 0)
-            {
-                WriteLog("At least 1 grammar must exist to work!", MessageType.Warning);
-                return;
-            }
-
-            CultureInfo cultureInfo = new CultureInfo(Language);
-
-            using (SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(cultureInfo))
-            {
-                recognizer.UnloadAllGrammars();
-                // Create and load grammar.
-                //recognizer.LoadGrammar(new DictationGrammar());
-
-                foreach (var grammar in Grammar)
-                {
-                    recognizer.LoadGrammar(grammar.Grammar);
-                }
-
-                // Add a handler for the speech recognized event.  
-                recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
-
-                // Configure input to the speech recognizer.  
-                recognizer.SetInputToDefaultAudioDevice();
-
-                // Start asynchronous, continuous speech recognition.  
-                recognizer.RecognizeAsync(RecognizeMode.Multiple);
-
-                // Keep the console window open.  
-                while (IsListening)
-                {
-                }
-            }
-        }
-
         private static SolidColorBrush PickBrush(MessageType msgType)
         {
             return msgType switch
@@ -118,21 +69,21 @@ namespace VoiceAssistant
                 _ => Brushes.White,
             };
         }
-
         public static void WriteLog(string message, MessageType type = MessageType.Normal)
         {
             if (logsListBox.Items.Count >= logsHistoryLength)
                 logsListBox.Items.RemoveAt(0);
 
+            string time = DateTime.Now.ToString("HH:mm:ss");
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 ListBoxItem boxItem = new ListBoxItem();
-                boxItem.Content = message;
+                boxItem.Content = $"[{time}] {message}";
                 boxItem.Foreground = PickBrush(type);
                 logsListBox.Items.Add(boxItem);
             });
         }
-
         public static void WriteOutput(string message, MessageType type = MessageType.Normal)
         {
             if (outputListBox.Items.Count >= outputHistoryLength)
@@ -146,56 +97,86 @@ namespace VoiceAssistant
                 outputListBox.Items.Add(boxItem);
             });
         }
+        #endregion
 
-        // Handle the SpeechRecognized event.  
-        private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
+        #region Misc
+        public static string ReplaceSpecialVariablesKeysToValues(string text)
         {
-            WriteLog($"You said \"{e.Result.Text}\" with {e.Result.Confidence:F2} confidence => runs \"{e.Result.Grammar.Name}\" grammar.");
+            if (!text.Contains('{') || !text.Contains('}'))
+                return text;
 
-            //int nameIndex = e.Result.Text.IndexOf(AssistantName);
-            //if (nameIndex < 0)
-            //{
-            //    return;
-            //}
+            string customText = string.Empty;
+            bool isSpecialVariable = false;
+            string specialVariableName = string.Empty;
 
-            if (e.Result.Confidence < ConfidenceThreshold)
-                return;
-
-            string grammarName = e.Result.Grammar.Name;
-            switch (grammarName)
+            for (int i = 0; i < text.Length; i++)
             {
-                //case nameof(AssistantGrammar.InstalledApps):
-                //    InstalledApps();
-                //    break;
+                if (isSpecialVariable)
+                {
+                    if (text[i] == '}')
+                    {
+                        if (ChangeableVariables.ContainsKey(specialVariableName))
+                        {
+                            customText += ChangeableVariables[specialVariableName];
+                        }
+                        else
+                        {
+                            WriteLog($"{specialVariableName} special variable doesn't exist in the program!");
+                        }
 
-                //case nameof(AssistantGrammar.OpenApp):
-                //    OpenApp(e.Result.Text);
-                //    break;
+                        isSpecialVariable = false;
+                        specialVariableName = string.Empty;
+                        continue;
+                    }
 
-                //case nameof(AssistantGrammar.ControlMedia):
-                //    ControlMedia(e.Result.Text);
-                //    break;
+                    specialVariableName += text[i];
+                }
 
-                case "shutdown":
-                    ControlPC(e.Result.Text);
-                    break;
+                if (text[i] == '{')
+                {
+                    isSpecialVariable = true;
+                }
 
-                default:
-                    Console.WriteLine($"Grammar {grammarName} is not available yet! (wtf?)");
-                    break;
+                if (!isSpecialVariable)
+                {
+
+                    customText += text[i];
+                }
             }
+
+            return customText;
+        }
+        public static string ReplaceSpecialVariablesValuesToKeys(string text)
+        {
+            foreach (var specialVariable in ChangeableVariables)
+            {
+                if (!text.Contains(specialVariable.Value))
+                    continue;
+
+                int startIndex = text.IndexOf(specialVariable.Value);
+                int endIndex = text.IndexOf(' ', startIndex);
+                endIndex = endIndex < 0 ? text.Length : endIndex;
+
+                string leftPart = text.Substring(0, startIndex);
+                string rightPart = text.Substring(endIndex);
+
+                text = leftPart + $"{{{specialVariable.Key}}}" + rightPart;
+            }
+
+            return text;
         }
 
         public static AssistantGrammar GetGrammar(string grammarName)
         {
             return Grammar.Where(g => g.Name == grammarName).FirstOrDefault();
         }
-
         public static AssistantChoice GetChoice(string choiceName)
         {
             return Choices.Where(c => c.Name == choiceName).FirstOrDefault();
         }
+        #endregion
 
+        #region File operations
         public static void SaveDataToFile()
         {
             string language = "Language: " + Language;
@@ -214,7 +195,7 @@ namespace VoiceAssistant
 
                 for (int j = 0; j < Choices[i].Sentences.Count; j++)
                 {
-                    choices += Choices[i].Sentences[j];
+                    choices += ReplaceSpecialVariablesValuesToKeys(Choices[i].Sentences[j]);
 
                     if (j < Choices[i].Sentences.Count - 1)
                         choices += ",";
@@ -251,10 +232,10 @@ namespace VoiceAssistant
 
             FileManager.SaveToFile(toSave, DataFilePath);
         }
-
         public static void LoadDataFromFile()
         {
             ChangeableVariables = new Dictionary<string, string>();
+
             List<string> data = FileManager.LoadFromFile(DataFilePath);
             Language = data.Where(l => l.Contains("Language")).First().Split(':')[1].Trim(' ');
 
@@ -262,65 +243,188 @@ namespace VoiceAssistant
             int choicesIndex = data.IndexOf(data.Where(l => l.Contains("Choices:")).First());
             int grammarIndex = data.IndexOf(data.Where(l => l.Contains("Grammar:")).First());
 
-            if (data[variablesIndex + 1].Length > 0)
+            try
             {
-                for (int i = variablesIndex + 1; i < choicesIndex; i++)
+                if (data[variablesIndex + 1].Length > 0)
                 {
-                    string[] variableData = data[i].Split(':');
-                    ChangeableVariables.Add(variableData[0].Trim(' ').TrimStart('\t'), variableData[1].Trim(' '));
+                    for (int i = variablesIndex + 1; i < choicesIndex; i++)
+                    {
+                        string[] variableData = data[i].Split(':');
+                        ChangeableVariables.Add(variableData[0].Trim(' ').TrimStart('\t'), variableData[1].Trim(' '));
+                    }
                 }
             }
-
-            if (data[choicesIndex + 1].Length > 0)
+            catch (Exception e)
             {
-                for (int i = choicesIndex + 1; i < grammarIndex; i += 2)
-                {
-                    string name = data[i].Split(':')[1].Trim(' ');
-                    string[] sentences = data[i + 1].Split(':')[1].Trim(' ').Split(',');
+                WriteLog("Can't load changeable variable!", MessageType.Error);
+                WriteLog("ERROR: " + e.ToString(), MessageType.Error);
+            }
 
-                    AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList());
-                    Choices.Add(assistantChoice);
+            try
+            {
+                if (data[choicesIndex + 1].Length > 0)
+                {
+                    for (int i = choicesIndex + 1; i < grammarIndex; i += 2)
+                    {
+                        string name = data[i].Split(':')[1].Trim(' ');
+                        string[] sentences = data[i + 1].Split(':')[1].Trim(' ').Split(',');
+
+                        for (int s = 0; s < sentences.Length; s++)
+                        {
+                            sentences[s] = ReplaceSpecialVariablesKeysToValues(sentences[s]);
+                        }
+
+                        AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList());
+                        Choices.Add(assistantChoice);
+                    }
                 }
             }
-
-            if (data[grammarIndex + 1].Length > 0)
+            catch (Exception e)
             {
-                for (int i = grammarIndex + 1; i < data.Count; i += 3)
-                {
-                    string name = data[i].Split(':')[1].Trim(' ');
-                    string description = data[i + 1].Split(':')[1].Trim(' ');
-                    string[] choiceNames = data[i + 2].Split(':')[1].Trim(' ').Split(',');
+                WriteLog("Can't choice!", MessageType.Error);
+                WriteLog("ERROR: " + e.ToString(), MessageType.Error);
+            }
 
-                    AssistantGrammar assistantGrammar = new AssistantGrammar(name, description, choiceNames);
-                    Grammar.Add(assistantGrammar);
+            try
+            {
+                if (data[grammarIndex + 1].Length > 0)
+                {
+                    for (int i = grammarIndex + 1; i < data.Count; i += 3)
+                    {
+                        string name = data[i].Split(':')[1].Trim(' ');
+                        string description = data[i + 1].Split(':')[1].Trim(' ');
+                        string[] choiceNames = data[i + 2].Split(':')[1].Trim(' ').Split(',');
+
+                        AssistantGrammar assistantGrammar = new AssistantGrammar(name, description, choiceNames);
+                        Grammar.Add(assistantGrammar);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                WriteLog("Can't grammar!", MessageType.Error);
+                WriteLog("ERROR: " + e.ToString(), MessageType.Error);
+            }
+        }
+        #endregion
+
+        #region Speech recognition
+
+        private static void AddDictationChoices()
+        {
+            if (!Choices.Exists(c => c.Name == "number" || c.Name == "Number"))
+            {
+                AssistantChoice numberChoice = new AssistantChoice("number", new List<string>() { "Tries to", "recognize", "number" }, false, false, true);
+                Choices.Add(numberChoice);
+            }
+        }
+
+        // Handle the SpeechRecognized event.  
+        public static void StartListening()
+        {
+            IsListening = true;
+            if (Grammar.Count == 0)
+            {
+                WriteLog("At least 1 grammar must exist to work!", MessageType.Warning);
+                return;
+            }
+
+            CultureInfo cultureInfo = new CultureInfo(Language);
+
+            using (SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(cultureInfo))
+            {
+                recognizer.UnloadAllGrammars();
+                // Create and load grammar.
+                //recognizer.LoadGrammar(new DictationGrammar());
+
+                try
+                {
+                    foreach (var grammar in Grammar)
+                    {
+                        recognizer.LoadGrammar(grammar.Grammar);
+                    }
+
+                    // Add a handler for the speech recognized event.  
+                    recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
+
+                    // Configure input to the speech recognizer.  
+                    recognizer.SetInputToDefaultAudioDevice();
+
+                    // Start asynchronous, continuous speech recognition.  
+                    recognizer.RecognizeAsync(RecognizeMode.Multiple);
+                }
+                catch (Exception e)
+                {
+                    WriteLog($"Error: {e.Message}", MessageType.Error);
+                    WriteLog($"More info: {e.ToString}", MessageType.Error);
+                }
+
+                // Keep the console window open.  
+                while (IsListening)
+                {
                 }
             }
         }
-
-        private static void InstalledApps()
+        private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
         {
-            foreach (string app in Helpers.InstalledApps)
+            WriteLog($"You said \"{e.Result.Text}\" with {e.Result.Confidence * 100:F0}% confidence => runs \"{e.Result.Grammar.Name}\" grammar.");
+
+            //int nameIndex = e.Result.Text.IndexOf(AssistantName);
+            //if (nameIndex < 0)
+            //{
+            //    return;
+            //}
+
+            if (e.Result.Confidence < ConfidenceThreshold)
+                return;
+
+            switch (e.Result.Grammar.Name)
             {
-                Console.WriteLine(app);
+                //case nameof(AssistantGrammar.InstalledApps):
+                //    InstalledApps();
+                //    break;
+
+                //case nameof(AssistantGrammar.OpenApp):
+                //    OpenApp(e.Result.Text);
+                //    break;
+
+                //case nameof(AssistantGrammar.ControlMedia):
+                //    ControlMedia(e.Result.Text);
+                //    break;
+
+                case "shutdown":
+                    VoiceAssistantBackend.Commands.EnergyControl.Shutdown();
+                    break;
+
+                case "volumeUpPercent":
+                    VoiceAssistantBackend.Commands.AudioControl.VolumeUpByPercent(0);
+                    break;
+
+                case "volumeUpValue":
+                    VoiceAssistantBackend.Commands.AudioControl.VolumeUpByValue(0);
+                    break;
+
+                case "volumeDownPercent":
+                    VoiceAssistantBackend.Commands.AudioControl.VolumeDownByPercent(0);
+                    break;
+
+                case "volumeDownValue":
+                    VoiceAssistantBackend.Commands.AudioControl.VolumeDownByValue(0);
+                    break;
+
+                case "volumeMute":
+                    VoiceAssistantBackend.Commands.AudioControl.VolumeMute();
+                    break;
+
+                case "volumeSet":
+                    VoiceAssistantBackend.Commands.AudioControl.VolumeSet(50);
+                    break;
+
+                default:
+                    Console.WriteLine($"Grammar \"{e.Result.Grammar.Name}\" is not available yet!");
+                    break;
             }
         }
-
-        private static void OpenApp(string commandText)
-        {
-            Console.WriteLine($"{commandText}");
-        }
-
-        private static void ControlMedia(string commandText)
-        {
-            Console.WriteLine($"{commandText}");
-        }
-
-        private static void ControlPC(string commandText)
-        {
-            if (commandText.Contains("shutdown"))
-            {
-                Process.Start("shutdown", "/s /t 0");
-            }
-        }
+        #endregion
     }
 }

@@ -8,6 +8,7 @@ namespace VoiceAssistant
         public string Name { get; set; }
         public Choices Choice { get; private set; }
         public List<string> Sentences { get; private set; } = new List<string>();
+        public List<string> SentencesWithVariables { get; private set; } = new List<string>();
         public bool CanBeEdited { get; private set; } = true;
         public bool CanBeDeleted { get; private set; } = true;
         public bool CanBeMoved { get; private set; } = true;
@@ -34,7 +35,7 @@ namespace VoiceAssistant
             Choice = BuildChoices(choicesValues.ToArray());
         }
 
-        public void AddChoicesValue(string value)
+        public void AddChoiceSentence(string value)
         {
             if (Sentences.Contains(value))
                 return;
@@ -43,7 +44,7 @@ namespace VoiceAssistant
             Choice = BuildChoices(Sentences.ToArray());
         }
 
-        public void RemoveChoicesValue(string value)
+        public void RemoveChoiceSentence(string value)
         {
             if (!Sentences.Contains(value))
                 return;

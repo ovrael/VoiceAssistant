@@ -73,9 +73,25 @@ namespace VoiceAssistant
             {
                 try
                 {
-                    //var propValue = typeof(AssistantChoice).GetField(choice, BindingFlags.Public | BindingFlags.Static).GetValue(null);
-                    var choiceToAdd = Assistant.Choices.Where(c => c.Name == choice).First().Choice;
-                    grammarBuilder.Append(choiceToAdd);
+                    if (choice == "number")
+                    {
+                        //grammarBuilder.AppendDictation("spelling");
+                        //grammarBuilder.AppendDictation();
+                        string[] numbers = new string[101];
+                        for (int i = 0; i < 101; i++)
+                        {
+                            numbers[i] = i.ToString();
+                        }
+                        Choices numbersChoices = new Choices(numbers);
+                        grammarBuilder.Append(numbersChoices);
+                    }
+                    else
+                    {
+                        //var propValue = typeof(AssistantChoice).GetField(choice, BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                        var choiceToAdd = Assistant.Choices.Where(c => c.Name == choice).First().Choice;
+                        grammarBuilder.Append(choiceToAdd);
+                    }
+
                 }
                 catch (Exception e)
                 {

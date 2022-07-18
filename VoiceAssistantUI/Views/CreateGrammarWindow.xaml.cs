@@ -126,6 +126,14 @@ namespace VoiceAssistantUI
                 Close();
         }
 
+        private ListBoxItem CreateListBoxItem(string choicesName)
+        {
+            ListBoxItem newItem = new ListBoxItem();
+            newItem.Content = choicesName;
+
+            return newItem;
+        }
+
         private ListBoxItem CopyListBoxItem(ListBoxItem listBoxItem)
         {
             ListBoxItem copy = new ListBoxItem();

@@ -34,7 +34,7 @@ namespace VoiceAssistantUI
             //Assistant.SaveDataToFile();
 
             //Assistant.InitBasicHello();
-            Assistant.InitListBoxes(outputListBox, logsListBox);
+            Assistant.InitConsoles(outputListBox, logsListBox);
             Assistant.LoadDataFromFile();
             assistantListening = new Task(() => Assistant.StartListening());
 
@@ -96,11 +96,6 @@ namespace VoiceAssistantUI
             try
             {
                 assistantListening.Start();
-
-                //await Task.Run(() =>
-                //{
-                //    Assistant.StartListening();
-                //});
             }
             catch (Exception ex)
             {
@@ -212,16 +207,16 @@ namespace VoiceAssistantUI
 
         #endregion
 
-        #region Choice Words
-        private void ChoiceWordsListBox_GotFocus(object sender, RoutedEventArgs e)
+        #region Choice Sentences
+        private void ChoiceSentencesListBox_GotFocus(object sender, RoutedEventArgs e)
         {
             currentClick = CurrentClick.ChoiceWords;
         }
-        private void ChoiceWordsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ChoiceSentencesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             currentClick = CurrentClick.ChoiceWords;
         }
-        private void NewChoiceWordButton_Click(object sender, RoutedEventArgs e)
+        private void NewChoiceSentenceButton_Click(object sender, RoutedEventArgs e)
         {
             if (choicesListBox.Items.Count == 0)
                 return;
@@ -230,14 +225,16 @@ namespace VoiceAssistantUI
             if (currentChoice is null)
                 return;
 
-            string nextWord = Interaction.InputBox("Provide choice value", "Choice value");
-            if (nextWord == string.Empty)
+            string newSentence = Interaction.InputBox("Provide choice value", "Choice value");
+            if (newSentence == string.Empty)
             {
                 MessageBox.Show("Value cannot be empty!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            currentChoice.AddChoicesValue(nextWord);
+            newSentence = Assistant.ReplaceSpecialVariablesKeysToValues(newSentence);
+
+            currentChoice.AddChoiceSentence(newSentence);
             Assistant.SaveDataToFile();
 
             ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, GetCurrentAssistantChoice());
@@ -364,10 +361,10 @@ namespace VoiceAssistantUI
                 switch (operation)
                 {
                     case Operation.Edit:
-                        EditChoiceWord(currentChoice);
+                        EditChoiceSentence(currentChoice);
                         break;
                     case Operation.Delete:
-                        DeleteChoiceWords(currentChoice);
+                        DeleteChoiceSentence(currentChoice);
                         break;
                     default:
                         break;
@@ -407,7 +404,7 @@ namespace VoiceAssistantUI
         #region Manage choices
         private void EditChoice(AssistantChoice choice)
         {
-            string newName = Interaction.InputBox($"Provide new choice name for choice \"{choice.Name}\"", "Changing choice name");
+            string newName = Interaction.InputBox($"Provide new choice name for choice \"{choice.Name}\"", "Changing choice name", choice.Name);
 
             if (Assistant.Choices.Any(c => c.Name == newName))
             {
@@ -435,39 +432,39 @@ namespace VoiceAssistantUI
 
         #endregion
 
-        #region Manage choice wrods
-        private void EditChoiceWord(AssistantChoice choice)
+        #region Manage choice sentences
+        private void EditChoiceSentence(AssistantChoice choice)
         {
             if (choiceWordsListBox.SelectedIndex < 0)
                 return;
 
-            string oldWord = GetCurrentAssistantChoiceWord();
-            string newWord = Interaction.InputBox($"Provide new choice word for \"{oldWord}\"", "Changing choice name");
+            string oldSentence = GetCurrentAssistantChoiceWord();
+            string newSentence = Interaction.InputBox($"Provide new choice sentence for \"{oldSentence}\"", "Changing choice sentence", oldSentence);
+            newSentence = Assistant.ReplaceSpecialVariablesKeysToValues(newSentence);
 
-            if (choice.Sentences.Any(c => c == newWord))
+            if (choice.Sentences.Any(c => c == newSentence))
             {
-                Console.WriteLine("TESTOWY");
-                MessageBox.Show("Couldn't change word! That word already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Couldn't change sentence! Sentence already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (newWord.Length < 1)
+            if (newSentence.Length < 1)
             {
-                MessageBox.Show("Word cannot be blank!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Sentence cannot be blank!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            choice.RemoveChoicesValue(oldWord);
-            choice.AddChoicesValue(newWord);
+            choice.RemoveChoiceSentence(oldSentence);
+            choice.AddChoiceSentence(newSentence);
         }
-        private void DeleteChoiceWords(AssistantChoice choice)
+        private void DeleteChoiceSentence(AssistantChoice choice)
         {
             if (choice.Sentences.Count == 1)
             {
                 MessageBox.Show("You can't delete last value of choice.\nDelete choice instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            choice.RemoveChoicesValue(GetCurrentAssistantChoiceWord());
+            choice.RemoveChoiceSentence(GetCurrentAssistantChoiceWord());
         }
 
         #endregion
