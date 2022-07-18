@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Media;
 using System.Globalization;
 using System.Linq;
 using System.Speech.Recognition;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows;
-using System.Threading.Tasks;
-using System.Windows.Media.Animation;
-using VoiceAssistantBackend;
+using Commands = VoiceAssistantBackend.Commands;
 
-namespace VoiceAssistant
+namespace VoiceAssistantUI
 {
     public enum MessageType
     {
@@ -48,6 +44,7 @@ namespace VoiceAssistant
         static Assistant()
         {
             AddDictationChoices();
+            Commands.Misc.PrintAvailableCommands();
         }
 
         #region Consoles
@@ -322,47 +319,62 @@ namespace VoiceAssistant
         // Handle the SpeechRecognized event.  
         public static void StartListening()
         {
-            IsListening = true;
             if (Grammar.Count == 0)
             {
                 WriteLog("At least 1 grammar must exist to work!", MessageType.Warning);
                 return;
             }
 
-            CultureInfo cultureInfo = new CultureInfo(Language);
 
-            using (SpeechRecognitionEngine recognizer = new SpeechRecognitionEngine(cultureInfo))
+            IsListening = true;
+            CultureInfo cultureInfo = new CultureInfo(Language);
+            SpeechRecognitionEngine recognizer = null;
+            try
             {
+                if (SpeechRecognitionEngine.InstalledRecognizers().Count <= 0)
+                {
+                    WriteLog("There is no installed speech recognizers in Windows!", MessageType.Error);
+                    return;
+                }
+
+                recognizer = new SpeechRecognitionEngine(cultureInfo);
+
                 recognizer.UnloadAllGrammars();
                 // Create and load grammar.
                 //recognizer.LoadGrammar(new DictationGrammar());
 
-                try
+                foreach (var grammar in Grammar)
                 {
-                    foreach (var grammar in Grammar)
-                    {
-                        recognizer.LoadGrammar(grammar.Grammar);
-                    }
-
-                    // Add a handler for the speech recognized event.  
-                    recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
-
-                    // Configure input to the speech recognizer.  
-                    recognizer.SetInputToDefaultAudioDevice();
-
-                    // Start asynchronous, continuous speech recognition.  
-                    recognizer.RecognizeAsync(RecognizeMode.Multiple);
+                    recognizer.LoadGrammar(grammar.Grammar);
                 }
-                catch (Exception e)
-                {
-                    WriteLog($"Error: {e.Message}", MessageType.Error);
-                    WriteLog($"More info: {e.ToString}", MessageType.Error);
-                }
+
+                // Add a handler for the speech recognized event.  
+                recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
+
+                // Configure input to the speech recognizer.  
+                recognizer.SetInputToDefaultAudioDevice();
+
+                // Start asynchronous, continuous speech recognition.  
+                recognizer.RecognizeAsync(RecognizeMode.Multiple);
+
 
                 // Keep the console window open.  
                 while (IsListening)
                 {
                 }
+            }
+            catch (Exception e)
+            {
+                WriteLog($"Error: {e.Message}", MessageType.Error);
+                WriteLog($"More info: {e.ToString}", MessageType.Error);
+            }
+            finally
+            {
+                if (recognizer is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+                //StartListening();
             }
         }
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)

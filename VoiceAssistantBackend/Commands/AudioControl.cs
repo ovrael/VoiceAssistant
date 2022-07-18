@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System;
+﻿using AudioSwitcher.AudioApi;
 using AudioSwitcher.AudioApi.CoreAudio;
-using AudioSwitcher.AudioApi;
+using System.Runtime.InteropServices;
 
 namespace VoiceAssistantBackend.Commands
 {
     public static class AudioControl
     {
-        private static CoreAudioDevice playbackDevice = new CoreAudioController().GetDefaultDevice(deviceType: DeviceType.Playback, Role.Multimedia);
+        private static readonly CoreAudioDevice playbackDevice = new CoreAudioController().GetDefaultDevice(deviceType: DeviceType.Playback, Role.Multimedia);
 
         private const byte VK_VOLUME_MUTE = 0xAD;
 
@@ -21,10 +14,10 @@ namespace VoiceAssistantBackend.Commands
         private const UInt32 KEYEVENTF_KEYUP = 0x0002;
 
         [DllImport("user32.dll")]
-        static extern void keybd_event(byte bVk, byte bScan, UInt32 dwFlags, UInt32 dwExtraInfo);
+        private static extern void keybd_event(byte bVk, byte bScan, UInt32 dwFlags, UInt32 dwExtraInfo);
 
         [DllImport("user32.dll")]
-        static extern Byte MapVirtualKey(UInt32 uCode, UInt32 uMapType);
+        private static extern Byte MapVirtualKey(UInt32 uCode, UInt32 uMapType);
 
         public static void VolumeUpByPercent(int percent)
         {

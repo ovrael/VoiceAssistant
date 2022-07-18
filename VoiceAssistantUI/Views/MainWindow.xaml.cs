@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using VoiceAssistant;
+using VoiceAssistantUI;
 using Interaction = Microsoft.VisualBasic.Interaction;
 using MessageBox = System.Windows.MessageBox;
 

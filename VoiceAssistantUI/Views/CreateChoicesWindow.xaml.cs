@@ -31,7 +31,7 @@ namespace VoiceAssistantUI
             if (choiceSentence.Length < 1)
                 return;
 
-            choiceSentence = VoiceAssistant.Assistant.ReplaceSpecialVariablesKeysToValues(choiceSentence);
+            choiceSentence = VoiceAssistantUI.Assistant.ReplaceSpecialVariablesKeysToValues(choiceSentence);
 
             if (choiceSentence.Length > 0)
                 choiceSentences.Add(choiceSentence);
@@ -91,7 +91,7 @@ namespace VoiceAssistantUI
             if (choiceSentences.Contains(editedSentence))
                 return;
 
-            editedSentence = VoiceAssistant.Assistant.ReplaceSpecialVariablesKeysToValues(editedSentence);
+            editedSentence = VoiceAssistantUI.Assistant.ReplaceSpecialVariablesKeysToValues(editedSentence);
 
             changedValueTextBox.Text = string.Empty;
             choiceSentences.Remove(currentSentence);
@@ -122,14 +122,14 @@ namespace VoiceAssistantUI
 
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
-            if (VoiceAssistant.Assistant.Choices.Any(c => c.Name == choiceName))
+            if (VoiceAssistantUI.Assistant.Choices.Any(c => c.Name == choiceName))
             {
                 MessageBox.Show("Choice with that namy already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            VoiceAssistant.AssistantChoice newChoice = new VoiceAssistant.AssistantChoice(choiceName, choiceSentences);
-            VoiceAssistant.Assistant.Choices.Add(newChoice);
+            VoiceAssistantUI.AssistantChoice newChoice = new VoiceAssistantUI.AssistantChoice(choiceName, choiceSentences);
+            VoiceAssistantUI.Assistant.Choices.Add(newChoice);
             Close();
         }
 

@@ -3,15 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Speech.Recognition;
 
-namespace VoiceAssistant
+namespace VoiceAssistantUI
 {
-    public class Helpers
+    public static class Helpers
     {
         public static readonly string[] InstalledApps = GetInstalledApps();
-
         private static string[] GetInstalledApps()
         {
             List<string> installedApps = new List<string>();
@@ -36,7 +34,6 @@ namespace VoiceAssistant
 
             return installedApps.OrderBy(n => n).ToArray();
         }
-
         private static string[] GetFilesFromDirectory(string directory)
         {
             List<string> files = new List<string>();
@@ -57,7 +54,6 @@ namespace VoiceAssistant
 
             return files.ToArray();
         }
-
         public static string[] GetInstalledApps2()
         {
             List<string> installedApps = new List<string>();
@@ -78,6 +74,17 @@ namespace VoiceAssistant
             }
 
             return installedApps.OrderBy(n => n).ToArray();
+        }
+        public static Choices CreateNumberChoices(int min = 0, int max = 100)
+        {
+            string[] numbers = new string[101];
+            for (int i = min; i <= max; i++)
+            {
+                numbers[i] = i.ToString();
+            }
+            Choices numbersChoices = new Choices(numbers);
+
+            return numbersChoices;
         }
     }
 }

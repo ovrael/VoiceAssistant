@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Speech.Recognition;
 
-namespace VoiceAssistant
+namespace VoiceAssistantUI
 {
     public class AssistantChoice
     {

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Speech.Recognition;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace VoiceAssistant
+namespace VoiceAssistantUI
 {
     public class AssistantGrammar
     {
@@ -75,15 +72,8 @@ namespace VoiceAssistant
                 {
                     if (choice == "number")
                     {
-                        //grammarBuilder.AppendDictation("spelling");
-                        //grammarBuilder.AppendDictation();
-                        string[] numbers = new string[101];
-                        for (int i = 0; i < 101; i++)
-                        {
-                            numbers[i] = i.ToString();
-                        }
-                        Choices numbersChoices = new Choices(numbers);
-                        grammarBuilder.Append(numbersChoices);
+                        Choices numbers = Helpers.CreateNumberChoices(min: 0, max: 100);
+                        grammarBuilder.Append(numbers);
                     }
                     else
                     {
