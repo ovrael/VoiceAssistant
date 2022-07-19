@@ -227,18 +227,16 @@ namespace VoiceAssistantUI
 
         private bool ValidateGrammarData()
         {
-            bool goodData = true;
-
             if (Assistant.Grammar.Any(g => g.Name == grammarNameTextBox.Text) || grammarNameTextBox.Text.Length < 1)
-                goodData = false;
+                return false;
 
             if (commandsComboBox.SelectedIndex < 0)
-                goodData = false;
+                return false;
 
             if (chosenChoicesList.Count <= 0)
-                goodData = false;
+                return false;
 
-            return goodData;
+            return true;
         }
 
         private void ChangeAcceptButtonEnabling()

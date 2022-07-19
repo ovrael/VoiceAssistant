@@ -12,6 +12,9 @@ namespace VoiceAssistantUI
         public Grammar Grammar { get; set; }
         public List<string> ChoiceNames { get; set; }
 
+        public delegate void Command0Parameters();
+        public delegate void Command1Parameters(object parameter);
+
         //public static readonly Grammar InstalledApps = InstalledAppsBuilder();
         //public static readonly Grammar OpenApp = OpenAppBuilder();
         //public static readonly Grammar ControlMedia = ControlMediaBuilder();
@@ -94,7 +97,12 @@ namespace VoiceAssistantUI
             return new Grammar(grammarBuilder) { Name = this.Name };
         }
 
-        public AssistantGrammar(string name, string description, params string[] choices)
+        private void CreateDelegate(string commandName)
+        {
+
+        }
+
+        public AssistantGrammar(string name, string commandName, string description, params string[] choices)
         {
             Name = name;
             Description = description;
