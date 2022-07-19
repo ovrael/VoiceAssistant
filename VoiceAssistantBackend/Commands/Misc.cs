@@ -4,8 +4,10 @@ namespace VoiceAssistantBackend.Commands
 {
     public static class Misc
     {
-        public static void PrintAvailableCommands()
+        public static string[] GetAvailableCommands()
         {
+            List<string> availableCommands = new List<string>();
+
             var theList = Assembly.GetExecutingAssembly().GetTypes()
                       .Where(t => t.Namespace == "VoiceAssistantBackend.Commands"
                              && t.IsAbstract
@@ -20,10 +22,13 @@ namespace VoiceAssistantBackend.Commands
                     .Where(
                     m => m.IsPublic
                     && m.IsStatic
-                    ).ToList();
+                    )
+                    .ToList();
+
 
                 foreach (var method in methods)
                 {
+
                     string methodLine = method.Name + "(";
                     var paremeters = method.GetParameters();
                     for (int i = 0; i < paremeters.Length; i++)
@@ -33,11 +38,10 @@ namespace VoiceAssistantBackend.Commands
                             methodLine += ", ";
                     }
                     methodLine += ")";
-                    Console.WriteLine(methodLine);
+                    availableCommands.Add(methodLine);
                 }
             }
-            Console.WriteLine("Here are commands!");
-            Console.ReadKey();
+            return availableCommands.ToArray();
         }
     }
 }

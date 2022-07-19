@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Speech.Recognition;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Commands = VoiceAssistantBackend.Commands;
 
 namespace VoiceAssistantUI
 {
@@ -43,8 +43,7 @@ namespace VoiceAssistantUI
 
         static Assistant()
         {
-            AddDictationChoices();
-            Commands.Misc.PrintAvailableCommands();
+
         }
 
         #region Consoles
@@ -316,8 +315,8 @@ namespace VoiceAssistantUI
             }
         }
 
-        // Handle the SpeechRecognized event.  
-        public static void StartListening()
+        // Handle the SpeechRecognized event.
+        public static async Task StartListening()
         {
             if (Grammar.Count == 0)
             {
@@ -331,7 +330,7 @@ namespace VoiceAssistantUI
             SpeechRecognitionEngine recognizer = null;
             try
             {
-                if (SpeechRecognitionEngine.InstalledRecognizers().Count <= 0)
+                if (SpeechRecognitionEngine.InstalledRecognizers() is null)
                 {
                     WriteLog("There is no installed speech recognizers in Windows!", MessageType.Error);
                     return;
@@ -343,6 +342,7 @@ namespace VoiceAssistantUI
                 // Create and load grammar.
                 //recognizer.LoadGrammar(new DictationGrammar());
 
+                AddDictationChoices();
                 foreach (var grammar in Grammar)
                 {
                     recognizer.LoadGrammar(grammar.Grammar);

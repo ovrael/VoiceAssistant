@@ -1,19 +1,10 @@
 ﻿using Microsoft.VisualBasic;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using VoiceAssistantUI;
 
 namespace VoiceAssistantUI
 {
@@ -22,9 +13,9 @@ namespace VoiceAssistantUI
     /// </summary>
     public partial class CreateEditGrammarWindow : Window
     {
-        private char mode = 'c'; // c - create, e - edit
-        List<ListBoxItem> chosenChoicesList = new List<ListBoxItem>();
-        AssistantGrammar grammarForEdit = null;
+        private readonly char mode = 'c'; // c - create, e - edit
+        private readonly List<ListBoxItem> chosenChoicesList = new List<ListBoxItem>();
+        private readonly AssistantGrammar grammarForEdit = null;
 
         public CreateEditGrammarWindow()
         {
@@ -32,6 +23,8 @@ namespace VoiceAssistantUI
             mode = 'c';
             createEditButton.IsEnabled = false;
             ListBoxHelpers.UpdateChoicesWithTooltips(availableChoicesListBox);
+
+            LoadCommandsToComboBox();
 
             Style itemContainerStyle = new Style(typeof(ListBoxItem));
             itemContainerStyle.Setters.Add(new Setter(ListBoxItem.AllowDropProperty, true));
@@ -58,11 +51,7 @@ namespace VoiceAssistantUI
                 chosenChoicesList.Add(boxItem);
             }
 
-            //Console.WriteLine("chosenChoicesList");
-            //foreach (var item in chosenChoicesList)
-            //{
-            //    Console.WriteLine(item.Name);
-            //};
+            LoadCommandsToComboBox();
 
             ListBoxHelpers.UpdateChoicesWithTooltips(availableChoicesListBox);
             ListBoxHelpers.UpdateGrammarChoices(chosenChoicesListBox, grammar);
@@ -74,6 +63,21 @@ namespace VoiceAssistantUI
             chosenChoicesListBox.ItemContainerStyle = itemContainerStyle;
         }
 
+        private void LoadCommandsToComboBox()
+        {
+            string[] availableCommands = VoiceAssistantBackend.Commands.Misc.GetAvailableCommands();
+
+            commandsComboBox.Items.Clear();
+
+            foreach (var feature in availableCommands)
+            {
+                commandsComboBox.Items.Add(feature);
+            }
+
+            commandsComboBox.SelectedItem = null;
+            commandsComboBox.SelectedValue = "Select command";
+        }
+
         private void UpdateChosenChoices()
         {
             chosenChoicesListBox.Items.Clear();
@@ -83,7 +87,7 @@ namespace VoiceAssistantUI
             }
         }
 
-        void PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is ListBoxItem)
             {
@@ -93,7 +97,7 @@ namespace VoiceAssistantUI
             }
         }
 
-        void ChosenChoicesListBox_Drop(object sender, DragEventArgs e)
+        private void ChosenChoicesListBox_Drop(object sender, DragEventArgs e)
         {
             var myObject = sender as ListBox;
             if (myObject != null)
@@ -154,6 +158,7 @@ namespace VoiceAssistantUI
             var addedItem = CopyListBoxItem(choiceNameListBoxItem);
             chosenChoicesList.Add(addedItem);
             UpdateChosenChoices();
+            ChangeAcceptButtonEnabling();
         }
 
         private void ChosenChoicesListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -168,6 +173,7 @@ namespace VoiceAssistantUI
             //chosenChoicesListBox.Items.Remove(choiceNameListBoxItem);
             chosenChoicesList.Remove(choiceNameListBoxItem);
             UpdateChosenChoices();
+            ChangeAcceptButtonEnabling();
         }
 
         private void addChoiceButton_Click(object sender, RoutedEventArgs e)
@@ -179,6 +185,7 @@ namespace VoiceAssistantUI
 
             chosenChoicesList.Add(CopyListBoxItem(originalItem));
             UpdateChosenChoices();
+            ChangeAcceptButtonEnabling();
         }
 
         private void removeChoiceButton_Click(object sender, RoutedEventArgs e)
@@ -188,6 +195,7 @@ namespace VoiceAssistantUI
 
             chosenChoicesList.Remove((ListBoxItem)chosenChoicesListBox.Items[chosenChoicesListBox.SelectedIndex]);
             UpdateChosenChoices();
+            ChangeAcceptButtonEnabling();
         }
 
         private void moveUpButton_Click(object sender, RoutedEventArgs e)
@@ -217,22 +225,40 @@ namespace VoiceAssistantUI
             movedItem.IsSelected = true;
         }
 
+        private bool ValidateGrammarData()
+        {
+            bool goodData = true;
+
+            if (Assistant.Grammar.Any(g => g.Name == grammarNameTextBox.Text) || grammarNameTextBox.Text.Length < 1)
+                goodData = false;
+
+            if (commandsComboBox.SelectedIndex < 0)
+                goodData = false;
+
+            if (chosenChoicesList.Count <= 0)
+                goodData = false;
+
+            return goodData;
+        }
+
+        private void ChangeAcceptButtonEnabling()
+        {
+            if (ValidateGrammarData())
+            {
+                createEditButton.IsEnabled = true;
+            }
+            else
+            {
+                createEditButton.IsEnabled = false;
+            }
+        }
+
         private void grammarNameTextBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (mode == 'e') // EDIT, can be same name
                 return;
 
-            TextBox choiceWordTextBox = (TextBox)sender;
-            if (Assistant.Grammar.Any(g => g.Name == choiceWordTextBox.Text) || choiceWordTextBox.Text.Length < 1)
-            {
-                warningLabel.Opacity = 100.0;
-                createEditButton.IsEnabled = false;
-            }
-            else
-            {
-                createEditButton.IsEnabled = true;
-                warningLabel.Opacity = 0.0;
-            }
+            ChangeAcceptButtonEnabling();
         }
 
         private void createEditButton_Click(object sender, RoutedEventArgs e)
@@ -300,6 +326,12 @@ namespace VoiceAssistantUI
             };
 
             IsEnabled = false;
+        }
+
+        private void commandsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ChangeAcceptButtonEnabling();
+            selectCommandTextBlock.Opacity = 0;
         }
     }
 }

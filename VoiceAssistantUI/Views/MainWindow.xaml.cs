@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using VoiceAssistantUI;
 using Interaction = Microsoft.VisualBasic.Interaction;
 using MessageBox = System.Windows.MessageBox;
 
@@ -19,10 +16,10 @@ namespace VoiceAssistantUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        NotifyIcon trayIcon;
-        CurrentClick currentClick = CurrentClick.Choices;
-        char workingMode = 'd'; // d - develop, r - release
-        Task assistantListening;
+        private NotifyIcon trayIcon;
+        private CurrentClick currentClick = CurrentClick.Choices;
+        private readonly char workingMode = 'd'; // d - develop, r - release
+        private Task assistantListening;
 
         public MainWindow()
         {
@@ -36,7 +33,7 @@ namespace VoiceAssistantUI
             //Assistant.InitBasicHello();
             Assistant.InitConsoles(outputListBox, logsListBox);
             Assistant.LoadDataFromFile();
-            assistantListening = new Task(() => Assistant.StartListening());
+            //assistantListening = new Task(() => Assistant.StartListening());
 
             ListBoxHelpers.UpdateChoices(choicesListBox);
             ListBoxHelpers.UpdateGrammar(grammarListBox);
@@ -95,7 +92,8 @@ namespace VoiceAssistantUI
         {
             try
             {
-                assistantListening.Start();
+                //assistantListening.Start();
+                assistantListening = Task.Run(Assistant.StartListening);
             }
             catch (Exception ex)
             {
@@ -301,8 +299,11 @@ namespace VoiceAssistantUI
 
             Assistant.IsListening = false;
             assistantListening = null;
-            assistantListening = new Task(() => Assistant.StartListening());
-            assistantListening.Start();
+            //assistantListening = new Task(() => Assistant.StartListening());
+
+            assistantListening = Task.Run(Assistant.StartListening);
+
+            //assistantListening.Start();
         }
 
         #region Enums
