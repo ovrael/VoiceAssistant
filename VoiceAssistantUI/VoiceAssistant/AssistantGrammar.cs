@@ -14,7 +14,10 @@ namespace VoiceAssistantUI
         public List<string> ChoiceNames { get; set; }
 
         public delegate void Command0Parameters();
+        public Command0Parameters command0Parameters;
+
         public delegate void Command1Parameters(object parameter);
+        public Command1Parameters command1Parameters;
 
         //public static readonly Grammar InstalledApps = InstalledAppsBuilder();
         //public static readonly Grammar OpenApp = OpenAppBuilder();
@@ -100,20 +103,13 @@ namespace VoiceAssistantUI
 
         private void CreateDelegate(string commandName)
         {
-
-        }
-
-        public AssistantGrammar(string name, string commandName, string description, params string[] choices)
-        {
-            Name = name;
-            CommandName = commandName;
-            Description = description;
-            ChoiceNames = choices.ToList();
-
             switch (VoiceAssistantBackend.Commands.Misc.GetCommandParametersCount(commandName))
             {
                 case 0:
-                    Console.WriteLine("Komenda ma 0 parametrów");
+
+                    var command = VoiceAssistantBackend.Commands.Misc.GetCommand(commandName);
+                    command0Parameters = new Command0Parameters();
+
                     break;
 
                 case 1:
@@ -121,8 +117,23 @@ namespace VoiceAssistantUI
                     break;
 
                 default:
+                    Assistant.WriteLog($"There is no command: {commandName}");
                     break;
             }
+
+
+        }
+
+        public AssistantGrammar(string name, string commandName, string description, params string[] choices)
+        {
+            Console.WriteLine(name);
+
+            Name = name;
+            CommandName = commandName;
+            Description = description;
+            ChoiceNames = choices.ToList();
+
+            CreateDelegate(commandName);
 
             Grammar = GrammarCreator(choices);
         }

@@ -69,5 +69,10 @@ namespace VoiceAssistantBackend.Commands
 
             return selectedCommand.GetParameters().Length;
         }
+
+        public static MethodInfo GetCommand(string commandName)
+        {
+            return commandsData.First(c => c.Name == commandName);
+        }
     }
 }
