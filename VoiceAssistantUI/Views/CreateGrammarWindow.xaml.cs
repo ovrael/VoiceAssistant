@@ -51,7 +51,7 @@ namespace VoiceAssistantUI
                 chosenChoicesList.Add(boxItem);
             }
 
-            LoadCommandsToComboBox();
+            LoadCommandsToComboBox(grammar.CommandName);
 
             ListBoxHelpers.UpdateChoicesWithTooltips(availableChoicesListBox);
             ListBoxHelpers.UpdateGrammarChoices(chosenChoicesListBox, grammar);
@@ -63,9 +63,9 @@ namespace VoiceAssistantUI
             chosenChoicesListBox.ItemContainerStyle = itemContainerStyle;
         }
 
-        private void LoadCommandsToComboBox()
+        private void LoadCommandsToComboBox(string commandName = "")
         {
-            string[] availableCommands = VoiceAssistantBackend.Commands.Misc.GetAvailableCommands();
+            string[] availableCommands = VoiceAssistantBackend.Commands.Misc.GetCommandsNames();
 
             commandsComboBox.Items.Clear();
 
@@ -74,8 +74,11 @@ namespace VoiceAssistantUI
                 commandsComboBox.Items.Add(feature);
             }
 
-            commandsComboBox.SelectedItem = null;
-            commandsComboBox.SelectedValue = "Select command";
+            if (commandName.Length > 0)
+            {
+                selectCommandTextBlock.Opacity = 0;
+                commandsComboBox.SelectedValue = commandName;
+            }
         }
 
         private void UpdateChosenChoices()
@@ -276,7 +279,11 @@ namespace VoiceAssistantUI
                     choiceNames[i] = (string)chosenChoicesList[i].Content;
                 }
 
-                AssistantGrammar grammar = new AssistantGrammar(grammarNameTextBox.Text, description, choiceNames);
+                string selectedCommand = string.Empty;
+                if (commandsComboBox.SelectedIndex >= 0)
+                    selectedCommand = commandsComboBox.SelectedItem.ToString();
+
+                AssistantGrammar grammar = new AssistantGrammar(grammarNameTextBox.Text, selectedCommand, description, choiceNames);
                 Assistant.Grammar.Add(grammar);
             }
 
@@ -299,7 +306,11 @@ namespace VoiceAssistantUI
                     choiceNames[i] = (string)chosenChoicesList[i].Content;
                 }
 
-                AssistantGrammar grammar = new AssistantGrammar(name, description, choiceNames);
+                string selectedCommand = grammarForEdit.CommandName;
+                if (commandsComboBox.SelectedIndex >= 0)
+                    selectedCommand = commandsComboBox.SelectedItem.ToString();
+
+                AssistantGrammar grammar = new AssistantGrammar(name, selectedCommand, description, choiceNames);
                 Assistant.Grammar.Add(grammar);
                 Assistant.Grammar.Remove(grammarForEdit);
                 Assistant.Grammar.Sort((x, y) => x.Name.CompareTo(y.Name));

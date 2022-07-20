@@ -20,8 +20,10 @@ Choices:
 	Sentences: {AssistantName}
 Grammar:
 	Name: setVolume
+	CommandName: Sleep
 	Description: Sets volume at given value
 	ChoiceNames: set,volume,to,number
-	Name: start
-	Description: 
-	ChoiceNames: welcome,assistant
+	Name: muteVolume
+	CommandName: MuteVolume
+	Description: Sets volume at given value
+	ChoiceNames: set,volume,to,number

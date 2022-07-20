@@ -8,6 +8,7 @@ namespace VoiceAssistantUI
     public class AssistantGrammar
     {
         public string Name { get; set; }
+        public string CommandName { get; set; }
         public string Description { get; set; }
         public Grammar Grammar { get; set; }
         public List<string> ChoiceNames { get; set; }
@@ -105,8 +106,23 @@ namespace VoiceAssistantUI
         public AssistantGrammar(string name, string commandName, string description, params string[] choices)
         {
             Name = name;
+            CommandName = commandName;
             Description = description;
             ChoiceNames = choices.ToList();
+
+            switch (VoiceAssistantBackend.Commands.Misc.GetCommandParametersCount(commandName))
+            {
+                case 0:
+                    Console.WriteLine("Komenda ma 0 parametrów");
+                    break;
+
+                case 1:
+                    Console.WriteLine("Komenda ma 1 parametr");
+                    break;
+
+                default:
+                    break;
+            }
 
             Grammar = GrammarCreator(choices);
         }

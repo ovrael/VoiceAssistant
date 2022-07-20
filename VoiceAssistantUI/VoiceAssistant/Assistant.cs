@@ -206,6 +206,7 @@ namespace VoiceAssistantUI
             for (int i = 0; i < Grammar.Count; i++)
             {
                 grammars += "\tName: " + Grammar[i].Name + "\n";
+                grammars += "\tCommandName: " + Grammar[i].CommandName + "\n";
                 grammars += "\tDescription: " + Grammar[i].Description + "\n";
                 grammars += "\tChoiceNames: ";
 
@@ -288,10 +289,11 @@ namespace VoiceAssistantUI
                     for (int i = grammarIndex + 1; i < data.Count; i += 3)
                     {
                         string name = data[i].Split(':')[1].Trim(' ');
-                        string description = data[i + 1].Split(':')[1].Trim(' ');
-                        string[] choiceNames = data[i + 2].Split(':')[1].Trim(' ').Split(',');
+                        string commandName = data[i + 1].Split(':')[1].Trim(' ');
+                        string description = data[i + 2].Split(':')[1].Trim(' ');
+                        string[] choiceNames = data[i + 3].Split(':')[1].Trim(' ').Split(',');
 
-                        AssistantGrammar assistantGrammar = new AssistantGrammar(name, description, choiceNames);
+                        AssistantGrammar assistantGrammar = new AssistantGrammar(name, commandName, description, choiceNames);
                         Grammar.Add(assistantGrammar);
                     }
                 }
