@@ -278,7 +278,7 @@ namespace VoiceAssistantUI
             }
             catch (Exception e)
             {
-                WriteLog("Can't choice!", MessageType.Error);
+                WriteLog("Can't load choice!", MessageType.Error);
                 WriteLog("ERROR: " + e.ToString(), MessageType.Error);
             }
 
@@ -286,7 +286,7 @@ namespace VoiceAssistantUI
             {
                 if (data[grammarIndex + 1].Length > 0)
                 {
-                    for (int i = grammarIndex + 1; i < data.Count; i += 3)
+                    for (int i = grammarIndex + 1; i < data.Count; i += 4)
                     {
                         string name = data[i].Split(':')[1].Trim(' ');
                         string commandName = data[i + 1].Split(':')[1].Trim(' ');
@@ -300,7 +300,7 @@ namespace VoiceAssistantUI
             }
             catch (Exception e)
             {
-                WriteLog("Can't grammar!", MessageType.Error);
+                WriteLog("Can't load grammar!", MessageType.Error);
                 WriteLog("ERROR: " + e.ToString(), MessageType.Error);
             }
         }
@@ -325,7 +325,6 @@ namespace VoiceAssistantUI
                 WriteLog("At least 1 grammar must exist to work!", MessageType.Warning);
                 return;
             }
-
 
             IsListening = true;
             CultureInfo cultureInfo = new CultureInfo(Language);
