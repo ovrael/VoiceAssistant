@@ -31,7 +31,7 @@ namespace VoiceAssistantUI
             if (choiceSentence.Length < 1)
                 return;
 
-            choiceSentence = VoiceAssistantUI.Assistant.ReplaceSpecialVariablesKeysToValues(choiceSentence);
+            choiceSentence = Assistant.ReplaceSpecialVariablesKeysToValues(choiceSentence);
 
             if (choiceSentence.Length > 0)
                 choiceSentences.Add(choiceSentence);

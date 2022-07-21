@@ -35,6 +35,18 @@ namespace VoiceAssistantUI
             Choice = BuildChoices(choicesValues.ToArray());
         }
 
+        public AssistantChoice(string name, List<string> choicesValues, string canBeEdited, string canBeDeleted)
+        {
+            CanBeEdited = bool.Parse(canBeEdited);
+            CanBeDeleted = bool.Parse(canBeDeleted);
+            CanBeMoved = true;
+
+            Name = name;
+            Sentences = choicesValues;
+
+            Choice = BuildChoices(choicesValues.ToArray());
+        }
+
         public void AddChoiceSentence(string value)
         {
             if (Sentences.Contains(value))

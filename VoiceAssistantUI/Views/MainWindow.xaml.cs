@@ -183,7 +183,12 @@ namespace VoiceAssistantUI
         private void ChoicesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             currentClick = CurrentClick.Choices;
-            ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, GetCurrentAssistantChoice());
+            var currentChoice = GetCurrentAssistantChoice();
+
+            ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, currentChoice);
+
+            editButton.IsEnabled = currentChoice.CanBeEdited;
+            deleteButton.IsEnabled = currentChoice.CanBeDeleted;
         }
         private void NewChoiceButton_Click(object sender, RoutedEventArgs e)
         {
@@ -306,6 +311,21 @@ namespace VoiceAssistantUI
             //assistantListening.Start();
         }
 
+        private void StopAssistant()
+        {
+            Assistant.SaveDataToFile();
+
+            Assistant.IsListening = false;
+            assistantListening = null;
+        }
+
+        private void StartAssistant()
+        {
+            Assistant.SaveDataToFile();
+
+            assistantListening = Task.Run(Assistant.StartListening);
+        }
+
         #region Enums
         private enum CurrentClick
         {
@@ -405,6 +425,12 @@ namespace VoiceAssistantUI
         #region Manage choices
         private void EditChoice(AssistantChoice choice)
         {
+            if (!choice.CanBeEdited)
+            {
+                MessageBox.Show($"\"{choice.Name}\" cannot by edited.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             string newName = Interaction.InputBox($"Provide new choice name for choice \"{choice.Name}\"", "Changing choice name", choice.Name);
 
             if (Assistant.Choices.Any(c => c.Name == newName))
@@ -423,6 +449,12 @@ namespace VoiceAssistantUI
         }
         private void DeleteChoice(AssistantChoice choice)
         {
+            if (!choice.CanBeDeleted)
+            {
+                MessageBox.Show($"\"{choice.Name}\" cannot by deleted.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var result = MessageBox.Show($"Are you sure to delete \"{choice.Name}\" choice?", "Delete quesiton", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result == MessageBoxResult.Yes)
@@ -481,8 +513,9 @@ namespace VoiceAssistantUI
 
             if (result == MessageBoxResult.Yes)
             {
+                StopAssistant();
                 Assistant.Grammars.Remove(grammar);
-                ResetAssistant();
+                StartAssistant();
             }
         }
 

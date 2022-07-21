@@ -3,27 +3,39 @@ ChangeableVariables:
 	AssistantName: Kaladin
 Choices:
 	Name: number
+	CanBeEdited: False
+	CanBeDeleted: False
 	Sentences: Tries to,recognize,number
 	Name: open
+	CanBeEdited: True
+	CanBeDeleted: True
 	Sentences: open,run
 	Name: apps
+	CanBeEdited: True
+	CanBeDeleted: True
 	Sentences: apps,programs
 	Name: set
+	CanBeEdited: True
+	CanBeDeleted: True
 	Sentences: change,set
 	Name: volume
+	CanBeEdited: True
+	CanBeDeleted: True
 	Sentences: speakers value,volume,volume value
 	Name: to
+	CanBeEdited: True
+	CanBeDeleted: True
 	Sentences: at,to
 	Name: welcome
+	CanBeEdited: True
+	CanBeDeleted: True
 	Sentences: hello,hey,hi
 	Name: assistant
+	CanBeEdited: True
+	CanBeDeleted: True
 	Sentences: {AssistantName}
 Grammar:
-	Name: muteVolume
-	CommandName: VolumeMute()
-	Description: Sets volume at given value
-	ChoiceNames: set,volume,to,assistant
-	Name: setVolume
-	CommandName: Sleep
-	Description: Sets volume at given value
+	Name: SetVolume
+	CommandName: VolumeSet(Object)
+	Description: 
 	ChoiceNames: set,volume,to,number

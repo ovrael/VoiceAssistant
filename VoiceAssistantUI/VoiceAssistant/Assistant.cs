@@ -193,7 +193,9 @@ namespace VoiceAssistantUI
 
             for (int i = 0; i < Choices.Count; i++)
             {
-                choices += "\tName: " + Choices[i].Name + "\n";
+                choices += $"\tName: {Choices[i].Name}\n";
+                choices += $"\tCanBeEdited: {Choices[i].CanBeEdited}\n";
+                choices += $"\tCanBeDeleted: {Choices[i].CanBeDeleted}\n";
                 choices += "\tSentences: ";
 
                 for (int j = 0; j < Choices[i].Sentences.Count; j++)
@@ -268,17 +270,19 @@ namespace VoiceAssistantUI
             {
                 if (data[choicesIndex + 1].Length > 0)
                 {
-                    for (int i = choicesIndex + 1; i < grammarIndex; i += 2)
+                    for (int i = choicesIndex + 1; i < grammarIndex; i += 4)
                     {
                         string name = data[i].Split(':')[1].Trim(' ');
-                        string[] sentences = data[i + 1].Split(':')[1].Trim(' ').Split(',');
+                        string canBeEdited = data[i + 1].Split(':')[1].Trim(' ');
+                        string canBeDeleted = data[i + 2].Split(':')[1].Trim(' ');
+                        string[] sentences = data[i + 3].Split(':')[1].Trim(' ').Split(',');
 
                         for (int s = 0; s < sentences.Length; s++)
                         {
                             sentences[s] = ReplaceSpecialVariablesKeysToValues(sentences[s]);
                         }
 
-                        AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList());
+                        AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList(), canBeEdited, canBeDeleted);
                         Choices.Add(assistantChoice);
                     }
                 }
@@ -402,8 +406,37 @@ namespace VoiceAssistantUI
             if (speakedGrammar is null)
                 return;
 
-            speakedGrammar.InvokeDelegate();
+            int numberIndex = IndexOfNumber(e.Result.Text);
 
+            if (numberIndex < 0)
+                speakedGrammar.InvokeDelegate();
+
+            string numberParameter = GetNumberFromText(e.Result.Text, numberIndex);
+            speakedGrammar.InvokeDelegate(numberParameter);
+        }
+
+        private static int IndexOfNumber(string text)
+        {
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (char.IsDigit(text[i]))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private static string GetNumberFromText(string text, int numberIndex)
+        {
+            string numberParameter = text.Substring(numberIndex);
+
+            int spaceIndex = numberParameter.IndexOf(' ');
+
+            if (spaceIndex > 0)
+                numberParameter = numberParameter.Substring(0, spaceIndex);
+
+
+            return numberParameter;
         }
         #endregion
     }

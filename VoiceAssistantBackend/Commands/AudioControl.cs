@@ -19,24 +19,29 @@ namespace VoiceAssistantBackend.Commands
         [DllImport("user32.dll")]
         private static extern Byte MapVirtualKey(UInt32 uCode, UInt32 uMapType);
 
-        public static void VolumeUpByPercent(int percent)
+        public static void VolumeUpByPercent(object percent)
         {
-            playbackDevice.Volume += playbackDevice.Volume * percent / 100d;
+            if (int.TryParse(percent.ToString(), out var result))
+                playbackDevice.Volume += playbackDevice.Volume * result / 100d;
+
         }
 
-        public static void VolumeUpByValue(int value)
+        public static void VolumeUpByValue(object value)
         {
-            playbackDevice.Volume += value;
+            if (int.TryParse(value.ToString(), out var result))
+                playbackDevice.Volume += result;
         }
 
-        public static void VolumeDownByPercent(int percent)
+        public static void VolumeDownByPercent(object percent)
         {
-            playbackDevice.Volume -= playbackDevice.Volume * percent / 100d;
+            if (int.TryParse(percent.ToString(), out var result))
+                playbackDevice.Volume -= playbackDevice.Volume * result / 100d;
         }
 
-        public static void VolumeDownByValue(int value)
+        public static void VolumeDownByValue(object value)
         {
-            playbackDevice.Volume -= value;
+            if (int.TryParse(value.ToString(), out var result))
+                playbackDevice.Volume -= result;
         }
 
         public static void VolumeMute()
@@ -45,9 +50,10 @@ namespace VoiceAssistantBackend.Commands
             keybd_event(VK_VOLUME_MUTE, MapVirtualKey(VK_VOLUME_MUTE, 0), KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
         }
 
-        public static void VolumeSet(int newVolume)
+        public static void VolumeSet(object newVolume)
         {
-            playbackDevice.Volume = newVolume;
+            if (int.TryParse(newVolume.ToString(), out var result))
+                playbackDevice.Volume = result;
         }
     }
 }

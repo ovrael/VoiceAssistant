@@ -16,7 +16,7 @@ namespace VoiceAssistantUI
         public delegate void Command0Parameters();
         public Command0Parameters command0Parameters;
 
-        public delegate void Command1Parameters(object parameter = null);
+        public delegate void Command1Parameters(object parameter);
         public Command1Parameters command1Parameters;
 
         //public static readonly Grammar InstalledApps = InstalledAppsBuilder();
