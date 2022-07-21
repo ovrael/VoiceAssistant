@@ -32,7 +32,7 @@ namespace VoiceAssistantUI
         public static string DataFilePath = @"..\..\..\src\data\data.vad";
 
         public static List<AssistantChoice> Choices = new List<AssistantChoice>();
-        public static List<AssistantGrammar> Grammar = new List<AssistantGrammar>();
+        public static List<AssistantGrammar> Grammars = new List<AssistantGrammar>();
 
         public static ListBox outputListBox;
         private static readonly int outputHistoryLength = 300;
@@ -72,13 +72,20 @@ namespace VoiceAssistantUI
 
             string time = DateTime.Now.ToString("HH:mm:ss");
 
-            Application.Current.Dispatcher.Invoke(() =>
+            try
             {
-                ListBoxItem boxItem = new ListBoxItem();
-                boxItem.Content = $"[{time}] {message}";
-                boxItem.Foreground = PickBrush(type);
-                logsListBox.Items.Add(boxItem);
-            });
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    ListBoxItem boxItem = new ListBoxItem();
+                    boxItem.Content = $"[{time}] {message}";
+                    boxItem.Foreground = PickBrush(type);
+                    logsListBox.Items.Add(boxItem);
+                });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString);
+            }
         }
         public static void WriteOutput(string message, MessageType type = MessageType.Normal)
         {
@@ -164,7 +171,7 @@ namespace VoiceAssistantUI
 
         public static AssistantGrammar GetGrammar(string grammarName)
         {
-            return Grammar.Where(g => g.Name == grammarName).FirstOrDefault();
+            return Grammars.Where(g => g.Name == grammarName).FirstOrDefault();
         }
         public static AssistantChoice GetChoice(string choiceName)
         {
@@ -203,21 +210,21 @@ namespace VoiceAssistantUI
 
             string grammars = "Grammar:\n";
 
-            for (int i = 0; i < Grammar.Count; i++)
+            for (int i = 0; i < Grammars.Count; i++)
             {
-                grammars += "\tName: " + Grammar[i].Name + "\n";
-                grammars += "\tCommandName: " + Grammar[i].CommandName + "\n";
-                grammars += "\tDescription: " + Grammar[i].Description + "\n";
+                grammars += "\tName: " + Grammars[i].Name + "\n";
+                grammars += "\tCommandName: " + Grammars[i].CommandName + "\n";
+                grammars += "\tDescription: " + Grammars[i].Description + "\n";
                 grammars += "\tChoiceNames: ";
 
-                for (int j = 0; j < Grammar[i].ChoiceNames.Count; j++)
+                for (int j = 0; j < Grammars[i].ChoiceNames.Count; j++)
                 {
-                    grammars += Grammar[i].ChoiceNames[j];
+                    grammars += Grammars[i].ChoiceNames[j];
 
-                    if (j < Grammar[i].ChoiceNames.Count - 1)
+                    if (j < Grammars[i].ChoiceNames.Count - 1)
                         grammars += ",";
                 }
-                if (i < Grammar.Count - 1)
+                if (i < Grammars.Count - 1)
                     grammars += "\n";
             }
 
@@ -294,7 +301,7 @@ namespace VoiceAssistantUI
                         string[] choiceNames = data[i + 3].Split(':')[1].Trim(' ').Split(',');
 
                         AssistantGrammar assistantGrammar = new AssistantGrammar(name, commandName, description, choiceNames);
-                        Grammar.Add(assistantGrammar);
+                        Grammars.Add(assistantGrammar);
                     }
                 }
             }
@@ -320,7 +327,7 @@ namespace VoiceAssistantUI
         // Handle the SpeechRecognized event.
         public static async Task StartListening()
         {
-            if (Grammar.Count == 0)
+            if (Grammars.Count == 0)
             {
                 WriteLog("At least 1 grammar must exist to work!", MessageType.Warning);
                 return;
@@ -344,7 +351,7 @@ namespace VoiceAssistantUI
                 //recognizer.LoadGrammar(new DictationGrammar());
 
                 AddDictationChoices();
-                foreach (var grammar in Grammar)
+                foreach (var grammar in Grammars)
                 {
                     recognizer.LoadGrammar(grammar.Grammar);
                 }
@@ -391,52 +398,12 @@ namespace VoiceAssistantUI
             if (e.Result.Confidence < ConfidenceThreshold)
                 return;
 
-            switch (e.Result.Grammar.Name)
-            {
-                //case nameof(AssistantGrammar.InstalledApps):
-                //    InstalledApps();
-                //    break;
+            var speakedGrammar = Grammars.Where(g => g.Name == e.Result.Grammar.Name).FirstOrDefault();
+            if (speakedGrammar is null)
+                return;
 
-                //case nameof(AssistantGrammar.OpenApp):
-                //    OpenApp(e.Result.Text);
-                //    break;
+            speakedGrammar.InvokeDelegate();
 
-                //case nameof(AssistantGrammar.ControlMedia):
-                //    ControlMedia(e.Result.Text);
-                //    break;
-
-                case "shutdown":
-                    VoiceAssistantBackend.Commands.EnergyControl.Shutdown();
-                    break;
-
-                case "volumeUpPercent":
-                    VoiceAssistantBackend.Commands.AudioControl.VolumeUpByPercent(0);
-                    break;
-
-                case "volumeUpValue":
-                    VoiceAssistantBackend.Commands.AudioControl.VolumeUpByValue(0);
-                    break;
-
-                case "volumeDownPercent":
-                    VoiceAssistantBackend.Commands.AudioControl.VolumeDownByPercent(0);
-                    break;
-
-                case "volumeDownValue":
-                    VoiceAssistantBackend.Commands.AudioControl.VolumeDownByValue(0);
-                    break;
-
-                case "volumeMute":
-                    VoiceAssistantBackend.Commands.AudioControl.VolumeMute();
-                    break;
-
-                case "volumeSet":
-                    VoiceAssistantBackend.Commands.AudioControl.VolumeSet(50);
-                    break;
-
-                default:
-                    Console.WriteLine($"Grammar \"{e.Result.Grammar.Name}\" is not available yet!");
-                    break;
-            }
         }
         #endregion
     }

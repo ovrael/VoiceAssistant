@@ -16,7 +16,7 @@ namespace VoiceAssistantUI
         public delegate void Command0Parameters();
         public Command0Parameters command0Parameters;
 
-        public delegate void Command1Parameters(object parameter);
+        public delegate void Command1Parameters(object parameter = null);
         public Command1Parameters command1Parameters;
 
         //public static readonly Grammar InstalledApps = InstalledAppsBuilder();
@@ -103,31 +103,60 @@ namespace VoiceAssistantUI
 
         private void CreateDelegate(string commandName)
         {
-            switch (VoiceAssistantBackend.Commands.Misc.GetCommandParametersCount(commandName))
+            var command = VoiceAssistantBackend.Commands.Misc.GetCommand(commandName);
+            switch (command.GetParameters().Length)
             {
                 case 0:
+                    if (command is null)
+                    {
+                        Assistant.WriteLog($"There is no command: {commandName}!", MessageType.Error);
+                        return;
+                    }
 
-                    var command = VoiceAssistantBackend.Commands.Misc.GetCommand(commandName);
-                    command0Parameters = new Command0Parameters();
-
+                    command0Parameters = (Command0Parameters)Delegate.CreateDelegate(typeof(Command0Parameters), command);
                     break;
 
                 case 1:
-                    Console.WriteLine("Komenda ma 1 parametr");
+                    if (command is null)
+                    {
+                        Assistant.WriteLog($"There is no command: {commandName}!", MessageType.Error);
+                        return;
+                    }
+
+                    command1Parameters = (Command1Parameters)Delegate.CreateDelegate(typeof(Command1Parameters), command);
                     break;
 
                 default:
                     Assistant.WriteLog($"There is no command: {commandName}");
                     break;
             }
+        }
 
+        public void InvokeDelegate(params object[] parameters)
+        {
+            switch (parameters.Length)
+            {
+                case 0:
+                    if (command0Parameters is not null)
+                        command0Parameters.Invoke();
+                    else
+                        Assistant.WriteLog("Command is null!");
+                    break;
 
+                case 1:
+                    if (command1Parameters is not null)
+                        command1Parameters.Invoke(parameters[0]);
+                    else
+                        Assistant.WriteLog("Command is null!");
+                    break;
+
+                default:
+                    break;
+            }
         }
 
         public AssistantGrammar(string name, string commandName, string description, params string[] choices)
         {
-            Console.WriteLine(name);
-
             Name = name;
             CommandName = commandName;
             Description = description;

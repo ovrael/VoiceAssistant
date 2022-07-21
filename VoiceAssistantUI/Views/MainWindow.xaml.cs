@@ -75,8 +75,8 @@ namespace VoiceAssistantUI
             AssistantGrammar printApss = new AssistantGrammar("Print apps", "dsc", "show", "apps");
             AssistantGrammar openApps = new AssistantGrammar("Open apps", "dsc", "open", "apps");
 
-            Assistant.Grammar.Add(printApss);
-            Assistant.Grammar.Add(openApps);
+            Assistant.Grammars.Add(printApss);
+            Assistant.Grammars.Add(openApps);
         }
         #endregion
 
@@ -164,7 +164,7 @@ namespace VoiceAssistantUI
             if (grammarListBox.Items.Count == 0 || grammarListBox.SelectedItem is null)
                 return null;
 
-            return Assistant.Grammar
+            return Assistant.Grammars
                 .Where(g => g.Name == (grammarListBox.SelectedItem as ListBoxItem).Content)
                 .FirstOrDefault();
         }
@@ -481,7 +481,7 @@ namespace VoiceAssistantUI
 
             if (result == MessageBoxResult.Yes)
             {
-                Assistant.Grammar.Remove(grammar);
+                Assistant.Grammars.Remove(grammar);
                 ResetAssistant();
             }
         }

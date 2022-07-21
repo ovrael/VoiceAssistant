@@ -22,8 +22,8 @@ namespace VoiceAssistantBackend.Commands
             {
                 var methods = item.GetMethods()
                     .Where(
-                    m => m.IsPublic
-                    && m.IsStatic
+                        m => m.IsPublic
+                        && m.IsStatic
                     )
                     .ToList();
 
@@ -54,7 +54,7 @@ namespace VoiceAssistantBackend.Commands
             return availableCommands.ToArray();
         }
 
-        public static int GetCommandParametersCount(string commandName)
+        public static MethodInfo GetCommand(string commandName)
         {
             int bracketIndex = commandName.IndexOf('(');
             if (bracketIndex >= 0)
@@ -63,16 +63,7 @@ namespace VoiceAssistantBackend.Commands
             }
 
             MethodInfo selectedCommand = commandsData.Where(c => c.Name == commandName).FirstOrDefault();
-
-            if (selectedCommand is null)
-                return -1;
-
-            return selectedCommand.GetParameters().Length;
-        }
-
-        public static MethodInfo GetCommand(string commandName)
-        {
-            return commandsData.First(c => c.Name == commandName);
+            return selectedCommand;
         }
     }
 }

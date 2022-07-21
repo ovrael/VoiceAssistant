@@ -37,7 +37,7 @@ namespace VoiceAssistantUI
         public static void UpdateGrammar(ListBox listBox)
         {
             listBox.Items.Clear();
-            foreach (var grammar in Assistant.Grammar)
+            foreach (var grammar in Assistant.Grammars)
             {
                 ListBoxItem item = new ListBoxItem();
                 item.Content = grammar.Name;

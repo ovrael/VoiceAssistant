@@ -13,14 +13,19 @@ namespace VoiceAssistantUI
     /// </summary>
     public partial class CreateEditGrammarWindow : Window
     {
-        private readonly char mode = 'c'; // c - create, e - edit
         private readonly List<ListBoxItem> chosenChoicesList = new List<ListBoxItem>();
         private readonly AssistantGrammar grammarForEdit = null;
+        private enum Mode
+        {
+            Create,
+            Edit
+        }
+        Mode mode;
 
         public CreateEditGrammarWindow()
         {
             InitializeComponent();
-            mode = 'c';
+            mode = Mode.Create;
             createEditButton.IsEnabled = false;
             ListBoxHelpers.UpdateChoicesWithTooltips(availableChoicesListBox);
 
@@ -37,7 +42,7 @@ namespace VoiceAssistantUI
         {
             InitializeComponent();
             grammarForEdit = grammar;
-            mode = 'e';
+            mode = Mode.Edit;
             enterGrammarNameWatermark.Text = "Change name";
             grammarNameLabel.Content = grammar.Name;
             createEditButton.Content = "Edit";
@@ -63,6 +68,21 @@ namespace VoiceAssistantUI
             chosenChoicesListBox.ItemContainerStyle = itemContainerStyle;
         }
 
+        private int IndexOfCommand(ItemCollection commands, string commandName)
+        {
+            int index = -1;
+
+            for (int i = 0; i < commands.Count; i++)
+            {
+                if (commands[i].ToString().Contains(commandName))
+                {
+                    return i;
+                }
+            }
+
+            return index;
+        }
+
         private void LoadCommandsToComboBox(string commandName = "")
         {
             string[] availableCommands = VoiceAssistantBackend.Commands.Misc.GetCommandsNames();
@@ -78,6 +98,7 @@ namespace VoiceAssistantUI
             {
                 selectCommandTextBlock.Opacity = 0;
                 commandsComboBox.SelectedValue = commandName;
+                commandsComboBox.SelectedIndex = IndexOfCommand(commandsComboBox.Items, commandName);
             }
         }
 
@@ -230,7 +251,7 @@ namespace VoiceAssistantUI
 
         private bool ValidateGrammarData()
         {
-            if (Assistant.Grammar.Any(g => g.Name == grammarNameTextBox.Text) || grammarNameTextBox.Text.Length < 1)
+            if (Assistant.Grammars.Any(g => g.Name == grammarNameTextBox.Text) || grammarNameTextBox.Text.Length < 1)
                 return false;
 
             if (commandsComboBox.SelectedIndex < 0)
@@ -244,6 +265,9 @@ namespace VoiceAssistantUI
 
         private void ChangeAcceptButtonEnabling()
         {
+            if (mode == Mode.Edit)
+                return;
+
             if (ValidateGrammarData())
             {
                 createEditButton.IsEnabled = true;
@@ -256,15 +280,12 @@ namespace VoiceAssistantUI
 
         private void grammarNameTextBox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (mode == 'e') // EDIT, can be same name
-                return;
-
             ChangeAcceptButtonEnabling();
         }
 
         private void createEditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (mode == 'c') // CREATE
+            if (mode == Mode.Create) // CREATE
             {
                 string description = string.Empty;
                 if (descriptionCheckBox.IsChecked is not null && (bool)descriptionCheckBox.IsChecked)
@@ -284,10 +305,10 @@ namespace VoiceAssistantUI
                     selectedCommand = commandsComboBox.SelectedItem.ToString();
 
                 AssistantGrammar grammar = new AssistantGrammar(grammarNameTextBox.Text, selectedCommand, description, choiceNames);
-                Assistant.Grammar.Add(grammar);
+                Assistant.Grammars.Add(grammar);
             }
 
-            if (mode == 'e') // EDIT
+            if (mode == Mode.Edit) // EDIT
             {
                 string description = grammarForEdit.Description;
                 string name = grammarForEdit.Name;
@@ -311,9 +332,9 @@ namespace VoiceAssistantUI
                     selectedCommand = commandsComboBox.SelectedItem.ToString();
 
                 AssistantGrammar grammar = new AssistantGrammar(name, selectedCommand, description, choiceNames);
-                Assistant.Grammar.Add(grammar);
-                Assistant.Grammar.Remove(grammarForEdit);
-                Assistant.Grammar.Sort((x, y) => x.Name.CompareTo(y.Name));
+                Assistant.Grammars.Add(grammar);
+                Assistant.Grammars.Remove(grammarForEdit);
+                Assistant.Grammars.Sort((x, y) => x.Name.CompareTo(y.Name));
             }
 
             Close();

@@ -19,11 +19,11 @@ Choices:
 	Name: assistant
 	Sentences: {AssistantName}
 Grammar:
+	Name: muteVolume
+	CommandName: VolumeMute()
+	Description: Sets volume at given value
+	ChoiceNames: set,volume,to,assistant
 	Name: setVolume
 	CommandName: Sleep
-	Description: Sets volume at given value
-	ChoiceNames: set,volume,to,number
-	Name: muteVolume
-	CommandName: MuteVolume
 	Description: Sets volume at given value
 	ChoiceNames: set,volume,to,number
