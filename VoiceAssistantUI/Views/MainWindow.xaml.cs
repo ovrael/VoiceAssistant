@@ -16,16 +16,22 @@ namespace VoiceAssistantUI
     /// </summary>
     public partial class MainWindow : Window
     {
+        private enum WorkingMode
+        {
+            Develop,
+            Release
+        }
+
         private NotifyIcon trayIcon;
         private CurrentClick currentClick = CurrentClick.Choices;
-        private readonly char workingMode = 'd'; // d - develop, r - release
+        private readonly WorkingMode workingMode = WorkingMode.Release;
         private Task assistantListening;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            if (workingMode == 'd')
+            if (workingMode == WorkingMode.Develop)
                 ConsoleManager.ShowConsoleWindow();
             MoveTabs();
             //Assistant.SaveDataToFile();
