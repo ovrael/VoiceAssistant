@@ -49,10 +49,10 @@ namespace VoiceAssistantUI
             descriptionCheckBox.Content = "Edit description?";
             createEditButton.Background = new SolidColorBrush(Color.FromArgb(127, 251, 206, 48));
 
-            foreach (var choiceName in grammar.ChoiceNames)
+            foreach (var choice in grammar.AssistantChoices)
             {
                 ListBoxItem boxItem = new ListBoxItem();
-                boxItem.Content = choiceName;
+                boxItem.Content = choice.Name;
                 chosenChoicesList.Add(boxItem);
             }
 
@@ -348,11 +348,13 @@ namespace VoiceAssistantUI
             choicesCreator.Closing += delegate
             {
                 IsEnabled = true;
-                ListBoxHelpers.UpdateChoices(availableChoicesListBox);
+                //availableChoicesListBox.SelectedIndex = availableChoicesListBox.Items.Count - 1;
+                //availableChoicesListBox.SelectedItem = availableChoicesListBox.Items[availableChoicesListBox.SelectedIndex];
             };
             choicesCreator.Closed += delegate
             {
                 Assistant.SaveDataToFile();
+                ListBoxHelpers.UpdateChoicesWithTooltips(availableChoicesListBox);
             };
 
             IsEnabled = false;

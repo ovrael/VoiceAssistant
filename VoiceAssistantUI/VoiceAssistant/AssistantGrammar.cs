@@ -11,7 +11,8 @@ namespace VoiceAssistantUI
         public string CommandName { get; set; }
         public string Description { get; set; }
         public Grammar Grammar { get; set; }
-        public List<string> ChoiceNames { get; set; }
+        //public List<string> ChoiceNames { get; set; }
+        public List<AssistantChoice> AssistantChoices { get; set; }
 
         public delegate void Command0Parameters();
         public Command0Parameters command0Parameters;
@@ -31,19 +32,19 @@ namespace VoiceAssistantUI
             return null;
         }
 
-        private Grammar OpenAppBuilder()
-        {
-            Grammar grammar = GrammarCreator("Open", "InstalledApps");
+        //private Grammar OpenAppBuilder()
+        //{
+        //    Grammar grammar = GrammarCreator("Open", "InstalledApps");
 
-            return grammar;
-        }
+        //    return grammar;
+        //}
 
-        private Grammar ControlMediaBuilder()
-        {
-            Grammar grammar = GrammarCreator("MediaControl", "MediaType");
+        //private Grammar ControlMediaBuilder()
+        //{
+        //    Grammar grammar = GrammarCreator("MediaControl", "MediaType");
 
-            return grammar;
-        }
+        //    return grammar;
+        //}
 
         private Grammar ControlPCBuilder()
         {
@@ -68,16 +69,16 @@ namespace VoiceAssistantUI
         //    return new Grammar(grammarBuilder) { Name = caller };
         //}
 
-        private Grammar GrammarCreator(params string[] choices)
+        private Grammar GrammarCreator()
         {
             GrammarBuilder grammarBuilder = new GrammarBuilder();
             //GrammarBuilder grammarBuilder = new GrammarBuilder(AssistantChoice.Initiaton);
 
-            foreach (var choice in choices)
+            foreach (var choice in AssistantChoices)
             {
                 try
                 {
-                    if (choice == "number")
+                    if (choice.Name.ToLower() == "number")
                     {
                         Choices numbers = Helpers.CreateNumberChoices(min: 0, max: 100);
                         grammarBuilder.Append(numbers);
@@ -85,8 +86,7 @@ namespace VoiceAssistantUI
                     else
                     {
                         //var propValue = typeof(AssistantChoice).GetField(choice, BindingFlags.Public | BindingFlags.Static).GetValue(null);
-                        var choiceToAdd = Assistant.Choices.Where(c => c.Name == choice).First().Choice;
-                        grammarBuilder.Append(choiceToAdd);
+                        grammarBuilder.Append(choice.Choice);
                     }
 
                 }
@@ -98,7 +98,7 @@ namespace VoiceAssistantUI
 
             grammarBuilder.Culture = new System.Globalization.CultureInfo(Assistant.Language);
 
-            return new Grammar(grammarBuilder) { Name = this.Name };
+            return new Grammar(grammarBuilder) { Name = Name };
         }
 
         private void CreateDelegate(string commandName)
@@ -160,11 +160,15 @@ namespace VoiceAssistantUI
             Name = name;
             CommandName = commandName;
             Description = description;
-            ChoiceNames = choices.ToList();
-
+            AssistantChoices = new List<AssistantChoice>();
+            foreach (var choice in choices)
+            {
+                AssistantChoices.Add(Assistant.GetChoice(choice));
+            }
+            //ChoiceNames = choices.ToList();
             CreateDelegate(commandName);
 
-            Grammar = GrammarCreator(choices);
+            Grammar = GrammarCreator();
         }
     }
 }

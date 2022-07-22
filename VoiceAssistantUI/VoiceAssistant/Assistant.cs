@@ -219,11 +219,11 @@ namespace VoiceAssistantUI
                 grammars += "\tDescription: " + Grammars[i].Description + "\n";
                 grammars += "\tChoiceNames: ";
 
-                for (int j = 0; j < Grammars[i].ChoiceNames.Count; j++)
+                for (int j = 0; j < Grammars[i].AssistantChoices.Count; j++)
                 {
-                    grammars += Grammars[i].ChoiceNames[j];
+                    grammars += Grammars[i].AssistantChoices[j].Name;
 
-                    if (j < Grammars[i].ChoiceNames.Count - 1)
+                    if (j < Grammars[i].AssistantChoices.Count - 1)
                         grammars += ",";
                 }
                 if (i < Grammars.Count - 1)
@@ -409,7 +409,10 @@ namespace VoiceAssistantUI
             int numberIndex = IndexOfNumber(e.Result.Text);
 
             if (numberIndex < 0)
+            {
                 speakedGrammar.InvokeDelegate();
+                return;
+            }
 
             string numberParameter = GetNumberFromText(e.Result.Text, numberIndex);
             speakedGrammar.InvokeDelegate(numberParameter);

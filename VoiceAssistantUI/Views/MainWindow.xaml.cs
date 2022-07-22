@@ -170,7 +170,7 @@ namespace VoiceAssistantUI
         }
         private string GetCurrentAssistantChoiceWord()
         {
-            return (string)choiceWordsListBox.SelectedItem;
+            return (string)choiceSentencesListBox.SelectedItem;
         }
 
         #endregion
@@ -185,10 +185,13 @@ namespace VoiceAssistantUI
             currentClick = CurrentClick.Choices;
             var currentChoice = GetCurrentAssistantChoice();
 
-            ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, currentChoice);
+            ListBoxHelpers.UpdateChoiceWords(choiceSentencesListBox, currentChoice);
 
-            editButton.IsEnabled = currentChoice.CanBeEdited;
-            deleteButton.IsEnabled = currentChoice.CanBeDeleted;
+            if (currentChoice is not null)
+            {
+                editButton.IsEnabled = currentChoice.CanBeEdited;
+                deleteButton.IsEnabled = currentChoice.CanBeDeleted;
+            }
         }
         private void NewChoiceButton_Click(object sender, RoutedEventArgs e)
         {
@@ -199,6 +202,8 @@ namespace VoiceAssistantUI
             {
                 IsEnabled = true;
                 ListBoxHelpers.UpdateChoices(choicesListBox);
+                choicesListBox.SelectedIndex = choicesListBox.Items.Count - 1;
+                choicesListBox.SelectedItem = choicesListBox.Items[choicesListBox.SelectedIndex];
             };
             choicesCreator.Closed += delegate
             {
@@ -240,7 +245,7 @@ namespace VoiceAssistantUI
             currentChoice.AddChoiceSentence(newSentence);
             Assistant.SaveDataToFile();
 
-            ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, GetCurrentAssistantChoice());
+            ListBoxHelpers.UpdateChoiceWords(choiceSentencesListBox, GetCurrentAssistantChoice());
         }
 
         #endregion
@@ -259,6 +264,7 @@ namespace VoiceAssistantUI
         {
             CreateEditGrammarWindow createEditGrammarWindow = new CreateEditGrammarWindow();
 
+            StopAssistant();
             createEditGrammarWindow.Show();
             createEditGrammarWindow.Activate();
             createEditGrammarWindow.Closing += delegate
@@ -268,7 +274,8 @@ namespace VoiceAssistantUI
             };
             createEditGrammarWindow.Closed += delegate
             {
-                ResetAssistant();
+                StartAssistant();
+                //ResetAssistant();
             };
 
             IsEnabled = false;
@@ -281,6 +288,7 @@ namespace VoiceAssistantUI
 
             CreateEditGrammarWindow createEditGrammarWindow = new CreateEditGrammarWindow(currentGrammar);
 
+            StopAssistant();
             createEditGrammarWindow.Show();
             createEditGrammarWindow.Activate();
             createEditGrammarWindow.Closing += delegate
@@ -290,7 +298,8 @@ namespace VoiceAssistantUI
             };
             createEditGrammarWindow.Closed += delegate
             {
-                ResetAssistant();
+                StartAssistant();
+                ListBoxHelpers.UpdateGrammarChoices(grammarChoicesListBox, currentGrammar);
             };
 
             IsEnabled = false;
@@ -372,7 +381,7 @@ namespace VoiceAssistantUI
 
             if (currentClick == CurrentClick.ChoiceWords)
             {
-                if (choiceWordsListBox.Items.Count == 0)
+                if (choiceSentencesListBox.Items.Count == 0)
                     return;
 
                 var currentChoice = GetCurrentAssistantChoice();
@@ -391,7 +400,7 @@ namespace VoiceAssistantUI
                         break;
                 }
 
-                ListBoxHelpers.UpdateChoiceWords(choiceWordsListBox, GetCurrentAssistantChoice());
+                ListBoxHelpers.UpdateChoiceWords(choiceSentencesListBox, GetCurrentAssistantChoice());
             }
 
             if (currentClick == CurrentClick.Grammar)
@@ -403,17 +412,8 @@ namespace VoiceAssistantUI
                 if (currentGrammar is null)
                     return;
 
-                switch (operation)
-                {
-                    case Operation.Edit:
-                        EditGrammar(currentGrammar);
-                        break;
-                    case Operation.Delete:
-                        DeleteGrammar(currentGrammar);
-                        break;
-                    default:
-                        break;
-                }
+                if (operation == Operation.Delete)
+                    DeleteGrammar(currentGrammar);
 
                 ListBoxHelpers.UpdateGrammar(grammarListBox);
                 grammarChoicesListBox.Items.Clear();
@@ -431,6 +431,7 @@ namespace VoiceAssistantUI
                 return;
             }
 
+            var choiceIndex = choicesListBox.Items.IndexOf(choice.Name);
             string newName = Interaction.InputBox($"Provide new choice name for choice \"{choice.Name}\"", "Changing choice name", choice.Name);
 
             if (Assistant.Choices.Any(c => c.Name == newName))
@@ -446,7 +447,17 @@ namespace VoiceAssistantUI
             }
 
             choice.Name = newName;
+            ListBoxHelpers.UpdateGrammarChoices(grammarChoicesListBox, GetCurrentAssistantGrammar());
+            choiceSentencesListBox.Items.Clear();
+            //choicesListBox.SelectedIndex = choiceIndex;
+            //choicesListBox.SelectedItem = choicesListBox.Items[choicesListBox.SelectedIndex];
         }
+
+        private List<AssistantGrammar> ChoiceInGrammars(AssistantChoice choice)
+        {
+            return Assistant.Grammars.Where(g => g.AssistantChoices.Contains(choice)).ToList();
+        }
+
         private void DeleteChoice(AssistantChoice choice)
         {
             if (!choice.CanBeDeleted)
@@ -455,11 +466,30 @@ namespace VoiceAssistantUI
                 return;
             }
 
+            var usedGrammars = ChoiceInGrammars(choice);
+            if (usedGrammars.Count > 0)
+            {
+                string grammarsList = Environment.NewLine;
+                for (int i = 0; i < usedGrammars.Count; i++)
+                {
+                    grammarsList += usedGrammars[i].Name;
+
+                    if (i < usedGrammars.Count - 1)
+                        grammarsList += ",";
+
+                    grammarsList += Environment.NewLine;
+                }
+
+                MessageBox.Show($"\"{choice.Name}\" cannot by deleted because is used in listed grammars: {grammarsList}", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var result = MessageBox.Show($"Are you sure to delete \"{choice.Name}\" choice?", "Delete quesiton", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result == MessageBoxResult.Yes)
             {
                 Assistant.Choices.Remove(choice);
+                choiceSentencesListBox.Items.Clear();
             }
         }
 
@@ -468,7 +498,7 @@ namespace VoiceAssistantUI
         #region Manage choice sentences
         private void EditChoiceSentence(AssistantChoice choice)
         {
-            if (choiceWordsListBox.SelectedIndex < 0)
+            if (choiceSentencesListBox.SelectedIndex < 0)
                 return;
 
             string oldSentence = GetCurrentAssistantChoiceWord();

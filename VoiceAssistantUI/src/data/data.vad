@@ -21,7 +21,7 @@ Choices:
 	Name: volume
 	CanBeEdited: True
 	CanBeDeleted: True
-	Sentences: speakers value,volume,volume value
+	Sentences: speakers value,volume,volume value,speakers,sounds
 	Name: to
 	CanBeEdited: True
 	CanBeDeleted: True
@@ -34,8 +34,56 @@ Choices:
 	CanBeEdited: True
 	CanBeDeleted: True
 	Sentences: {AssistantName}
+	Name: decrease
+	CanBeEdited: True
+	CanBeDeleted: True
+	Sentences: decrease,lower,reduce
+	Name: by
+	CanBeEdited: True
+	CanBeDeleted: True
+	Sentences: by
+	Name: percent
+	CanBeEdited: True
+	CanBeDeleted: True
+	Sentences: percent
+	Name: increase
+	CanBeEdited: True
+	CanBeDeleted: True
+	Sentences: increase,raise
+	Name: mute
+	CanBeEdited: True
+	CanBeDeleted: True
+	Sentences: mute,silence
+	Name: unmute
+	CanBeEdited: True
+	CanBeDeleted: True
+	Sentences: on,unmute
 Grammar:
+	Name: DecreaseVolume%
+	CommandName: VolumeDownByPercent(Object)
+	Description: 
+	ChoiceNames: decrease,volume,by,number,percent
+	Name: DecreaseVolumeV
+	CommandName: VolumeDownByValue(Object)
+	Description: 
+	ChoiceNames: decrease,volume,by,number
+	Name: IncreaseVolumeV
+	CommandName: VolumeUpByValue(Object)
+	Description: 
+	ChoiceNames: increase,volume,by,number
 	Name: SetVolume
 	CommandName: VolumeSet(Object)
 	Description: 
 	ChoiceNames: set,volume,to,number
+	Name: IncreaseVolume%
+	CommandName: VolumeUpByPercent(Object)
+	Description: 
+	ChoiceNames: increase,volume,by,number,percent
+	Name: Mute sounds
+	CommandName: VolumeMute()
+	Description: 
+	ChoiceNames: mute,volume
+	Name: Unmute sounds
+	CommandName: VolumeUnMute()
+	Description: 
+	ChoiceNames: unmute,volume

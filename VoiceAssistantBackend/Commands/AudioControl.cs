@@ -50,6 +50,11 @@ namespace VoiceAssistantBackend.Commands
             keybd_event(VK_VOLUME_MUTE, MapVirtualKey(VK_VOLUME_MUTE, 0), KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
         }
 
+        public static void VolumeUnMute()
+        {
+            VolumeMute();
+        }
+
         public static void VolumeSet(object newVolume)
         {
             if (int.TryParse(newVolume.ToString(), out var result))

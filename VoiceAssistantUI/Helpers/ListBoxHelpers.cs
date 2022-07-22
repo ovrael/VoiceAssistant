@@ -26,7 +26,7 @@ namespace VoiceAssistantUI
             {
                 ListBoxItem item = new ListBoxItem();
                 item.Content = choice.Name;
-                item.ToolTip = CreateChoiceTooltip(choice.Name);
+                item.ToolTip = CreateChoiceTooltip(choice);
 
                 item.IsEnabled = choice.CanBeMoved;
 
@@ -80,19 +80,17 @@ namespace VoiceAssistantUI
                 return;
 
             grammarChoicesListBox.Items.Clear();
-            foreach (var choice in currentGrammar.ChoiceNames)
+            foreach (var choice in currentGrammar.AssistantChoices)
             {
                 ListBoxItem listItem = new ListBoxItem();
-                listItem.Content = choice;
+                listItem.Content = choice.Name;
                 listItem.ToolTip = CreateChoiceTooltip(choice);
                 grammarChoicesListBox.Items.Add(listItem);
             }
         }
 
-        private static string CreateChoiceTooltip(string choiceName)
+        private static string CreateChoiceTooltip(AssistantChoice choice)
         {
-            var choice = Assistant.GetChoice(choiceName);
-
             string tooltip = string.Empty;
 
             for (int i = 0; i < choice.Sentences.Count; i++)
