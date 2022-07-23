@@ -190,7 +190,7 @@ Grammar:
 	Description: 
 	ChoiceNames: play,$songTitle
 	Name: play song with artist
-	CommandName: PlaySong(Object)
+	CommandName: PlaySong(Object, Object)
 	Description: 
 	ChoiceNames: play,$songTitle,by,$artist
 	Name: Previous media

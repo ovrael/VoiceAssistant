@@ -24,7 +24,7 @@ namespace VoiceAssistantUI
     {
         // Create an in-process speech recognizer for the en-US locale.
         public static bool IsListening = true;
-        public static double ConfidenceThreshold = 0.7;
+        public static double ConfidenceThreshold = 0.55;
         public static string Language = "en-US";
         public static Dictionary<string, string> ChangeableVariables = new Dictionary<string, string>()
         {
@@ -82,6 +82,9 @@ namespace VoiceAssistantUI
                     boxItem.Content = $"[{time}] {message}";
                     boxItem.Foreground = PickBrush(type);
                     logsListBox.Items.Add(boxItem);
+
+                    //logsListBox.
+                    var scrollViewer = logsListBox.Template.FindName("Scroller", logsListBox);
                 });
             }
             catch (Exception e)
@@ -370,8 +373,6 @@ namespace VoiceAssistantUI
                 recognizer = new SpeechRecognitionEngine(cultureInfo);
 
                 recognizer.UnloadAllGrammars();
-                // Create and load grammar.
-                //recognizer.LoadGrammar(new DictationGrammar());
 
                 AddDictationChoices();
                 foreach (var grammar in Grammars)
@@ -379,17 +380,10 @@ namespace VoiceAssistantUI
                     recognizer.LoadGrammar(grammar.Grammar);
                 }
 
-                // Add a handler for the speech recognized event.  
                 recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
-
-                // Configure input to the speech recognizer.  
                 recognizer.SetInputToDefaultAudioDevice();
-
-                // Start asynchronous, continuous speech recognition.  
                 recognizer.RecognizeAsync(RecognizeMode.Multiple);
 
-
-                // Keep the console window open.  
                 while (IsListening)
                 {
                 }
@@ -405,7 +399,6 @@ namespace VoiceAssistantUI
                 {
                     disposable.Dispose();
                 }
-                //StartListening();
             }
         }
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
@@ -428,12 +421,87 @@ namespace VoiceAssistantUI
                 return;
             }
 
-            object[] parameters = new object[specialIndexesCount];
-            for (int i = 0; i < specialIndexesCount; i++)
-            {
-                parameters[i] = result.Words[speakedGrammar.SpecialChoicesIndexes[i]].Text;
-            }
+            object[] parameters = GetParameters(speakedGrammar, result.Words);
+
             speakedGrammar.InvokeDelegate(parameters);
+        }
+
+        private static bool BuildParameter(AssistantGrammar grammar, int specialIndex, string sentence)
+        {
+            //for (int i = 0; i < grammar.AssistantChoices[specialIndex].CatchSentences.Count; i++)
+            //{
+            //    if (grammar.AssistantChoices[specialIndex].CatchSentences[i].StartsWith(sentence))
+            //    {
+            //        return true;
+            //    }
+            //}
+
+            //return false;
+
+            return grammar.AssistantChoices[specialIndex].CatchSentences.Any(s => s.Contains(sentence));
+
+            //AssistantChoice choices = null;
+            ////var choices = grammar.AssistantChoices.Where(c => c.Sentences.Contains(sentence)).First();
+            //for (int i = 0; i < grammar.AssistantChoices.Count; i++)
+            //{
+            //    for (int j = 0; j < grammar.AssistantChoices[i].CatchSentences.Count; j++)
+            //    {
+            //        if (grammar.AssistantChoices[i].CatchSentences[j] == sentence)
+            //        {
+            //            choices = grammar.AssistantChoices[i];
+            //            return (choices.IsSpecial, choices.Name);
+            //        }
+            //    }
+            //}
+
+
+            //return (false, "");
+            //foreach (var choices in grammar.AssistantChoices)
+            //{
+            //    if (choices.IsSpecial)
+            //        continue;
+
+            //    if (choices.Sentences.Contains(sentence))
+            //        return true;
+            //}
+            //return false;
+        }
+
+        private static object[] GetParameters(AssistantGrammar grammar, IEnumerable<RecognizedWordUnit> text)
+        {
+            string[] parameters = new string[grammar.SpecialChoicesIndexes.Count];
+            int offset = 0;
+
+            for (int i = 0; i < grammar.SpecialChoicesIndexes.Count; i++)
+            {
+                string sentence = text.ElementAt(grammar.SpecialChoicesIndexes[i] + offset).Text;
+
+                for (int j = grammar.SpecialChoicesIndexes[i] + offset; j < text.Count(); j++)
+                {
+                    if (BuildParameter(grammar, grammar.SpecialChoicesIndexes[i], sentence))
+                    {
+                        offset++;
+
+                        if (grammar.SpecialChoicesIndexes[i] + offset == text.Count())
+                            break;
+
+                        sentence += ' ' + text.ElementAt(grammar.SpecialChoicesIndexes[i] + offset).Text;
+                    }
+                    else
+                    {
+                        offset--;
+                        sentence = sentence.Substring(0, sentence.LastIndexOf(' '));
+                        break;
+                    }
+                }
+
+                parameters[i] = sentence;
+            }
+
+
+
+
+            return parameters;
         }
         #endregion
     }

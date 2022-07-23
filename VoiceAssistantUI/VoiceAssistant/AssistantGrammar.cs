@@ -93,19 +93,22 @@ namespace VoiceAssistantUI
 
                         if (choice.Name.ToLower() == "$number")
                         {
-                            Choices numbers = Helpers.CreateNumberChoices(min: 0, max: 100);
-                            grammarBuilder.Append(numbers);
+                            var numbers = Helpers.GetStringNumbers(min: 0, max: 100);
+                            choice.SetCatchSentences(numbers.ToList());
+                            grammarBuilder.Append(new Choices(numbers));
                         }
 
                         if (choice.Name.ToLower() == "$artist")
                         {
                             var artists = FoobarControl.GetArtistsFromMusicDirectory();
+                            choice.SetCatchSentences(artists.ToList());
                             grammarBuilder.Append(new Choices(artists));
                         }
 
                         if (choice.Name.ToLower() == "$songtitle")
                         {
                             var songs = FoobarControl.GetSongsTitlesFromMusicDirectory();
+                            choice.SetCatchSentences(songs.ToList());
                             grammarBuilder.Append(new Choices(songs));
                         }
 

@@ -8,6 +8,7 @@ namespace VoiceAssistantUI
         public string Name { get; set; }
         public Choices Choice { get; private set; }
         public List<string> Sentences { get; private set; } = new List<string>();
+        public List<string> CatchSentences { get; private set; } = new List<string>();
         //public List<string> SentencesWithVariables { get; private set; } = new List<string>();
         public bool CanBeEdited { get; private set; } = true;
         public bool CanBeDeleted { get; private set; } = true;
@@ -27,6 +28,7 @@ namespace VoiceAssistantUI
 
             Name = name;
             Sentences = choicesValues;
+            CatchSentences = choicesValues;
 
             Choice = BuildChoices(choicesValues.ToArray());
         }
@@ -43,8 +45,14 @@ namespace VoiceAssistantUI
 
             Name = name;
             Sentences = choicesValues;
+            CatchSentences = choicesValues;
 
             Choice = BuildChoices(choicesValues.ToArray());
+        }
+
+        public void SetCatchSentences(List<string> newCatchSentences)
+        {
+            CatchSentences = newCatchSentences;
         }
 
         public void AddChoiceSentence(string value)

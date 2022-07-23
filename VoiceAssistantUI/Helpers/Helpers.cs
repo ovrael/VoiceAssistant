@@ -75,16 +75,15 @@ namespace VoiceAssistantUI
 
             return installedApps.OrderBy(n => n).ToArray();
         }
-        public static Choices CreateNumberChoices(int min = 0, int max = 100)
+        public static string[] GetStringNumbers(int min = 0, int max = 100)
         {
-            string[] numbers = new string[101];
+            string[] numbers = new string[max + 1];
             for (int i = min; i <= max; i++)
             {
                 numbers[i] = i.ToString();
             }
-            Choices numbersChoices = new Choices(numbers);
 
-            return numbersChoices;
+            return numbers;
         }
     }
 }
