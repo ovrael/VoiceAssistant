@@ -16,4 +16,13 @@
 	  <ProjectReference Include="..\VoiceAssistantBackend\VoiceAssistantBackend.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="src\data\data.vad">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="src\img\tray.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>

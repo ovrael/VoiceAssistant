@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceAssistantUI", "VoiceAs
 		{42DE290B-0364-484E-89D8-37BFFB6FB1EB} = {42DE290B-0364-484E-89D8-37BFFB6FB1EB}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceAssistantBackend", "VoiceAssistantBackend\VoiceAssistantBackend.csproj", "{42DE290B-0364-484E-89D8-37BFFB6FB1EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceAssistantBackend", "VoiceAssistantBackend\VoiceAssistantBackend.csproj", "{42DE290B-0364-484E-89D8-37BFFB6FB1EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

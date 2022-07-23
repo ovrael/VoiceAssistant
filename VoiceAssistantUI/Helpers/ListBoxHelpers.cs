@@ -28,7 +28,7 @@ namespace VoiceAssistantUI
                 item.Content = choice.Name;
                 item.ToolTip = CreateChoiceTooltip(choice);
 
-                item.IsEnabled = choice.CanBeMoved;
+                //item.IsEnabled = choice.CanBeMoved;
 
                 listBox.Items.Add(item);
             }

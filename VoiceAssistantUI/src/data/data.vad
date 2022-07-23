@@ -2,87 +2,205 @@ Language: en-US
 ChangeableVariables:
 	AssistantName: Kaladin
 Choices:
-	Name: number
+	Name: $word
 	CanBeEdited: False
 	CanBeDeleted: False
-	Sentences: Tries to,recognize,number
+	IsString: True
+	IsNumber: False
+	Sentences: Used to recognize word
+	Name: $artist
+	CanBeEdited: False
+	CanBeDeleted: False
+	IsString: True
+	IsNumber: False
+	Sentences: One of artsits, in music directory
+	Name: $songTitle
+	CanBeEdited: False
+	CanBeDeleted: False
+	IsString: True
+	IsNumber: False
+	Sentences: One of songs, in music directory
+	Name: $number
+	CanBeEdited: False
+	CanBeDeleted: False
+	IsString: False
+	IsNumber: True
+	Sentences: Used to recognize number
 	Name: open
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: open,run
 	Name: apps
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: apps,programs
 	Name: set
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: change,set
 	Name: volume
 	CanBeEdited: True
 	CanBeDeleted: True
-	Sentences: speakers value,volume,volume value,speakers,sounds
+	IsString: False
+	IsNumber: False
+	Sentences: volume,speakers,sounds
 	Name: to
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: at,to
 	Name: welcome
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: hello,hey,hi
 	Name: assistant
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: {AssistantName}
 	Name: decrease
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: decrease,lower,reduce
 	Name: by
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: by
 	Name: percent
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: percent
 	Name: increase
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: increase,raise
 	Name: mute
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: mute,silence
 	Name: unmute
 	CanBeEdited: True
 	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
 	Sentences: on,unmute
+	Name: pause
+	CanBeEdited: True
+	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
+	Sentences: pause,stop
+	Name: media
+	CanBeEdited: True
+	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
+	Sentences: media,music,song,video
+	Name: unpause
+	CanBeEdited: True
+	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
+	Sentences: play,start,unpause
+	Name: previous
+	CanBeEdited: True
+	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
+	Sentences: previous
+	Name: next
+	CanBeEdited: True
+	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
+	Sentences: next
+	Name: play
+	CanBeEdited: True
+	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
+	Sentences: play
+	Name: song
+	CanBeEdited: True
+	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
+	Sentences: song
+	Name: number
+	CanBeEdited: False
+	CanBeDeleted: False
+	IsString: True
+	IsNumber: False
+	Sentences: Tries to,recognize,number
 Grammar:
 	Name: DecreaseVolume%
 	CommandName: VolumeDownByPercent(Object)
 	Description: 
-	ChoiceNames: decrease,volume,by,number,percent
+	ChoiceNames: decrease,volume,by,$number,percent
 	Name: DecreaseVolumeV
 	CommandName: VolumeDownByValue(Object)
 	Description: 
-	ChoiceNames: decrease,volume,by,number
-	Name: IncreaseVolumeV
-	CommandName: VolumeUpByValue(Object)
-	Description: 
-	ChoiceNames: increase,volume,by,number
-	Name: SetVolume
-	CommandName: VolumeSet(Object)
-	Description: 
-	ChoiceNames: set,volume,to,number
+	ChoiceNames: decrease,volume,by,$number
 	Name: IncreaseVolume%
 	CommandName: VolumeUpByPercent(Object)
 	Description: 
-	ChoiceNames: increase,volume,by,number,percent
+	ChoiceNames: increase,volume,by,$number,percent
+	Name: IncreaseVolumeV
+	CommandName: VolumeUpByValue(Object)
+	Description: 
+	ChoiceNames: increase,volume,by,$number
 	Name: Mute sounds
 	CommandName: VolumeMute()
 	Description: 
 	ChoiceNames: mute,volume
+	Name: Next media
+	CommandName: NextMedia()
+	Description: 
+	ChoiceNames: next,media
+	Name: pause media
+	CommandName: PauseMedia()
+	Description: 
+	ChoiceNames: pause,media
+	Name: play media
+	CommandName: PlayMedia()
+	Description: 
+	ChoiceNames: unpause,media
+	Name: play song
+	CommandName: PlaySong(Object)
+	Description: 
+	ChoiceNames: play,$songTitle
+	Name: play song with artist
+	CommandName: PlaySong(Object)
+	Description: 
+	ChoiceNames: play,$songTitle,by,$artist
+	Name: Previous media
+	CommandName: PreviousMedia()
+	Description: 
+	ChoiceNames: previous,media
+	Name: SetVolume
+	CommandName: VolumeSet(Object)
+	Description: 
+	ChoiceNames: set,volume,to,$number
 	Name: Unmute sounds
 	CommandName: VolumeUnMute()
 	Description: 

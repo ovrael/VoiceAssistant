@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Speech.Recognition;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Text.Json;
 
 namespace VoiceAssistantUI
 {
@@ -29,7 +31,7 @@ namespace VoiceAssistantUI
             {"AssistantName", "Kaladin" }
         };
 
-        public static string DataFilePath = @"..\..\..\src\data\data.vad";
+        public static string DataFilePath = @"\src\data\data.vad";
 
         public static List<AssistantChoice> Choices = new List<AssistantChoice>();
         public static List<AssistantGrammar> Grammars = new List<AssistantGrammar>();
@@ -43,7 +45,7 @@ namespace VoiceAssistantUI
 
         static Assistant()
         {
-
+            //AssistantChoice ac = new AssistantChoice("string var", new List<string>() { "" }, false, false);
         }
 
         #region Consoles
@@ -182,6 +184,7 @@ namespace VoiceAssistantUI
         #region File operations
         public static void SaveDataToFile()
         {
+            //SaveDataToJsonFile();
             string language = "Language: " + Language;
             string changeableVariables = "ChangeableVariables:";
             foreach (var variableKey in ChangeableVariables.Keys)
@@ -196,6 +199,8 @@ namespace VoiceAssistantUI
                 choices += $"\tName: {Choices[i].Name}\n";
                 choices += $"\tCanBeEdited: {Choices[i].CanBeEdited}\n";
                 choices += $"\tCanBeDeleted: {Choices[i].CanBeDeleted}\n";
+                choices += $"\tIsString: {Choices[i].IsString}\n";
+                choices += $"\tIsNumber: {Choices[i].IsNumber}\n";
                 choices += "\tSentences: ";
 
                 for (int j = 0; j < Choices[i].Sentences.Count; j++)
@@ -270,19 +275,21 @@ namespace VoiceAssistantUI
             {
                 if (data[choicesIndex + 1].Length > 0)
                 {
-                    for (int i = choicesIndex + 1; i < grammarIndex; i += 4)
+                    for (int i = choicesIndex + 1; i < grammarIndex; i += 6)
                     {
                         string name = data[i].Split(':')[1].Trim(' ');
                         string canBeEdited = data[i + 1].Split(':')[1].Trim(' ');
                         string canBeDeleted = data[i + 2].Split(':')[1].Trim(' ');
-                        string[] sentences = data[i + 3].Split(':')[1].Trim(' ').Split(',');
+                        string isString = data[i + 3].Split(':')[1].Trim(' ');
+                        string isNumber = data[i + 4].Split(':')[1].Trim(' ');
+                        string[] sentences = data[i + 5].Split(':')[1].Trim(' ').Split(',');
 
                         for (int s = 0; s < sentences.Length; s++)
                         {
                             sentences[s] = ReplaceSpecialVariablesKeysToValues(sentences[s]);
                         }
 
-                        AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList(), canBeEdited, canBeDeleted);
+                        AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList(), canBeEdited, canBeDeleted, isString, isNumber);
                         Choices.Add(assistantChoice);
                     }
                 }
@@ -315,6 +322,18 @@ namespace VoiceAssistantUI
                 WriteLog("ERROR: " + e.ToString(), MessageType.Error);
             }
         }
+
+        public static void SaveDataToJsonFile()
+        {
+            var choicesJson = JsonSerializer.Serialize(Choices);
+            var grammarsJson = JsonSerializer.Serialize(Grammars);
+            var changeableVariablesJson = JsonSerializer.Serialize(ChangeableVariables);
+
+            WriteLog(choicesJson);
+            WriteLog(grammarsJson);
+            WriteLog(changeableVariablesJson);
+        }
+
         #endregion
 
         #region Speech recognition
@@ -391,55 +410,30 @@ namespace VoiceAssistantUI
         }
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
         {
-            WriteLog($"You said \"{e.Result.Text}\" with {e.Result.Confidence * 100:F0}% confidence => runs \"{e.Result.Grammar.Name}\" grammar.");
+            var result = e.Result;
+            WriteLog($"You said \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar.");
 
-            //int nameIndex = e.Result.Text.IndexOf(AssistantName);
-            //if (nameIndex < 0)
-            //{
-            //    return;
-            //}
-
-            if (e.Result.Confidence < ConfidenceThreshold)
+            if (result.Confidence < ConfidenceThreshold)
                 return;
 
-            var speakedGrammar = Grammars.Where(g => g.Name == e.Result.Grammar.Name).FirstOrDefault();
+            var speakedGrammar = Grammars.Where(g => g.Name == result.Grammar.Name).FirstOrDefault();
             if (speakedGrammar is null)
                 return;
 
-            int numberIndex = IndexOfNumber(e.Result.Text);
+            int specialIndexesCount = speakedGrammar.SpecialChoicesIndexes.Count;
 
-            if (numberIndex < 0)
+            if (specialIndexesCount == 0)
             {
                 speakedGrammar.InvokeDelegate();
                 return;
             }
 
-            string numberParameter = GetNumberFromText(e.Result.Text, numberIndex);
-            speakedGrammar.InvokeDelegate(numberParameter);
-        }
-
-        private static int IndexOfNumber(string text)
-        {
-            for (int i = 0; i < text.Length; i++)
+            object[] parameters = new object[specialIndexesCount];
+            for (int i = 0; i < specialIndexesCount; i++)
             {
-                if (char.IsDigit(text[i]))
-                    return i;
+                parameters[i] = result.Words[speakedGrammar.SpecialChoicesIndexes[i]].Text;
             }
-
-            return -1;
-        }
-
-        private static string GetNumberFromText(string text, int numberIndex)
-        {
-            string numberParameter = text.Substring(numberIndex);
-
-            int spaceIndex = numberParameter.IndexOf(' ');
-
-            if (spaceIndex > 0)
-                numberParameter = numberParameter.Substring(0, spaceIndex);
-
-
-            return numberParameter;
+            speakedGrammar.InvokeDelegate(parameters);
         }
         #endregion
     }

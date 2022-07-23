@@ -34,7 +34,10 @@ namespace VoiceAssistantUI
             choiceSentence = Assistant.ReplaceSpecialVariablesKeysToValues(choiceSentence);
 
             if (choiceSentence.Length > 0)
+            {
+                choiceSentence = choiceSentence.Split(' ')[0];
                 choiceSentences.Add(choiceSentence);
+            }
 
             (sender as TextBox).Text = string.Empty;
 

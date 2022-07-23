@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,21 +20,62 @@ namespace VoiceAssistantUI
     {
         private enum WorkingMode
         {
-            Develop,
+            Debug,
             Release
         }
 
         private NotifyIcon trayIcon;
         private CurrentClick currentClick = CurrentClick.Choices;
-        private readonly WorkingMode workingMode = WorkingMode.Release;
+        private readonly WorkingMode workingMode = WorkingMode.Debug;
         private Task assistantListening;
+
+        private string trayIconPath = @"\src\img\tray.ico";
 
         public MainWindow()
         {
-            InitializeComponent();
+            var assemblyConfigurationAttribute = typeof(Assistant).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
+            var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
 
-            if (workingMode == WorkingMode.Develop)
+            if (buildConfigurationName is not null)
+            {
+                if (buildConfigurationName.Contains("Debug"))
+                    workingMode = WorkingMode.Debug;
+                else
+                    workingMode = WorkingMode.Release;
+            }
+            else
+            {
+                workingMode = WorkingMode.Debug;
+            }
+
+            if (workingMode == WorkingMode.Debug)
+            {
                 ConsoleManager.ShowConsoleWindow();
+                trayIconPath = @"..\..\..\src\img\tray.ico";
+                Assistant.DataFilePath = @"..\..\..\src\data\data.vad";
+            }
+            else
+            {
+                string currDirectory = Directory.GetCurrentDirectory();
+                trayIconPath = currDirectory + trayIconPath;
+                Assistant.DataFilePath = currDirectory + Assistant.DataFilePath;
+            }
+
+            //MessageBox.Show($"Configuration: {buildConfigurationName}\n" +
+            //    $"Icon path: {trayIconPath}\n" +
+            //    $"Data path: {Assistant.DataFilePath}");
+
+            try
+            {
+                InitializeComponent();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                Console.WriteLine("Press enter to exit");
+                Console.ReadKey();
+            }
+
             MoveTabs();
             //Assistant.SaveDataToFile();
 
@@ -91,7 +134,7 @@ namespace VoiceAssistantUI
         {
             trayIcon = new NotifyIcon();
             trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
-            trayIcon.Icon = new Icon(@"..\..\..\src\img\tray.ico");
+            trayIcon.Icon = new Icon(trayIconPath);
             trayIcon.Visible = true;
         }
         private async void Window_Loaded(object sender, RoutedEventArgs e)

@@ -8,26 +8,22 @@ namespace VoiceAssistantUI
         public string Name { get; set; }
         public Choices Choice { get; private set; }
         public List<string> Sentences { get; private set; } = new List<string>();
-        public List<string> SentencesWithVariables { get; private set; } = new List<string>();
+        //public List<string> SentencesWithVariables { get; private set; } = new List<string>();
         public bool CanBeEdited { get; private set; } = true;
         public bool CanBeDeleted { get; private set; } = true;
-        public bool CanBeMoved { get; private set; } = true;
+        public bool IsString { get; private set; } = false;
+        public bool IsNumber { get; private set; } = false;
+        public bool IsSpecial { get; private set; } = false;
 
-        //public static readonly Choices Initiaton = CreateInitiaton();
-        //public static readonly Choices Show = BuildChoices("show", "print", "display");
-        //public static readonly Choices Apps = BuildChoices("applications", "apps", "programs");
-        //public static readonly Choices Installed = BuildChoices("available", "installed", "all");
-        //public static readonly Choices InstalledApps = CreateInstalledApps();
-        //public static readonly Choices Open = BuildChoices("open", "run");
-        //public static readonly Choices MediaControl = BuildChoices("play", "pause", "stop");
-        //public static readonly Choices MediaType = BuildChoices("music", "video", "media");
-        //public static readonly Choices PC_Control = BuildChoices("shutdown", "reboot", "restart");
-
-        public AssistantChoice(string name, List<string> choicesValues, bool canBeEdited = true, bool canBeDeleted = true, bool canBeMoved = true)
+        public AssistantChoice(string name, List<string> choicesValues, bool canBeEdited = true, bool canBeDeleted = true, bool isString = false, bool isNumber = false)
         {
             CanBeEdited = canBeEdited;
             CanBeDeleted = canBeDeleted;
-            CanBeMoved = canBeMoved;
+            IsString = isString;
+            IsNumber = isNumber;
+
+            if (IsString || IsNumber)
+                IsSpecial = true;
 
             Name = name;
             Sentences = choicesValues;
@@ -35,11 +31,15 @@ namespace VoiceAssistantUI
             Choice = BuildChoices(choicesValues.ToArray());
         }
 
-        public AssistantChoice(string name, List<string> choicesValues, string canBeEdited, string canBeDeleted)
+        public AssistantChoice(string name, List<string> choicesValues, string canBeEdited, string canBeDeleted, string isString, string isNumber)
         {
             CanBeEdited = bool.Parse(canBeEdited);
             CanBeDeleted = bool.Parse(canBeDeleted);
-            CanBeMoved = true;
+            IsString = bool.Parse(isString);
+            IsNumber = bool.Parse(isNumber);
+
+            if (IsString || IsNumber)
+                IsSpecial = true;
 
             Name = name;
             Sentences = choicesValues;

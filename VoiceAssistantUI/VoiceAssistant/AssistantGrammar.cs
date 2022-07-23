@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Speech.Recognition;
+using VoiceAssistantBackend.Commands;
 
 namespace VoiceAssistantUI
 {
@@ -14,11 +15,16 @@ namespace VoiceAssistantUI
         //public List<string> ChoiceNames { get; set; }
         public List<AssistantChoice> AssistantChoices { get; set; }
 
+        public List<int> SpecialChoicesIndexes { get; private set; }
+
         public delegate void Command0Parameters();
         public Command0Parameters command0Parameters;
 
         public delegate void Command1Parameters(object parameter);
         public Command1Parameters command1Parameters;
+
+        public delegate void Command2Parameters(object parameter, object parameter2);
+        public Command2Parameters command2Parameters;
 
         //public static readonly Grammar InstalledApps = InstalledAppsBuilder();
         //public static readonly Grammar OpenApp = OpenAppBuilder();
@@ -72,23 +78,47 @@ namespace VoiceAssistantUI
         private Grammar GrammarCreator()
         {
             GrammarBuilder grammarBuilder = new GrammarBuilder();
+            SpecialChoicesIndexes = new List<int>();
             //GrammarBuilder grammarBuilder = new GrammarBuilder(AssistantChoice.Initiaton);
 
+            int index = -1;
             foreach (var choice in AssistantChoices)
             {
+                index++;
                 try
                 {
-                    if (choice.Name.ToLower() == "number")
+                    if (choice.IsSpecial)
                     {
-                        Choices numbers = Helpers.CreateNumberChoices(min: 0, max: 100);
-                        grammarBuilder.Append(numbers);
+                        SpecialChoicesIndexes.Add(index);
+
+                        if (choice.Name.ToLower() == "$number")
+                        {
+                            Choices numbers = Helpers.CreateNumberChoices(min: 0, max: 100);
+                            grammarBuilder.Append(numbers);
+                        }
+
+                        if (choice.Name.ToLower() == "$artist")
+                        {
+                            var artists = FoobarControl.GetArtistsFromMusicDirectory();
+                            grammarBuilder.Append(new Choices(artists));
+                        }
+
+                        if (choice.Name.ToLower() == "$songtitle")
+                        {
+                            var songs = FoobarControl.GetSongsTitlesFromMusicDirectory();
+                            grammarBuilder.Append(new Choices(songs));
+                        }
+
+                        if (choice.Name.ToLower() == "$word")
+                        {
+                            grammarBuilder.AppendDictation();
+                        }
                     }
                     else
                     {
                         //var propValue = typeof(AssistantChoice).GetField(choice, BindingFlags.Public | BindingFlags.Static).GetValue(null);
                         grammarBuilder.Append(choice.Choice);
                     }
-
                 }
                 catch (Exception e)
                 {
@@ -103,32 +133,59 @@ namespace VoiceAssistantUI
 
         private void CreateDelegate(string commandName)
         {
-            var command = VoiceAssistantBackend.Commands.Misc.GetCommand(commandName);
+            var command = Misc.GetCommand(commandName);
+            if (command is null)
+            {
+                Assistant.WriteLog($"There is no command: {commandName}!", MessageType.Error);
+                return;
+            }
             switch (command.GetParameters().Length)
             {
                 case 0:
-                    if (command is null)
-                    {
-                        Assistant.WriteLog($"There is no command: {commandName}!", MessageType.Error);
-                        return;
-                    }
-
                     command0Parameters = (Command0Parameters)Delegate.CreateDelegate(typeof(Command0Parameters), command);
                     break;
 
                 case 1:
-                    if (command is null)
-                    {
-                        Assistant.WriteLog($"There is no command: {commandName}!", MessageType.Error);
-                        return;
-                    }
-
                     command1Parameters = (Command1Parameters)Delegate.CreateDelegate(typeof(Command1Parameters), command);
+                    break;
+
+                case 2:
+                    command2Parameters = (Command2Parameters)Delegate.CreateDelegate(typeof(Command2Parameters), command);
                     break;
 
                 default:
                     Assistant.WriteLog($"There is no command: {commandName}");
                     break;
+            }
+        }
+
+        private void PrintCommanNullError(int command)
+        {
+            Assistant.WriteLog($"Grammar: {Name} command:{CommandName} is null!");
+
+            if (command == 0)
+            {
+                if (command1Parameters is not null)
+                    Assistant.WriteLog($"Comman with 1 parameters is not null");
+
+                if (command2Parameters is not null)
+                    Assistant.WriteLog($"Comman with 2 parameters is not null");
+            }
+            if (command == 1)
+            {
+                if (command0Parameters is not null)
+                    Assistant.WriteLog($"Comman with 0 parameters is not null");
+
+                if (command2Parameters is not null)
+                    Assistant.WriteLog($"Comman with 2 parameters is not null");
+            }
+            if (command == 2)
+            {
+                if (command0Parameters is not null)
+                    Assistant.WriteLog($"Comman with 0 parameters is not null");
+
+                if (command1Parameters is not null)
+                    Assistant.WriteLog($"Comman with 1 parameters is not null");
             }
         }
 
@@ -140,14 +197,22 @@ namespace VoiceAssistantUI
                     if (command0Parameters is not null)
                         command0Parameters.Invoke();
                     else
-                        Assistant.WriteLog("Command is null!");
+                        PrintCommanNullError(parameters.Length);
                     break;
 
                 case 1:
                     if (command1Parameters is not null)
                         command1Parameters.Invoke(parameters[0]);
                     else
-                        Assistant.WriteLog("Command is null!");
+                        PrintCommanNullError(parameters.Length);
+
+                    break;
+
+                case 2:
+                    if (command2Parameters is not null)
+                        command2Parameters.Invoke(parameters[0], parameters[1]);
+                    else
+                        PrintCommanNullError(parameters.Length);
                     break;
 
                 default:
