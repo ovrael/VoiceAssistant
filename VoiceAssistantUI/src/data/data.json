@@ -305,8 +305,8 @@
       "Name": "Call Assistant",
       "CommandName": "CallAssistant()",
       "Description": "",
-      "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeEdited": false,
+      "CanBeDelited": false,
       "AssistantChoicesNames": [ "welcome", "assistant" ]
     }
   ]
