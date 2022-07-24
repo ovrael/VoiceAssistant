@@ -277,6 +277,17 @@ namespace VoiceAssistantUI
         #endregion
 
         #region Grammar
+        private void ChangeGrammarButtonsEnablings()
+        {
+            var currentGrammar = GetCurrentAssistantGrammar();
+            if (currentGrammar is null)
+                return;
+
+            deleteGrammarButton.IsEnabled = currentGrammar.CanBeDeleted;
+            editGrammarButton.IsEnabled = currentGrammar.CanBeEdited;
+
+        }
+
         private void GrammarListBox_GotFocus(object sender, RoutedEventArgs e)
         {
             currentClick = CurrentClick.Grammar;
@@ -284,6 +295,7 @@ namespace VoiceAssistantUI
         private void GrammarListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //currentClick = CurrentClick.Grammar;
+            ChangeGrammarButtonsEnablings();
             ListBoxHelpers.UpdateGrammarChoices(grammarChoicesListBox, GetCurrentAssistantGrammar());
         }
         private void NewGrammarButton_Click(object sender, RoutedEventArgs e)

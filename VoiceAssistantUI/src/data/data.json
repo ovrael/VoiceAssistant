@@ -186,7 +186,7 @@
       "CommandName": "VolumeDownByPercent(Object)",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "decrease", "volume", "by", "$number", "percent" ]
     },
     {
@@ -194,7 +194,7 @@
       "CommandName": "VolumeDownByValue(Object)",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "decrease", "volume", "by", "$number" ]
     },
     {
@@ -202,7 +202,7 @@
       "CommandName": "VolumeUpByPercent(Object)",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "increase", "volume", "by", "$number", "percent" ]
     },
     {
@@ -210,7 +210,7 @@
       "CommandName": "VolumeUpByValue(Object)",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "increase", "volume", "by", "$number" ]
     },
     {
@@ -218,7 +218,7 @@
       "CommandName": "VolumeMute()",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "mute", "volume" ]
     },
     {
@@ -226,7 +226,7 @@
       "CommandName": "NextMedia()",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "next", "media" ]
     },
     {
@@ -234,7 +234,7 @@
       "CommandName": "PauseMedia()",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "pause", "media" ]
     },
     {
@@ -242,7 +242,7 @@
       "CommandName": "PlayMedia()",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "unpause", "media" ]
     },
     {
@@ -250,7 +250,7 @@
       "CommandName": "FoobarPlaySong(Object)",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "play", "$songTitle" ]
     },
     {
@@ -258,7 +258,7 @@
       "CommandName": "FoobarPlaySong(Object, Object)",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "play", "$songTitle", "by", "$artist" ]
     },
     {
@@ -266,7 +266,7 @@
       "CommandName": "FoobarVolumeDown()",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "decrease", "player", "volume" ]
     },
     {
@@ -274,7 +274,7 @@
       "CommandName": "FoobarVolumeUp()",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "increase", "player", "volume" ]
     },
     {
@@ -282,7 +282,7 @@
       "CommandName": "PreviousMedia()",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "previous", "media" ]
     },
     {
@@ -290,7 +290,7 @@
       "CommandName": "VolumeSet(Object)",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "set", "volume", "to", "$number" ]
     },
     {
@@ -298,7 +298,7 @@
       "CommandName": "VolumeUnMute()",
       "Description": "",
       "CanBeEdited": true,
-      "CanBeDelited": true,
+      "CanBeDeleted": true,
       "AssistantChoicesNames": [ "unmute", "volume" ]
     },
     {
@@ -306,7 +306,7 @@
       "CommandName": "CallAssistant()",
       "Description": "",
       "CanBeEdited": false,
-      "CanBeDelited": false,
+      "CanBeDeleted": false,
       "AssistantChoicesNames": [ "welcome", "assistant" ]
     }
   ]

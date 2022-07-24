@@ -13,8 +13,8 @@ namespace VoiceAssistantUI
         public string Name { get; set; }
         public string CommandName { get; set; }
         public string Description { get; set; }
-        public bool CanBeEdited { get; private set; } = true;
-        public bool CanBeDelited { get; private set; } = true;
+        public bool CanBeEdited { get; set; } = true;
+        public bool CanBeDeleted { get; set; } = true;
 
         [JsonIgnore]
         public Grammar Grammar { get; set; }
