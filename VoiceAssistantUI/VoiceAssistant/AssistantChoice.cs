@@ -1,58 +1,92 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Speech.Recognition;
+using Newtonsoft.Json;
+using VoiceAssistantBackend.Commands;
 
 namespace VoiceAssistantUI
 {
     public class AssistantChoice
     {
         public string Name { get; set; }
+        [JsonIgnore]
         public Choices Choice { get; private set; }
         public List<string> Sentences { get; private set; } = new List<string>();
+        [JsonIgnore]
         public List<string> CatchSentences { get; private set; } = new List<string>();
-        //public List<string> SentencesWithVariables { get; private set; } = new List<string>();
-        public bool CanBeEdited { get; private set; } = true;
-        public bool CanBeDeleted { get; private set; } = true;
-        public bool IsString { get; private set; } = false;
-        public bool IsNumber { get; private set; } = false;
-        public bool IsSpecial { get; private set; } = false;
+        public bool CanBeEdited { get; set; } = true;
+        public bool CanBeDeleted { get; set; } = true;
+        public bool IsSpecial { get; set; } = false;
 
-        public AssistantChoice(string name, List<string> choicesValues, bool canBeEdited = true, bool canBeDeleted = true, bool isString = false, bool isNumber = false)
+        public AssistantChoice()
+        {
+        }
+
+        public void Init()
+        {
+            if (IsSpecial)
+            {
+                if (Name.ToLower() == "$number")
+                {
+                    var numbers = Helpers.GetStringNumbers(min: 0, max: 100);
+                    SetCatchSentences(numbers.ToList());
+                    Choice = new Choices(numbers);
+                }
+
+                if (Name.ToLower() == "$artist")
+                {
+                    var artists = FoobarControl.GetArtistsFromMusicDirectory();
+                    SetCatchSentences(artists.ToList());
+                    Choice = new Choices(artists);
+                }
+
+                if (Name.ToLower() == "$songtitle")
+                {
+                    var songs = FoobarControl.GetSongsTitlesFromMusicDirectory();
+                    SetCatchSentences(songs.ToList());
+                    Choice = new Choices(songs);
+                }
+            }
+            else
+            {
+                SetCatchSentences(Sentences);
+                Choice = new Choices(CatchSentences.ToArray());
+            }
+        }
+
+        public AssistantChoice(string name, List<string> choicesValues, bool canBeEdited = true, bool canBeDeleted = true, bool isSpecial = false)
         {
             CanBeEdited = canBeEdited;
             CanBeDeleted = canBeDeleted;
-            IsString = isString;
-            IsNumber = isNumber;
-
-            if (IsString || IsNumber)
-                IsSpecial = true;
+            IsSpecial = isSpecial;
 
             Name = name;
             Sentences = choicesValues;
             CatchSentences = choicesValues;
 
-            Choice = BuildChoices(choicesValues.ToArray());
+            Choice = new Choices(choicesValues.ToArray());
         }
 
-        public AssistantChoice(string name, List<string> choicesValues, string canBeEdited, string canBeDeleted, string isString, string isNumber)
+        public AssistantChoice(string name, List<string> choicesValues, string canBeEdited, string canBeDeleted, string isSpecial)
         {
             CanBeEdited = bool.Parse(canBeEdited);
             CanBeDeleted = bool.Parse(canBeDeleted);
-            IsString = bool.Parse(isString);
-            IsNumber = bool.Parse(isNumber);
-
-            if (IsString || IsNumber)
-                IsSpecial = true;
+            IsSpecial = bool.Parse(isSpecial);
 
             Name = name;
             Sentences = choicesValues;
             CatchSentences = choicesValues;
 
-            Choice = BuildChoices(choicesValues.ToArray());
+            Choice = new Choices(choicesValues.ToArray());
         }
 
         public void SetCatchSentences(List<string> newCatchSentences)
         {
-            CatchSentences = newCatchSentences;
+            CatchSentences = new List<string>();
+            foreach (var item in newCatchSentences)
+            {
+                CatchSentences.Add(Assistant.ReplaceSpecialVariablesKeysToValues(item));
+            }
         }
 
         public void AddChoiceSentence(string value)
@@ -61,7 +95,7 @@ namespace VoiceAssistantUI
                 return;
 
             Sentences.Add(value);
-            Choice = BuildChoices(Sentences.ToArray());
+            Choice = new Choices(Sentences.ToArray());
         }
 
         public void RemoveChoiceSentence(string value)
@@ -70,58 +104,7 @@ namespace VoiceAssistantUI
                 return;
 
             Sentences.Remove(value);
-            Choice = BuildChoices(Sentences.ToArray());
-        }
-
-
-        //private static Choices CreateInitiaton()
-        //{
-        //    Choices choices = new Choices();
-
-        //    choices.Add("Hi " + Assistant.AssistantName);
-        //    choices.Add("Ok " + Assistant.AssistantName);
-        //    choices.Add("Hey " + Assistant.AssistantName);
-        //    choices.Add("Okay " + Assistant.AssistantName);
-        //    choices.Add("Hello " + Assistant.AssistantName);
-
-        //    return choices;
-        //}
-
-        //private static Choices CreateInstalledApps()
-        //{
-        //    Choices choices = new Choices();
-
-        //    foreach (var app in Helpers.InstalledApps)
-        //    {
-        //        string[] words = app.Split(' ');
-        //        string appPart = string.Empty;
-
-        //        for (int i = 0; i < words.Length; i++)
-        //        {
-        //            if (words[i] != string.Empty)
-        //            {
-        //                if (i > 0)
-        //                    appPart += ' ';
-        //                appPart += words[i];
-        //                choices.Add(appPart);
-        //            }
-        //        }
-        //    }
-
-        //    return choices;
-        //}
-
-        private Choices BuildChoices(params string[] choiceCollection)
-        {
-            Choices choices = new Choices();
-
-            foreach (string choice in choiceCollection)
-            {
-                choices.Add(choice);
-            }
-
-
-            return choices;
+            Choice = new Choices(Sentences.ToArray());
         }
     }
 }

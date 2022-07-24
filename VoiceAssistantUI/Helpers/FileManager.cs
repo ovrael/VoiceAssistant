@@ -18,6 +18,14 @@ namespace VoiceAssistantUI
             }
         }
 
+        public static void SaveToFile(string line, string file)
+        {
+            using (StreamWriter sw = File.CreateText(file))
+            {
+                sw.WriteLine(line);
+            }
+        }
+
         public static List<string> LoadFromFile(string file)
         {
             List<string> lines = new List<string>();
@@ -32,6 +40,21 @@ namespace VoiceAssistantUI
             }
 
             return lines;
+        }
+
+        public static string LoadAllText(string file)
+        {
+            string data = string.Empty;
+            try
+            {
+                data = File.ReadAllText(file);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
+            return data;
         }
     }
 }

@@ -5,10 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Speech.Recognition;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Text.Json;
+//using System.Text.Json;
+using Newtonsoft.Json;
+using VoiceAssistantUI.VoiceAssistant;
 
 namespace VoiceAssistantUI
 {
@@ -22,19 +25,12 @@ namespace VoiceAssistantUI
 
     public static class Assistant
     {
+        public static AssistantData Data = new AssistantData();
+
         // Create an in-process speech recognizer for the en-US locale.
         public static bool IsListening = true;
-        public static double ConfidenceThreshold = 0.55;
-        public static string Language = "en-US";
-        public static Dictionary<string, string> ChangeableVariables = new Dictionary<string, string>()
-        {
-            {"AssistantName", "Kaladin" }
-        };
-
-        public static string DataFilePath = @"\src\data\data.vad";
-
-        public static List<AssistantChoice> Choices = new List<AssistantChoice>();
-        public static List<AssistantGrammar> Grammars = new List<AssistantGrammar>();
+        public static bool CalledAssistant = false;
+        static Timer calledAssistantTimer = null;
 
         public static ListBox outputListBox;
         private static readonly int outputHistoryLength = 300;
@@ -123,9 +119,9 @@ namespace VoiceAssistantUI
                 {
                     if (text[i] == '}')
                     {
-                        if (ChangeableVariables.ContainsKey(specialVariableName))
+                        if (Data.ChangeableVariables.ContainsKey(specialVariableName))
                         {
-                            customText += ChangeableVariables[specialVariableName];
+                            customText += Data.ChangeableVariables[specialVariableName];
                         }
                         else
                         {
@@ -156,7 +152,7 @@ namespace VoiceAssistantUI
         }
         public static string ReplaceSpecialVariablesValuesToKeys(string text)
         {
-            foreach (var specialVariable in ChangeableVariables)
+            foreach (var specialVariable in Data.ChangeableVariables)
             {
                 if (!text.Contains(specialVariable.Value))
                     continue;
@@ -176,165 +172,28 @@ namespace VoiceAssistantUI
 
         public static AssistantGrammar GetGrammar(string grammarName)
         {
-            return Grammars.Where(g => g.Name == grammarName).FirstOrDefault();
+            return Data.Grammars.Where(g => g.Name == grammarName).FirstOrDefault();
         }
         public static AssistantChoice GetChoice(string choiceName)
         {
-            return Choices.Where(c => c.Name == choiceName).FirstOrDefault();
+            return Data.Choices.Where(c => c.Name == choiceName).FirstOrDefault();
         }
         #endregion
 
         #region File operations
         public static void SaveDataToFile()
         {
-            //SaveDataToJsonFile();
-            string language = "Language: " + Language;
-            string changeableVariables = "ChangeableVariables:";
-            foreach (var variableKey in ChangeableVariables.Keys)
-            {
-                changeableVariables += $"\n\t{variableKey}: {ChangeableVariables[variableKey]}";
-            }
+            var dataJson = JsonConvert.SerializeObject(Data);
+            FileManager.SaveToFile(dataJson, Data.DataFilePath);
 
-            string choices = "Choices:\n";
-
-            for (int i = 0; i < Choices.Count; i++)
-            {
-                choices += $"\tName: {Choices[i].Name}\n";
-                choices += $"\tCanBeEdited: {Choices[i].CanBeEdited}\n";
-                choices += $"\tCanBeDeleted: {Choices[i].CanBeDeleted}\n";
-                choices += $"\tIsString: {Choices[i].IsString}\n";
-                choices += $"\tIsNumber: {Choices[i].IsNumber}\n";
-                choices += "\tSentences: ";
-
-                for (int j = 0; j < Choices[i].Sentences.Count; j++)
-                {
-                    choices += ReplaceSpecialVariablesValuesToKeys(Choices[i].Sentences[j]);
-
-                    if (j < Choices[i].Sentences.Count - 1)
-                        choices += ",";
-                }
-
-                if (i < Choices.Count - 1)
-                    choices += "\n";
-            }
-
-            string grammars = "Grammar:\n";
-
-            for (int i = 0; i < Grammars.Count; i++)
-            {
-                grammars += "\tName: " + Grammars[i].Name + "\n";
-                grammars += "\tCommandName: " + Grammars[i].CommandName + "\n";
-                grammars += "\tDescription: " + Grammars[i].Description + "\n";
-                grammars += "\tChoiceNames: ";
-
-                for (int j = 0; j < Grammars[i].AssistantChoices.Count; j++)
-                {
-                    grammars += Grammars[i].AssistantChoices[j].Name;
-
-                    if (j < Grammars[i].AssistantChoices.Count - 1)
-                        grammars += ",";
-                }
-                if (i < Grammars.Count - 1)
-                    grammars += "\n";
-            }
-
-            List<string> toSave = new List<string>();
-            toSave.Add(language);
-            toSave.Add(changeableVariables);
-            toSave.Add(choices);
-            toSave.Add(grammars);
-
-            FileManager.SaveToFile(toSave, DataFilePath);
         }
         public static void LoadDataFromFile()
         {
-            ChangeableVariables = new Dictionary<string, string>();
+            string dataJson = FileManager.LoadAllText(Data.DataFilePath);
 
-            List<string> data = FileManager.LoadFromFile(DataFilePath);
-            Language = data.Where(l => l.Contains("Language")).First().Split(':')[1].Trim(' ');
-
-            int variablesIndex = data.IndexOf(data.Where(l => l.Contains("ChangeableVariables:")).First());
-            int choicesIndex = data.IndexOf(data.Where(l => l.Contains("Choices:")).First());
-            int grammarIndex = data.IndexOf(data.Where(l => l.Contains("Grammar:")).First());
-
-            try
-            {
-                if (data[variablesIndex + 1].Length > 0)
-                {
-                    for (int i = variablesIndex + 1; i < choicesIndex; i++)
-                    {
-                        string[] variableData = data[i].Split(':');
-                        ChangeableVariables.Add(variableData[0].Trim(' ').TrimStart('\t'), variableData[1].Trim(' '));
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                WriteLog("Can't load changeable variable!", MessageType.Error);
-                WriteLog("ERROR: " + e.ToString(), MessageType.Error);
-            }
-
-            try
-            {
-                if (data[choicesIndex + 1].Length > 0)
-                {
-                    for (int i = choicesIndex + 1; i < grammarIndex; i += 6)
-                    {
-                        string name = data[i].Split(':')[1].Trim(' ');
-                        string canBeEdited = data[i + 1].Split(':')[1].Trim(' ');
-                        string canBeDeleted = data[i + 2].Split(':')[1].Trim(' ');
-                        string isString = data[i + 3].Split(':')[1].Trim(' ');
-                        string isNumber = data[i + 4].Split(':')[1].Trim(' ');
-                        string[] sentences = data[i + 5].Split(':')[1].Trim(' ').Split(',');
-
-                        for (int s = 0; s < sentences.Length; s++)
-                        {
-                            sentences[s] = ReplaceSpecialVariablesKeysToValues(sentences[s]);
-                        }
-
-                        AssistantChoice assistantChoice = new AssistantChoice(name, sentences.ToList(), canBeEdited, canBeDeleted, isString, isNumber);
-                        Choices.Add(assistantChoice);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                WriteLog("Can't load choice!", MessageType.Error);
-                WriteLog("ERROR: " + e.ToString(), MessageType.Error);
-            }
-
-            try
-            {
-                if (data[grammarIndex + 1].Length > 0)
-                {
-                    for (int i = grammarIndex + 1; i < data.Count; i += 4)
-                    {
-                        string name = data[i].Split(':')[1].Trim(' ');
-                        string commandName = data[i + 1].Split(':')[1].Trim(' ');
-                        string description = data[i + 2].Split(':')[1].Trim(' ');
-                        string[] choiceNames = data[i + 3].Split(':')[1].Trim(' ').Split(',');
-
-                        AssistantGrammar assistantGrammar = new AssistantGrammar(name, commandName, description, choiceNames);
-                        Grammars.Add(assistantGrammar);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                WriteLog("Can't load grammar!", MessageType.Error);
-                WriteLog("ERROR: " + e.ToString(), MessageType.Error);
-            }
-        }
-
-        public static void SaveDataToJsonFile()
-        {
-            var choicesJson = JsonSerializer.Serialize(Choices);
-            var grammarsJson = JsonSerializer.Serialize(Grammars);
-            var changeableVariablesJson = JsonSerializer.Serialize(ChangeableVariables);
-
-            WriteLog(choicesJson);
-            WriteLog(grammarsJson);
-            WriteLog(changeableVariablesJson);
+            Data = JsonConvert.DeserializeObject<AssistantData>(dataJson);
+            Data.Choices.ForEach(c => c.Init());
+            Data.Grammars.ForEach(c => c.Init());
         }
 
         #endregion
@@ -343,24 +202,36 @@ namespace VoiceAssistantUI
 
         private static void AddDictationChoices()
         {
-            if (!Choices.Exists(c => c.Name == "number" || c.Name == "Number"))
+            if (!Data.Choices.Exists(c => c.Name.ToLower() == "$number"))
             {
-                AssistantChoice numberChoice = new AssistantChoice("number", new List<string>() { "Tries to", "recognize", "number" }, false, false, true);
-                Choices.Add(numberChoice);
+                AssistantChoice numberChoice = new AssistantChoice("number", new List<string>() { "Tries to recognize number" }, false, false, true);
+                Data.Choices.Add(numberChoice);
+            }
+
+            if (!Data.Choices.Exists(c => c.Name.ToLower() == "$artist"))
+            {
+                AssistantChoice artistChoices = new AssistantChoice("$artist", new List<string>() { "Gets artists from music directory" }, false, false, true);
+                Data.Choices.Add(artistChoices);
+            }
+
+            if (!Data.Choices.Exists(c => c.Name.ToLower() == "$songtitle"))
+            {
+                AssistantChoice songChoices = new AssistantChoice("$songtitle", new List<string>() { "Gets songs from music directory" }, false, false, true);
+                Data.Choices.Add(songChoices);
             }
         }
 
         // Handle the SpeechRecognized event.
         public static async Task StartListening()
         {
-            if (Grammars.Count == 0)
+            if (Data.Grammars.Count == 0)
             {
                 WriteLog("At least 1 grammar must exist to work!", MessageType.Warning);
                 return;
             }
 
             IsListening = true;
-            CultureInfo cultureInfo = new CultureInfo(Language);
+            CultureInfo cultureInfo = new CultureInfo(Data.Language);
             SpeechRecognitionEngine recognizer = null;
             try
             {
@@ -375,7 +246,7 @@ namespace VoiceAssistantUI
                 recognizer.UnloadAllGrammars();
 
                 AddDictationChoices();
-                foreach (var grammar in Grammars)
+                foreach (var grammar in Data.Grammars)
                 {
                     recognizer.LoadGrammar(grammar.Grammar);
                 }
@@ -404,26 +275,54 @@ namespace VoiceAssistantUI
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
         {
             var result = e.Result;
-            WriteLog($"You said \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar.");
+            WriteLog($"You said \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{CalledAssistant}");
 
-            if (result.Confidence < ConfidenceThreshold)
+            if (result.Confidence < Data.ConfidenceThreshold)
                 return;
 
-            var speakedGrammar = Grammars.Where(g => g.Name == result.Grammar.Name).FirstOrDefault();
+            var speakedGrammar = Data.Grammars.Where(g => g.Name == result.Grammar.Name).FirstOrDefault();
             if (speakedGrammar is null)
                 return;
+
+
+            if (speakedGrammar.Name == "Call Assistant")
+            {
+                CalledAssistant = true;
+
+                calledAssistantTimer = new Timer(5000);
+                calledAssistantTimer.Elapsed += DisableCall;
+                calledAssistantTimer.Enabled = true;
+                return;
+            }
+
+            if (!CalledAssistant)
+                return;
+
+            calledAssistantTimer.Dispose();
 
             int specialIndexesCount = speakedGrammar.SpecialChoicesIndexes.Count;
 
             if (specialIndexesCount == 0)
             {
                 speakedGrammar.InvokeDelegate();
-                return;
+            }
+            else
+            {
+                object[] parameters = GetParameters(speakedGrammar, result.Words);
+                speakedGrammar.InvokeDelegate(parameters);
             }
 
-            object[] parameters = GetParameters(speakedGrammar, result.Words);
+            CalledAssistant = false;
+            return;
 
-            speakedGrammar.InvokeDelegate(parameters);
+        }
+
+        private static void DisableCall(object source, ElapsedEventArgs e)
+        {
+            Console.WriteLine($"Before: {CalledAssistant}");
+            CalledAssistant = false;
+            (source as Timer).Enabled = false;
+            Console.WriteLine($"Called assistant false: {CalledAssistant}");
         }
 
         private static bool BuildParameter(AssistantGrammar grammar, int specialIndex, string sentence)

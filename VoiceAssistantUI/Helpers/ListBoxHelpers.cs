@@ -13,7 +13,7 @@ namespace VoiceAssistantUI
         public static void UpdateChoices(ListBox listBox)
         {
             listBox.Items.Clear();
-            foreach (var choice in Assistant.Choices)
+            foreach (var choice in Assistant.Data.Choices)
             {
                 listBox.Items.Add(choice.Name);
             }
@@ -22,7 +22,7 @@ namespace VoiceAssistantUI
         public static void UpdateChoicesWithTooltips(ListBox listBox)
         {
             listBox.Items.Clear();
-            foreach (var choice in Assistant.Choices)
+            foreach (var choice in Assistant.Data.Choices)
             {
                 ListBoxItem item = new ListBoxItem();
                 item.Content = choice.Name;
@@ -37,7 +37,7 @@ namespace VoiceAssistantUI
         public static void UpdateGrammar(ListBox listBox)
         {
             listBox.Items.Clear();
-            foreach (var grammar in Assistant.Grammars)
+            foreach (var grammar in Assistant.Data.Grammars)
             {
                 ListBoxItem item = new ListBoxItem();
                 item.Content = grammar.Name;

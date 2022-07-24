@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Speech.Recognition;
 using VoiceAssistantBackend.Commands;
+using Newtonsoft.Json;
+
 
 namespace VoiceAssistantUI
 {
@@ -11,69 +13,42 @@ namespace VoiceAssistantUI
         public string Name { get; set; }
         public string CommandName { get; set; }
         public string Description { get; set; }
+        public bool CanBeEdited { get; private set; } = true;
+        public bool CanBeDelited { get; private set; } = true;
+
+        [JsonIgnore]
         public Grammar Grammar { get; set; }
         //public List<string> ChoiceNames { get; set; }
-        public List<AssistantChoice> AssistantChoices { get; set; }
 
+        [JsonIgnore]
+        public List<AssistantChoice> AssistantChoices { get; set; }
+        public List<string> AssistantChoicesNames { get; set; }
+        [JsonIgnore]
         public List<int> SpecialChoicesIndexes { get; private set; }
 
         public delegate void Command0Parameters();
+        [JsonIgnore]
         public Command0Parameters command0Parameters;
 
         public delegate void Command1Parameters(object parameter);
+        [JsonIgnore]
         public Command1Parameters command1Parameters;
 
         public delegate void Command2Parameters(object parameter, object parameter2);
+        [JsonIgnore]
         public Command2Parameters command2Parameters;
 
-        //public static readonly Grammar InstalledApps = InstalledAppsBuilder();
-        //public static readonly Grammar OpenApp = OpenAppBuilder();
-        //public static readonly Grammar ControlMedia = ControlMediaBuilder();
-        //public static readonly Grammar ControlPC = ControlPCBuilder();
-
-        private static Grammar InstalledAppsBuilder()
+        public void Init()
         {
-            //Grammar grammar = GrammarCreator(AssistantChoice.Show, AssistantChoice.Installed, AssistantChoice.Apps);
+            AssistantChoices = new List<AssistantChoice>();
+            foreach (var choice in AssistantChoicesNames)
+            {
+                AssistantChoices.Add(Assistant.GetChoice(choice));
+            }
 
-            return null;
+            Grammar = GrammarCreator();
+            CreateDelegate(CommandName);
         }
-
-        //private Grammar OpenAppBuilder()
-        //{
-        //    Grammar grammar = GrammarCreator("Open", "InstalledApps");
-
-        //    return grammar;
-        //}
-
-        //private Grammar ControlMediaBuilder()
-        //{
-        //    Grammar grammar = GrammarCreator("MediaControl", "MediaType");
-
-        //    return grammar;
-        //}
-
-        private Grammar ControlPCBuilder()
-        {
-            //Grammar grammar = GrammarCreator(nameof(AssistantChoice.PC_Control));
-
-            return null;
-        }
-
-        //private static Grammar GrammarCreator(params Choices[] choices)
-        //{
-        //    string caller = new System.Diagnostics.StackTrace().GetFrame(1).GetMethod().Name;
-        //    caller = caller.Substring(0, caller.LastIndexOf("Builder"));
-        //    GrammarBuilder grammarBuilder = new GrammarBuilder();
-        //    //GrammarBuilder grammarBuilder = new GrammarBuilder(AssistantChoice.Initiaton);
-
-        //    foreach (var choice in choices)
-        //    {
-        //        grammarBuilder.Append(choice);
-        //    }
-
-        //    grammarBuilder.Culture = new System.Globalization.CultureInfo(Assistant.language);
-        //    return new Grammar(grammarBuilder) { Name = caller };
-        //}
 
         private Grammar GrammarCreator()
         {
@@ -91,35 +66,17 @@ namespace VoiceAssistantUI
                     {
                         SpecialChoicesIndexes.Add(index);
 
-                        if (choice.Name.ToLower() == "$number")
-                        {
-                            var numbers = Helpers.GetStringNumbers(min: 0, max: 100);
-                            choice.SetCatchSentences(numbers.ToList());
-                            grammarBuilder.Append(new Choices(numbers));
-                        }
-
-                        if (choice.Name.ToLower() == "$artist")
-                        {
-                            var artists = FoobarControl.GetArtistsFromMusicDirectory();
-                            choice.SetCatchSentences(artists.ToList());
-                            grammarBuilder.Append(new Choices(artists));
-                        }
-
-                        if (choice.Name.ToLower() == "$songtitle")
-                        {
-                            var songs = FoobarControl.GetSongsTitlesFromMusicDirectory();
-                            choice.SetCatchSentences(songs.ToList());
-                            grammarBuilder.Append(new Choices(songs));
-                        }
-
                         if (choice.Name.ToLower() == "$word")
                         {
                             grammarBuilder.AppendDictation();
                         }
+                        else
+                        {
+                            grammarBuilder.Append(choice.Choice);
+                        }
                     }
                     else
                     {
-                        //var propValue = typeof(AssistantChoice).GetField(choice, BindingFlags.Public | BindingFlags.Static).GetValue(null);
                         grammarBuilder.Append(choice.Choice);
                     }
                 }
@@ -129,7 +86,7 @@ namespace VoiceAssistantUI
                 }
             }
 
-            grammarBuilder.Culture = new System.Globalization.CultureInfo(Assistant.Language);
+            grammarBuilder.Culture = new System.Globalization.CultureInfo(Assistant.Data.Language);
 
             return new Grammar(grammarBuilder) { Name = Name };
         }
@@ -223,11 +180,17 @@ namespace VoiceAssistantUI
             }
         }
 
+        public AssistantGrammar()
+        {
+
+        }
+
         public AssistantGrammar(string name, string commandName, string description, params string[] choices)
         {
             Name = name;
             CommandName = commandName;
             Description = description;
+            AssistantChoicesNames = choices.ToList();
             AssistantChoices = new List<AssistantChoice>();
             foreach (var choice in choices)
             {

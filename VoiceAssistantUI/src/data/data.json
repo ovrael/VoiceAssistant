@@ -1,0 +1,313 @@
+{
+  "ConfidenceThreshold": 0.55,
+  "Language": "en-US",
+  "ChangeableVariables": { "AssistantName": "Kaladin" },
+  "DataFilePath": "..\\..\\..\\src\\data\\data.json",
+  "Choices": [
+    {
+      "Name": "$word",
+      "Sentences": [ "Used to recognize word" ],
+      "CanBeEdited": false,
+      "CanBeDeleted": false,
+      "IsSpecial": true
+    },
+    {
+      "Name": "$artist",
+      "Sentences": [ "One of artsits", " in music directory" ],
+      "CanBeEdited": false,
+      "CanBeDeleted": false,
+      "IsSpecial": true
+    },
+    {
+      "Name": "$songTitle",
+      "Sentences": [ "One of songs", " in music directory" ],
+      "CanBeEdited": false,
+      "CanBeDeleted": false,
+      "IsSpecial": true
+    },
+    {
+      "Name": "$number",
+      "Sentences": [ "Used to recognize number" ],
+      "CanBeEdited": false,
+      "CanBeDeleted": false,
+      "IsSpecial": true
+    },
+    {
+      "Name": "open",
+      "Sentences": [ "open", "run" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "apps",
+      "Sentences": [ "apps", "programs" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "set",
+      "Sentences": [ "change", "set" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "volume",
+      "Sentences": [ "volume", "speakers", "sounds" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "to",
+      "Sentences": [ "at", "to" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "welcome",
+      "Sentences": [ "hello", "hey", "hi" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "assistant",
+      "Sentences": [ "{AssistantName}" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "decrease",
+      "Sentences": [ "decrease", "lower", "reduce" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "by",
+      "Sentences": [ "by" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "percent",
+      "Sentences": [ "percent" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "increase",
+      "Sentences": [ "increase", "raise" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "mute",
+      "Sentences": [ "mute", "silence" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "unmute",
+      "Sentences": [ "on", "unmute" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "pause",
+      "Sentences": [ "pause", "stop" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "media",
+      "Sentences": [ "media", "music", "song", "video" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "unpause",
+      "Sentences": [ "play", "start", "unpause" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "previous",
+      "Sentences": [ "previous" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "next",
+      "Sentences": [ "next" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "play",
+      "Sentences": [ "play" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "song",
+      "Sentences": [ "song" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    },
+    {
+      "Name": "player",
+      "Sentences": [ "foobar", "player" ],
+      "CanBeEdited": true,
+      "CanBeDeleted": true,
+      "IsSpecial": false
+    }
+  ],
+  "Grammars": [
+    {
+      "Name": "DecreaseVolume%",
+      "CommandName": "VolumeDownByPercent(Object)",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "decrease", "volume", "by", "$number", "percent" ]
+    },
+    {
+      "Name": "DecreaseVolumeV",
+      "CommandName": "VolumeDownByValue(Object)",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "decrease", "volume", "by", "$number" ]
+    },
+    {
+      "Name": "IncreaseVolume%",
+      "CommandName": "VolumeUpByPercent(Object)",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "increase", "volume", "by", "$number", "percent" ]
+    },
+    {
+      "Name": "IncreaseVolumeV",
+      "CommandName": "VolumeUpByValue(Object)",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "increase", "volume", "by", "$number" ]
+    },
+    {
+      "Name": "Mute sounds",
+      "CommandName": "VolumeMute()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "mute", "volume" ]
+    },
+    {
+      "Name": "Next media",
+      "CommandName": "NextMedia()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "next", "media" ]
+    },
+    {
+      "Name": "pause media",
+      "CommandName": "PauseMedia()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "pause", "media" ]
+    },
+    {
+      "Name": "play media",
+      "CommandName": "PlayMedia()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "unpause", "media" ]
+    },
+    {
+      "Name": "play song",
+      "CommandName": "FoobarPlaySong(Object)",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "play", "$songTitle" ]
+    },
+    {
+      "Name": "play song with artist",
+      "CommandName": "FoobarPlaySong(Object, Object)",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "play", "$songTitle", "by", "$artist" ]
+    },
+    {
+      "Name": "player volume down",
+      "CommandName": "FoobarVolumeDown()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "decrease", "player", "volume" ]
+    },
+    {
+      "Name": "player volume up",
+      "CommandName": "FoobarVolumeUp()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "increase", "player", "volume" ]
+    },
+    {
+      "Name": "Previous media",
+      "CommandName": "PreviousMedia()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "previous", "media" ]
+    },
+    {
+      "Name": "SetVolume",
+      "CommandName": "VolumeSet(Object)",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "set", "volume", "to", "$number" ]
+    },
+    {
+      "Name": "Unmute sounds",
+      "CommandName": "VolumeUnMute()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "unmute", "volume" ]
+    },
+    {
+      "Name": "Call Assistant",
+      "CommandName": "CallAssistant()",
+      "Description": "",
+      "CanBeEdited": true,
+      "CanBeDelited": true,
+      "AssistantChoicesNames": [ "welcome", "assistant" ]
+    }
+  ]
+}

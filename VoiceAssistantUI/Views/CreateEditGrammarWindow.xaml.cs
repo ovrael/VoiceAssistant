@@ -251,7 +251,7 @@ namespace VoiceAssistantUI
 
         private bool ValidateGrammarData()
         {
-            if (Assistant.Grammars.Any(g => g.Name == grammarNameTextBox.Text) || grammarNameTextBox.Text.Length < 1)
+            if (Assistant.Data.Grammars.Any(g => g.Name == grammarNameTextBox.Text) || grammarNameTextBox.Text.Length < 1)
                 return false;
 
             if (commandsComboBox.SelectedIndex < 0)
@@ -305,7 +305,7 @@ namespace VoiceAssistantUI
                     selectedCommand = commandsComboBox.SelectedItem.ToString();
 
                 AssistantGrammar grammar = new AssistantGrammar(grammarNameTextBox.Text, selectedCommand, description, choiceNames);
-                Assistant.Grammars.Add(grammar);
+                Assistant.Data.Grammars.Add(grammar);
             }
 
             if (mode == Mode.Edit) // EDIT
@@ -332,9 +332,9 @@ namespace VoiceAssistantUI
                     selectedCommand = commandsComboBox.SelectedItem.ToString();
 
                 AssistantGrammar grammar = new AssistantGrammar(name, selectedCommand, description, choiceNames);
-                Assistant.Grammars.Add(grammar);
-                Assistant.Grammars.Remove(grammarForEdit);
-                Assistant.Grammars.Sort((x, y) => x.Name.CompareTo(y.Name));
+                Assistant.Data.Grammars.Add(grammar);
+                Assistant.Data.Grammars.Remove(grammarForEdit);
+                Assistant.Data.Grammars.Sort((x, y) => x.Name.CompareTo(y.Name));
             }
 
             Close();

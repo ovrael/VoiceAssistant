@@ -51,19 +51,19 @@ namespace VoiceAssistantUI
             if (workingMode == WorkingMode.Debug)
             {
                 ConsoleManager.ShowConsoleWindow();
-                trayIconPath = @"..\..\..\src\img\tray.ico";
-                Assistant.DataFilePath = @"..\..\..\src\data\data.vad";
+                trayIconPath = @"..\..\.." + trayIconPath;
+                Assistant.Data.DataFilePath = @"..\..\.." + Assistant.Data.DataFilePath;
             }
             else
             {
                 string currDirectory = Directory.GetCurrentDirectory();
                 trayIconPath = currDirectory + trayIconPath;
-                Assistant.DataFilePath = currDirectory + Assistant.DataFilePath;
+                Assistant.Data.DataFilePath = currDirectory + Assistant.Data.DataFilePath;
             }
 
             //MessageBox.Show($"Configuration: {buildConfigurationName}\n" +
             //    $"Icon path: {trayIconPath}\n" +
-            //    $"Data path: {Assistant.DataFilePath}");
+            //    $"Data path: {Assistant.Data.DataFilePath}");
 
             try
             {
@@ -105,29 +105,6 @@ namespace VoiceAssistantUI
             }
             catch { }
         }
-
-
-        #region Tests
-        private void TestChoices()
-        {
-            AssistantChoice show = new AssistantChoice("show", new List<string>() { "show", "print", "display" });
-            AssistantChoice apps = new AssistantChoice("apps", new List<string>() { "applications", "apps", "programs" });
-            AssistantChoice open = new AssistantChoice("open", new List<string>() { "open", "run" });
-
-            Assistant.Choices.Add(show);
-            Assistant.Choices.Add(apps);
-            Assistant.Choices.Add(open);
-        }
-
-        private void TestGrammar()
-        {
-            AssistantGrammar printApss = new AssistantGrammar("Print apps", "dsc", "show", "apps");
-            AssistantGrammar openApps = new AssistantGrammar("Open apps", "dsc", "open", "apps");
-
-            Assistant.Grammars.Add(printApss);
-            Assistant.Grammars.Add(openApps);
-        }
-        #endregion
 
         #region Main Window
         private void Window_Initialized(object sender, EventArgs e)
@@ -180,7 +157,7 @@ namespace VoiceAssistantUI
             if (WindowState == WindowState.Minimized)
             {
                 Hide();
-                trayIcon.ShowBalloonTip(1000, "App is still working.", "Will listen to you waiting for call " + Assistant.ChangeableVariables["AssistantName"], ToolTipIcon.Info);
+                trayIcon.ShowBalloonTip(1000, "App is still working.", "Will listen to you waiting for call " + Assistant.Data.ChangeableVariables["AssistantName"], ToolTipIcon.Info);
             }
 
             base.OnStateChanged(e);
@@ -204,7 +181,7 @@ namespace VoiceAssistantUI
         #region Gets
         private AssistantChoice GetCurrentAssistantChoice()
         {
-            return Assistant.Choices
+            return Assistant.Data.Choices
                 .Where(c => c.Name == (string)choicesListBox.SelectedItem)
                 .FirstOrDefault();
         }
@@ -213,7 +190,7 @@ namespace VoiceAssistantUI
             if (grammarListBox.Items.Count == 0 || grammarListBox.SelectedItem is null)
                 return null;
 
-            return Assistant.Grammars
+            return Assistant.Data.Grammars
                 .Where(g => g.Name == (grammarListBox.SelectedItem as ListBoxItem).Content)
                 .FirstOrDefault();
         }
@@ -483,7 +460,7 @@ namespace VoiceAssistantUI
             var choiceIndex = choicesListBox.Items.IndexOf(choice.Name);
             string newName = Interaction.InputBox($"Provide new choice name for choice \"{choice.Name}\"", "Changing choice name", choice.Name);
 
-            if (Assistant.Choices.Any(c => c.Name == newName))
+            if (Assistant.Data.Choices.Any(c => c.Name == newName))
             {
                 MessageBox.Show("Couldn't change name! Choice with that name already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -504,7 +481,7 @@ namespace VoiceAssistantUI
 
         private List<AssistantGrammar> ChoiceInGrammars(AssistantChoice choice)
         {
-            return Assistant.Grammars.Where(g => g.AssistantChoices.Contains(choice)).ToList();
+            return Assistant.Data.Grammars.Where(g => g.AssistantChoices.Contains(choice)).ToList();
         }
 
         private void DeleteChoice(AssistantChoice choice)
@@ -537,7 +514,7 @@ namespace VoiceAssistantUI
 
             if (result == MessageBoxResult.Yes)
             {
-                Assistant.Choices.Remove(choice);
+                Assistant.Data.Choices.Remove(choice);
                 choiceSentencesListBox.Items.Clear();
             }
         }
@@ -593,7 +570,7 @@ namespace VoiceAssistantUI
             if (result == MessageBoxResult.Yes)
             {
                 StopAssistant();
-                Assistant.Grammars.Remove(grammar);
+                Assistant.Data.Grammars.Remove(grammar);
                 StartAssistant();
             }
         }

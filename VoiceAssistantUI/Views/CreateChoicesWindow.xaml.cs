@@ -14,6 +14,7 @@ namespace VoiceAssistantUI
     {
         private string choiceName = string.Empty;
         private List<string> choiceSentences = new List<string>();
+        private List<string> catchChoiceSentences = new List<string>();
 
         public CreateChoicesWindow()
         {
@@ -31,13 +32,14 @@ namespace VoiceAssistantUI
             if (choiceSentence.Length < 1)
                 return;
 
-            choiceSentence = Assistant.ReplaceSpecialVariablesKeysToValues(choiceSentence);
+            choiceSentence = choiceSentence.Split(' ')[0];
+            string catchChoiceSentence = Assistant.ReplaceSpecialVariablesKeysToValues(choiceSentence);
 
-            if (choiceSentence.Length > 0)
-            {
-                choiceSentence = choiceSentence.Split(' ')[0];
-                choiceSentences.Add(choiceSentence);
-            }
+            if (catchChoiceSentence.Length < 1)
+                return;
+
+            choiceSentences.Add(choiceSentence);
+            catchChoiceSentences.Add(catchChoiceSentence);
 
             (sender as TextBox).Text = string.Empty;
 
@@ -94,13 +96,22 @@ namespace VoiceAssistantUI
             if (choiceSentences.Contains(editedSentence))
                 return;
 
-            editedSentence = VoiceAssistantUI.Assistant.ReplaceSpecialVariablesKeysToValues(editedSentence);
+            string catchEditedSentence = Assistant.ReplaceSpecialVariablesKeysToValues(editedSentence);
+
+            if (catchEditedSentence.Length < 1)
+                return;
 
             changedValueTextBox.Text = string.Empty;
-            choiceSentences.Remove(currentSentence);
+
+            int index = choiceSentences.IndexOf(currentSentence);
+            choiceSentences.RemoveAt(index);
+            catchChoiceSentences.RemoveAt(index);
 
             if (editedSentence.Length > 0)
+            {
                 choiceSentences.Add(editedSentence);
+                catchChoiceSentences.Add(catchEditedSentence);
+            }
 
             UpdateValuesListBox();
         }
@@ -111,7 +122,9 @@ namespace VoiceAssistantUI
             if (value == string.Empty)
                 return;
 
-            choiceSentences.Remove(value);
+            int index = choiceSentences.IndexOf(value);
+            choiceSentences.RemoveAt(index);
+            catchChoiceSentences.RemoveAt(index);
             UpdateValuesListBox();
         }
 
@@ -125,14 +138,15 @@ namespace VoiceAssistantUI
 
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
-            if (VoiceAssistantUI.Assistant.Choices.Any(c => c.Name == choiceName))
+            if (Assistant.Data.Choices.Any(c => c.Name == choiceName))
             {
                 MessageBox.Show("Choice with that namy already exists!", "ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            VoiceAssistantUI.AssistantChoice newChoice = new VoiceAssistantUI.AssistantChoice(choiceName, choiceSentences);
-            VoiceAssistantUI.Assistant.Choices.Add(newChoice);
+            AssistantChoice newChoice = new AssistantChoice(choiceName, choiceSentences);
+            newChoice.SetCatchSentences(catchChoiceSentences);
+            Assistant.Data.Choices.Add(newChoice);
             Close();
         }
 
