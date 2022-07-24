@@ -152,6 +152,12 @@ Choices:
 	IsString: True
 	IsNumber: False
 	Sentences: Tries to,recognize,number
+	Name: player
+	CanBeEdited: True
+	CanBeDeleted: True
+	IsString: False
+	IsNumber: False
+	Sentences: foobar,player
 Grammar:
 	Name: DecreaseVolume%
 	CommandName: VolumeDownByPercent(Object)
@@ -186,13 +192,21 @@ Grammar:
 	Description: 
 	ChoiceNames: unpause,media
 	Name: play song
-	CommandName: PlaySong(Object)
+	CommandName: FoobarPlaySong(Object)
 	Description: 
 	ChoiceNames: play,$songTitle
 	Name: play song with artist
-	CommandName: PlaySong(Object, Object)
+	CommandName: FoobarPlaySong(Object, Object)
 	Description: 
 	ChoiceNames: play,$songTitle,by,$artist
+	Name: player volume down
+	CommandName: FoobarVolumeDown()
+	Description: 
+	ChoiceNames: decrease,player,volume
+	Name: player volume up
+	CommandName: FoobarVolumeUp()
+	Description: 
+	ChoiceNames: increase,player,volume
 	Name: Previous media
 	CommandName: PreviousMedia()
 	Description: 

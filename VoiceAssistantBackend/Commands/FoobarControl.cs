@@ -122,7 +122,7 @@ namespace VoiceAssistantBackend.Commands
             return songPath;
         }
 
-        public static void PlaySong(object title, object artist)
+        public static void FoobarPlaySong(object title, object artist)
         {
             var song = FindSong(title, artist);
 
@@ -132,7 +132,7 @@ namespace VoiceAssistantBackend.Commands
             PlaySong(song);
         }
 
-        public static void PlaySong(object title)
+        public static void FoobarPlaySong(object title)
         {
             var song = FindSong(title);
 
@@ -145,17 +145,21 @@ namespace VoiceAssistantBackend.Commands
         private static void PlaySong(string songPath)
         {
             string strCmdText = $"/c C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /context_command:\"Add to playback queue\" \"{songPath}\" /next";
+            Misc.RunCMDCommand(strCmdText);
+        }
 
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+        public static void FoobarVolumeUp()
+        {
+            string upVolumeCommand = "C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /command:Up";
+            string strCmdText = $"/c {upVolumeCommand}&{upVolumeCommand}&{upVolumeCommand}&{upVolumeCommand}&{upVolumeCommand}";
+            Misc.RunCMDCommand(strCmdText);
+        }
 
-            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = strCmdText;
-            startInfo.CreateNoWindow = true;
-            process.StartInfo = startInfo;
-            process.Start();
-            process.Dispose();
+        public static void FoobarVolumeDown()
+        {
+            string downVolumeCommand = "C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /command:Down";
+            string strCmdText = $"/c {downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}";
+            Misc.RunCMDCommand(strCmdText);
         }
     }
 }

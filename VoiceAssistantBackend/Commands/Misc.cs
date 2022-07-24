@@ -54,7 +54,6 @@ namespace VoiceAssistantBackend.Commands
 
             return availableCommands.ToArray();
         }
-
         public static MethodInfo GetCommand(string commandName)
         {
             int bracketIndex = commandName.IndexOf('(');
@@ -70,6 +69,22 @@ namespace VoiceAssistantBackend.Commands
 
             MethodInfo selectedCommand = commandsData.Where(c => c.Name == commandName && c.GetParameters().Length == parameters).FirstOrDefault();
             return selectedCommand;
+        }
+
+        public static bool RunCMDCommand(string command)
+        {
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+
+            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments = command;
+            startInfo.CreateNoWindow = true;
+            process.StartInfo = startInfo;
+            process.Start();
+            process.Dispose();
+
+            return true;
         }
     }
 }
