@@ -1,7 +1,8 @@
-﻿using System;
+﻿//using System.Text.Json;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Speech.Recognition;
 using System.Threading.Tasks;
@@ -9,8 +10,6 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-//using System.Text.Json;
-using Newtonsoft.Json;
 using VoiceAssistantUI.VoiceAssistant;
 
 namespace VoiceAssistantUI
@@ -30,7 +29,7 @@ namespace VoiceAssistantUI
         // Create an in-process speech recognizer for the en-US locale.
         public static bool IsListening = true;
         public static bool CalledAssistant = false;
-        static Timer calledAssistantTimer = null;
+        private static Timer calledAssistantTimer = null;
 
         public static ListBox outputListBox;
         private static readonly int outputHistoryLength = 300;
@@ -192,8 +191,7 @@ namespace VoiceAssistantUI
             string dataJson = FileManager.LoadAllText(Data.DataFilePath);
 
             Data = JsonConvert.DeserializeObject<AssistantData>(dataJson);
-            Data.Choices.ForEach(c => c.Init());
-            Data.Grammars.ForEach(c => c.Init());
+            Data.Init();
         }
 
         #endregion

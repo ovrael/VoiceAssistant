@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,56 +16,21 @@ namespace VoiceAssistantUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private enum WorkingMode
-        {
-            Debug,
-            Release
-        }
-
         private NotifyIcon trayIcon;
         private CurrentClick currentClick = CurrentClick.Choices;
-        private readonly WorkingMode workingMode = WorkingMode.Debug;
         private Task assistantListening;
-
-        private readonly string trayIconPath = @"\src\img\tray.ico";
 
         public MainWindow()
         {
             try
             {
-                var assemblyConfigurationAttribute = typeof(Assistant).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
-                var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
-
-                if (buildConfigurationName is not null)
-                {
-                    if (buildConfigurationName.Contains("Debug"))
-                        workingMode = WorkingMode.Debug;
-                    else
-                        workingMode = WorkingMode.Release;
-                }
-                else
-                {
-                    workingMode = WorkingMode.Debug;
-                }
-
-
-                if (workingMode == WorkingMode.Debug)
-                {
+                Assistant.LoadDataFromFile();
+                if (Assistant.Data.WorkingMode == VoiceAssistant.WorkingMode.Debug)
                     ConsoleManager.ShowConsoleWindow();
-                    trayIconPath = @"..\..\.." + trayIconPath;
-                    Assistant.Data.DataFilePath = @"..\..\.." + Assistant.Data.DataFilePath;
-                }
-                else
-                {
-                    string currDirectory = Directory.GetCurrentDirectory();
-                    trayIconPath = currDirectory + trayIconPath;
-                    Assistant.Data.DataFilePath = currDirectory + Assistant.Data.DataFilePath;
-                }
-
 
                 InitializeComponent();
                 Assistant.InitConsoles(outputListBox, logsListBox);
-                Assistant.WriteLog($"Starting program in {workingMode} working mode.");
+                Assistant.WriteLog($"Starting program in {Assistant.Data.WorkingMode} working mode.");
             }
             catch (Exception ex)
             {
@@ -110,7 +73,7 @@ namespace VoiceAssistantUI
         {
             trayIcon = new NotifyIcon();
             trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
-            trayIcon.Icon = new Icon(trayIconPath);
+            trayIcon.Icon = new Icon(Assistant.Data.TrayIconFilePath);
             trayIcon.Visible = true;
         }
         private async void Window_Loaded(object sender, RoutedEventArgs e)
