@@ -29,7 +29,7 @@ namespace VoiceAssistantUI
         private readonly WorkingMode workingMode = WorkingMode.Debug;
         private Task assistantListening;
 
-        private string trayIconPath = @"\src\img\tray.ico";
+        private readonly string trayIconPath = @"\src\img\tray.ico";
 
         public MainWindow()
         {
@@ -50,6 +50,7 @@ namespace VoiceAssistantUI
                     workingMode = WorkingMode.Debug;
                 }
 
+
                 if (workingMode == WorkingMode.Debug)
                 {
                     ConsoleManager.ShowConsoleWindow();
@@ -63,7 +64,10 @@ namespace VoiceAssistantUI
                     Assistant.Data.DataFilePath = currDirectory + Assistant.Data.DataFilePath;
                 }
 
+
                 InitializeComponent();
+                Assistant.InitConsoles(outputListBox, logsListBox);
+                Assistant.WriteLog($"Starting program in {workingMode} working mode.");
             }
             catch (Exception ex)
             {
@@ -73,12 +77,7 @@ namespace VoiceAssistantUI
             }
 
             MoveTabs();
-            //Assistant.SaveDataToFile();
-
-            //Assistant.InitBasicHello();
-            Assistant.InitConsoles(outputListBox, logsListBox);
             Assistant.LoadDataFromFile();
-            //assistantListening = new Task(() => Assistant.StartListening());
 
             ListBoxHelpers.UpdateChoices(choicesListBox);
             ListBoxHelpers.UpdateGrammar(grammarListBox);

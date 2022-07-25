@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Speech.Recognition;
 using VoiceAssistantBackend.Commands;
-using Newtonsoft.Json;
 
 
 namespace VoiceAssistantUI
@@ -96,7 +96,8 @@ namespace VoiceAssistantUI
             var command = Misc.GetCommand(commandName);
             if (command is null)
             {
-                Assistant.WriteLog($"There is no command: {commandName}!", MessageType.Error);
+                Assistant.WriteLog($"Couldn't create delegate. There is no command: {commandName}!", MessageType.Error);
+                Console.WriteLine("AssistantGrammar.cs -> CreateDelegate(string commandName) -> command is null");
                 return;
             }
             switch (command.GetParameters().Length)

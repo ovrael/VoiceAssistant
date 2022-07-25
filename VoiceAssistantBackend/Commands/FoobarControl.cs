@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-
-namespace VoiceAssistantBackend.Commands
+﻿namespace VoiceAssistantBackend.Commands
 {
     public static class FoobarControl
     {
         public static string FoobarPath { get; private set; } = "C:\\Program Files (x86)\\foobar2000\\foobar2000.exe";
         public static string MusicDirectory { get; private set; } = "D:\\Muzyka";
         public static bool FoobarExists { get; private set; } = true;
+        public static bool MusicDirectoryExists { get; private set; } = true;
 
-        private static string[] allowedExtensions = new string[] { ".mp3", ".flac", ".wav" };
+        private static readonly string[] allowedExtensions = new string[] { ".mp3", ".flac", ".wav" };
 
 
         static FoobarControl()
@@ -21,6 +15,11 @@ namespace VoiceAssistantBackend.Commands
             if (!File.Exists(FoobarPath))
             {
                 FoobarExists = false;
+            }
+
+            if (!Directory.Exists(MusicDirectory))
+            {
+                MusicDirectoryExists = false;
             }
         }
 
@@ -39,8 +38,26 @@ namespace VoiceAssistantBackend.Commands
             return FoobarExists;
         }
 
+        public static bool ChangeMusicDirectoryIfExists(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                MusicDirectoryExists = false;
+            }
+            else
+            {
+                MusicDirectoryExists = true;
+                MusicDirectory = path;
+            }
+
+            return MusicDirectoryExists;
+        }
+
         public static string[] GetArtistsFromMusicDirectory()
         {
+            if (!MusicDirectoryExists)
+                return new string[] { "No music directory" };
+
             var artistDirectories = Directory.GetDirectories(MusicDirectory);
             for (int i = 0; i < artistDirectories.Length; i++)
             {
@@ -51,6 +68,9 @@ namespace VoiceAssistantBackend.Commands
 
         public static string[] GetSongsDirectoriesFromMusicDirectory(string musicDirectory = "")
         {
+            if (!MusicDirectoryExists)
+                return new string[] { "No music directory" };
+
             if (musicDirectory.Length == 0)
                 musicDirectory = MusicDirectory;
 
@@ -70,6 +90,9 @@ namespace VoiceAssistantBackend.Commands
 
         public static string[] GetSongsTitlesFromMusicDirectory()
         {
+            if (!MusicDirectoryExists)
+                return new string[] { "No music directory" };
+
             var songFiles = GetSongsDirectoriesFromMusicDirectory();
 
             for (int i = 0; i < songFiles.Count(); i++)
