@@ -18,6 +18,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Update="src\data\data.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="src\img\tray.ico">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>

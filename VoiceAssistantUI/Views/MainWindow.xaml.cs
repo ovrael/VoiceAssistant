@@ -33,40 +33,36 @@ namespace VoiceAssistantUI
 
         public MainWindow()
         {
-            var assemblyConfigurationAttribute = typeof(Assistant).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
-            var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
-
-            if (buildConfigurationName is not null)
-            {
-                if (buildConfigurationName.Contains("Debug"))
-                    workingMode = WorkingMode.Debug;
-                else
-                    workingMode = WorkingMode.Release;
-            }
-            else
-            {
-                workingMode = WorkingMode.Debug;
-            }
-
-            if (workingMode == WorkingMode.Debug)
-            {
-                ConsoleManager.ShowConsoleWindow();
-                trayIconPath = @"..\..\.." + trayIconPath;
-                Assistant.Data.DataFilePath = @"..\..\.." + Assistant.Data.DataFilePath;
-            }
-            else
-            {
-                string currDirectory = Directory.GetCurrentDirectory();
-                trayIconPath = currDirectory + trayIconPath;
-                Assistant.Data.DataFilePath = currDirectory + Assistant.Data.DataFilePath;
-            }
-
-            //MessageBox.Show($"Configuration: {buildConfigurationName}\n" +
-            //    $"Icon path: {trayIconPath}\n" +
-            //    $"Data path: {Assistant.Data.DataFilePath}");
-
             try
             {
+                var assemblyConfigurationAttribute = typeof(Assistant).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>();
+                var buildConfigurationName = assemblyConfigurationAttribute?.Configuration;
+
+                if (buildConfigurationName is not null)
+                {
+                    if (buildConfigurationName.Contains("Debug"))
+                        workingMode = WorkingMode.Debug;
+                    else
+                        workingMode = WorkingMode.Release;
+                }
+                else
+                {
+                    workingMode = WorkingMode.Debug;
+                }
+
+                if (workingMode == WorkingMode.Debug)
+                {
+                    ConsoleManager.ShowConsoleWindow();
+                    trayIconPath = @"..\..\.." + trayIconPath;
+                    Assistant.Data.DataFilePath = @"..\..\.." + Assistant.Data.DataFilePath;
+                }
+                else
+                {
+                    string currDirectory = Directory.GetCurrentDirectory();
+                    trayIconPath = currDirectory + trayIconPath;
+                    Assistant.Data.DataFilePath = currDirectory + Assistant.Data.DataFilePath;
+                }
+
                 InitializeComponent();
             }
             catch (Exception ex)
@@ -98,12 +94,16 @@ namespace VoiceAssistantUI
                 if (trayIcon != null)
                 {
                     trayIcon.Visible = false;
-                    trayIcon.Icon = null;
+                    //trayIcon.Icon = null;
+                    trayIcon.Icon.Dispose();
                     trayIcon.Dispose();
                     trayIcon = null;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Assistant.WriteLog(ex.ToString());
+            }
         }
 
         #region Main Window

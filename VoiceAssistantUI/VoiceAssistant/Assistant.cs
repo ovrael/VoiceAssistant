@@ -252,6 +252,7 @@ namespace VoiceAssistantUI
                 }
 
                 recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
+                recognizer.SpeechRecognitionRejected += new EventHandler<SpeechRecognitionRejectedEventArgs>(RejectedText);
                 recognizer.SetInputToDefaultAudioDevice();
                 recognizer.RecognizeAsync(RecognizeMode.Multiple);
 
@@ -272,10 +273,19 @@ namespace VoiceAssistantUI
                 }
             }
         }
+
+        private static void RejectedText(object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            var result = e.Result;
+            string grammar = result.Grammar is null ? "null" : result.Grammar.Name;
+
+            WriteLog($"REJECTED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{grammar}\" grammar. CalledAssistant:{CalledAssistant}", MessageType.Warning);
+        }
+
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
         {
             var result = e.Result;
-            WriteLog($"You said \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{CalledAssistant}");
+            WriteLog($"RECOGNIZED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{CalledAssistant}", MessageType.Success);
 
             if (result.Confidence < Data.ConfidenceThreshold)
                 return;
