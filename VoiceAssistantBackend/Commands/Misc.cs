@@ -18,9 +18,15 @@ namespace VoiceAssistantBackend.Commands
                              )
                       .ToList();
 
-            foreach (var item in commandClasses)
+            foreach (var commandClass in commandClasses)
             {
-                var methods = item.GetMethods()
+                if (commandClass.Name.Contains("Foobar"))
+                {
+                    if (!FoobarControl.FoobarExists || !FoobarControl.MusicDirectoryExists)
+                        continue;
+                }
+
+                var methods = commandClass.GetMethods()
                     .Where(
                         m => m.IsPublic
                         && m.IsStatic
@@ -44,7 +50,7 @@ namespace VoiceAssistantBackend.Commands
                 var paremeters = method.GetParameters();
                 for (int i = 0; i < paremeters.Length; i++)
                 {
-                    methodLine += paremeters[i].ParameterType.Name;
+                    methodLine += paremeters[i].Name;
                     if (i < paremeters.Length - 1)
                         methodLine += ", ";
                 }

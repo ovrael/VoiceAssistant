@@ -1,7 +1,8 @@
-﻿using System;
+﻿//using System.Text.Json;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Speech.Recognition;
 using System.Threading.Tasks;
@@ -9,8 +10,6 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-//using System.Text.Json;
-using Newtonsoft.Json;
 using VoiceAssistantUI.VoiceAssistant;
 
 namespace VoiceAssistantUI
@@ -30,7 +29,7 @@ namespace VoiceAssistantUI
         // Create an in-process speech recognizer for the en-US locale.
         public static bool IsListening = true;
         public static bool CalledAssistant = false;
-        static Timer calledAssistantTimer = null;
+        private static Timer calledAssistantTimer = null;
 
         public static ListBox outputListBox;
         private static readonly int outputHistoryLength = 300;
@@ -192,8 +191,7 @@ namespace VoiceAssistantUI
             string dataJson = FileManager.LoadAllText(Data.DataFilePath);
 
             Data = JsonConvert.DeserializeObject<AssistantData>(dataJson);
-            Data.Choices.ForEach(c => c.Init());
-            Data.Grammars.ForEach(c => c.Init());
+            Data.Init();
         }
 
         #endregion
@@ -252,6 +250,7 @@ namespace VoiceAssistantUI
                 }
 
                 recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
+                recognizer.SpeechRecognitionRejected += new EventHandler<SpeechRecognitionRejectedEventArgs>(RejectedText);
                 recognizer.SetInputToDefaultAudioDevice();
                 recognizer.RecognizeAsync(RecognizeMode.Multiple);
 
@@ -272,10 +271,19 @@ namespace VoiceAssistantUI
                 }
             }
         }
+
+        private static void RejectedText(object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            var result = e.Result;
+            string grammar = result.Grammar is null ? "null" : result.Grammar.Name;
+
+            WriteLog($"REJECTED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{grammar}\" grammar. CalledAssistant:{CalledAssistant}", MessageType.Warning);
+        }
+
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
         {
             var result = e.Result;
-            WriteLog($"You said \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{CalledAssistant}");
+            WriteLog($"RECOGNIZED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{CalledAssistant}", MessageType.Success);
 
             if (result.Confidence < Data.ConfidenceThreshold)
                 return;
