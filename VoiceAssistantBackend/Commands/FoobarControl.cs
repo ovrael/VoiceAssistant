@@ -184,5 +184,31 @@
             string strCmdText = $"/c {downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}";
             Misc.RunCMDCommand(strCmdText);
         }
+
+        public static void FoobarVolumeUp(object value)
+        {
+            if (!int.TryParse(value.ToString(), out int correctValue)) return;
+
+            string upVolumeCommand = "C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /command:Up";
+            string strCmdText = $"/c {upVolumeCommand}";
+
+            for (int i = 0; i < correctValue; i++)
+            {
+                Misc.RunCMDCommand(strCmdText);
+            }
+        }
+
+        public static void FoobarVolumeDown(object value)
+        {
+            if (!int.TryParse(value.ToString(), out int correctValue)) return;
+
+            string downVolumeCommand = "C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /command:Down";
+            string strCmdText = $"/c {downVolumeCommand}";
+
+            for (int i = 0; i < correctValue; i++)
+            {
+                Misc.RunCMDCommand(strCmdText);
+            }
+        }
     }
 }

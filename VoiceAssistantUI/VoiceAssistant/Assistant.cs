@@ -183,12 +183,12 @@ namespace VoiceAssistantUI
         public static void SaveDataToFile()
         {
             var dataJson = JsonConvert.SerializeObject(Data);
-            FileManager.SaveToFile(dataJson, Data.DataFilePath);
+            FileManager.SaveToFile(dataJson, Data.FullDataFilePath);
 
         }
         public static void LoadDataFromFile()
         {
-            string dataJson = FileManager.LoadAllText(Data.DataFilePath);
+            string dataJson = FileManager.LoadAllText(Data.FullDataFilePath);
 
             Data = JsonConvert.DeserializeObject<AssistantData>(dataJson);
             Data.Init();
@@ -300,6 +300,7 @@ namespace VoiceAssistantUI
                 calledAssistantTimer = new Timer(5000);
                 calledAssistantTimer.Elapsed += DisableCall;
                 calledAssistantTimer.Enabled = true;
+                calledAssistantTimer.AutoReset = false;
                 return;
             }
 
@@ -327,10 +328,8 @@ namespace VoiceAssistantUI
 
         private static void DisableCall(object source, ElapsedEventArgs e)
         {
-            Console.WriteLine($"Before: {CalledAssistant}");
             CalledAssistant = false;
             (source as Timer).Enabled = false;
-            Console.WriteLine($"Called assistant false: {CalledAssistant}");
         }
 
         private static bool BuildParameter(AssistantGrammar grammar, int specialIndex, string sentence)
