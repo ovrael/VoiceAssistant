@@ -2,8 +2,10 @@
 {
     public static class FoobarControl
     {
-        public static string FoobarPath { get; private set; } = "C:\\Program Files (x86)\\foobar2000\\foobar2000.exe";
-        public static string MusicDirectory { get; private set; } = "D:\\Muzyka";
+        public static bool IsAvailable { get; set; } = true;
+
+        public static string FoobarPath { get; set; } = "C:\\Program Files (x86)\\foobar2000\\foobar2000.exe";
+        public static string MusicDirectory { get; set; } = "D:\\Muzyka";
         public static bool FoobarExists { get; private set; } = true;
         public static bool MusicDirectoryExists { get; private set; } = true;
 
@@ -21,6 +23,9 @@
             {
                 MusicDirectoryExists = false;
             }
+
+            if (!FoobarExists || !MusicDirectoryExists)
+                IsAvailable = false;
         }
 
         public static bool ChangeFoobarPathIfExists(string path)
@@ -167,12 +172,18 @@
 
         private static void PlaySong(string songPath)
         {
+            if (!FoobarExists)
+                return;
+
             string strCmdText = $"/c C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /context_command:\"Add to playback queue\" \"{songPath}\" /next";
             Misc.RunCMDCommand(strCmdText);
         }
 
         public static void FoobarVolumeUp()
         {
+            if (!FoobarExists)
+                return;
+
             string upVolumeCommand = "C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /command:Up";
             string strCmdText = $"/c {upVolumeCommand}&{upVolumeCommand}&{upVolumeCommand}&{upVolumeCommand}&{upVolumeCommand}";
             Misc.RunCMDCommand(strCmdText);
@@ -180,6 +191,9 @@
 
         public static void FoobarVolumeDown()
         {
+            if (!FoobarExists)
+                return;
+
             string downVolumeCommand = "C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /command:Down";
             string strCmdText = $"/c {downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}&{downVolumeCommand}";
             Misc.RunCMDCommand(strCmdText);
@@ -187,6 +201,9 @@
 
         public static void FoobarVolumeUp(object value)
         {
+            if (!FoobarExists)
+                return;
+
             if (!int.TryParse(value.ToString(), out int correctValue)) return;
 
             string upVolumeCommand = "C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /command:Up";
@@ -200,6 +217,9 @@
 
         public static void FoobarVolumeDown(object value)
         {
+            if (!FoobarExists)
+                return;
+
             if (!int.TryParse(value.ToString(), out int correctValue)) return;
 
             string downVolumeCommand = "C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /command:Down";

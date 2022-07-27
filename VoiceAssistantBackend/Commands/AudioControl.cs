@@ -6,12 +6,20 @@ namespace VoiceAssistantBackend.Commands
 {
     public static class AudioControl
     {
-        private static readonly CoreAudioDevice playbackDevice = new CoreAudioController().GetDefaultDevice(deviceType: DeviceType.Playback, Role.Multimedia);
+        public static bool IsAvailable { get; set; } = true;
+
+        private static CoreAudioDevice playbackDevice;
 
         private const byte VK_VOLUME_MUTE = 0xAD;
 
         private const UInt32 KEYEVENTF_EXTENDEDKEY = 0x0001;
         private const UInt32 KEYEVENTF_KEYUP = 0x0002;
+
+        public static void LoadDevice()
+        {
+            var device = new CoreAudioController().GetDefaultDeviceAsync(deviceType: DeviceType.Playback, Role.Multimedia);
+            playbackDevice = device.Result;
+        }
 
         [DllImport("user32.dll")]
         private static extern void keybd_event(byte bVk, byte bScan, UInt32 dwFlags, UInt32 dwExtraInfo);

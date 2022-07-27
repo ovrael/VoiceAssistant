@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using VoiceAssistantBackend;
+using VoiceAssistantBackend.Commands;
 using Interaction = Microsoft.VisualBasic.Interaction;
 using MessageBox = System.Windows.MessageBox;
 
@@ -24,6 +26,7 @@ namespace VoiceAssistantUI
         {
             try
             {
+                Misc.LoadAvailableCommands();
                 Assistant.LoadDataFromFile();
                 if (Assistant.Data.WorkingMode == VoiceAssistant.WorkingMode.Debug)
                     ConsoleManager.ShowConsoleWindow();
@@ -35,6 +38,7 @@ namespace VoiceAssistantUI
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
+                Console.WriteLine(ex.ToString());
                 Console.WriteLine("Press enter to exit");
                 Console.ReadKey();
             }
@@ -78,6 +82,7 @@ namespace VoiceAssistantUI
             try
             {
                 assistantListening = Task.Run(Assistant.StartListening);
+                AudioControl.LoadDevice();
             }
             catch (Exception ex)
             {
@@ -88,8 +93,9 @@ namespace VoiceAssistantUI
             {
                 trayIcon = new NotifyIcon();
                 trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
-                trayIcon.Icon = new Icon(Assistant.Data.FullTrayIconFilePath);
+                trayIcon.Icon = new Icon(Assistant.Data.FullFilePaths[VoiceAssistant.AssistantFile.TrayIcon]);
                 trayIcon.Visible = true;
+
             }
             catch (Exception ex)
             {

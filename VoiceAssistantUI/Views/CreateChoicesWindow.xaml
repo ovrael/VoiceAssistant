@@ -60,6 +60,7 @@
             </TextBlock.Style><Run Text="Enter "/><Run Text="changed"/><Run Text=" "/><Run Language="pl-pl" Text="sentence"/></TextBlock>
         <Button x:Name="createButton" Content="Create choice" HorizontalAlignment="Left" Margin="626,0,0,10" Background="#7F41DA39" Height="30" VerticalAlignment="Bottom" Width="138" FontSize="16" Click="CreateButton_Click" IsEnabled="False" LayoutUpdated="CreateButton_LayoutUpdated"/>
         <Button x:Name="abortButton" Content="Abort" HorizontalAlignment="Left" Margin="10,0,0,10" Background="#7FFF0000" Height="23" VerticalAlignment="Bottom" Width="78" FontSize="11" Click="AbortButton_Click"/>
+        <CheckBox x:Name="isSpecialCheckBox" Content="Is special (variable)" HorizontalAlignment="Left" Margin="10,185,0,0" VerticalAlignment="Top" Foreground="#FF949494"/>
         <!--<TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="50,119,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="65" Width="190"/>-->
     </Grid>
 </Window>
