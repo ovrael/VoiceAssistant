@@ -82,8 +82,12 @@ namespace VoiceAssistantUI.VoiceAssistant
 
         private void SetSystemPaths()
         {
-            FoobarControl.FoobarPath = FoobarExeFilePath;
-            FoobarControl.MusicDirectory = MusicDirectoryFilePath;
+            bool result = FoobarControl.ChangeFoobarPathIfExists(FoobarExeFilePath);
+            if (!result)
+                Assistant.WriteLog("Foobar path does not exist!");
+            result = FoobarControl.ChangeMusicDirectoryIfExists(MusicDirectoryFilePath);
+            if (!result)
+                Assistant.WriteLog("Music directory does not exist!");
         }
 
         private void SetDebugFilePaths()

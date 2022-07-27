@@ -2,8 +2,8 @@
 {
     public static class FoobarControl
     {
-        public static string FoobarPath { get; set; } = "C:\\Program Files (x86)\\foobar2000\\foobar2000.exe";
-        public static string MusicDirectory { get; set; } = "D:\\Muzyka";
+        public static string FoobarPath { get; private set; } = "C:\\Program Files (x86)\\foobar2000\\foobar2000.exe";
+        public static string MusicDirectory { get; private set; } = "D:\\Muzyka";
         public static bool FoobarExists { get; private set; } = true;
         public static bool MusicDirectoryExists { get; private set; } = true;
 
