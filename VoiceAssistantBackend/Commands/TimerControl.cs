@@ -8,7 +8,9 @@ namespace VoiceAssistantBackend.Commands
     {
         private static Timer timer;
         private static Timer soundTimer;
-        public static string TimerSoundPath { get; set; } = @"";
+        static SoundPlayer soundPlayer;
+
+        public static string TimerSoundPath { get; set; } = @"\src\sounds\timer.wav";
 
         public static void SetTimerSeconds(object seconds)
         {
@@ -18,6 +20,7 @@ namespace VoiceAssistantBackend.Commands
             }
             int miliseconds = correctSeconds * 1000;
 
+            soundPlayer = new SoundPlayer(TimerSoundPath);
             timer = new Timer(miliseconds);
             timer.Elapsed += TimerEnd;
             timer.Enabled = true;
@@ -35,17 +38,20 @@ namespace VoiceAssistantBackend.Commands
 
         public static void StopTimer()
         {
+            soundPlayer.Stop();
             if (soundTimer is not null)
                 soundTimer.Dispose();
 
             if (timer is not null)
                 timer.Dispose();
+
+            if (soundPlayer is not null)
+                soundPlayer.Dispose();
         }
 
         private static void TimerEnd(object source, ElapsedEventArgs e)
         {
-            SoundPlayer snd = new SoundPlayer(@"D:\timer.wav");
-            snd.Play();
+            PlaySound(null, null);
 
             soundTimer = new Timer(4000);
             soundTimer.Elapsed += PlaySound;
@@ -55,8 +61,7 @@ namespace VoiceAssistantBackend.Commands
 
         private static void PlaySound(object source, ElapsedEventArgs e)
         {
-            SoundPlayer snd = new SoundPlayer(@"D:\timer.wav");
-            snd.Play();
+            soundPlayer.Play();
         }
     }
 }

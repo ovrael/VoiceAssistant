@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:VoiceAssistantUI"
         xmlns:VisualBasic="clr-namespace:Microsoft.VisualBasic;assembly=Microsoft.VisualBasic.Core" x:Class="VoiceAssistantUI.MainWindow"
         mc:Ignorable="d"
-        Title="Voice Assistant" Height="500" Width="710" Initialized="Window_Initialized" Loaded="Window_Loaded" Closing="Window_Closing" Background="#FFAAA8C8" SizeChanged="Window_SizeChanged" MinWidth="710" MaxWidth="710" MinHeight="500" MaxHeight="900" HorizontalContentAlignment="Center">
+        Title="Voice Assistant" Height="500" Width="710" Loaded="Window_Loaded" Closing="Window_Closing" Background="#FFAAA8C8" SizeChanged="Window_SizeChanged" MinWidth="710" MaxWidth="710" MinHeight="500" MaxHeight="900" HorizontalContentAlignment="Center">
 
     <TabControl x:Name="mainTabControl" Background="White" SelectionChanged="mainTabControl_SelectionChanged">
         <TabControl.Resources>

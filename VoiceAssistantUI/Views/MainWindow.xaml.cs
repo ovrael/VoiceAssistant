@@ -40,7 +40,7 @@ namespace VoiceAssistantUI
             }
 
             MoveTabs();
-            Assistant.LoadDataFromFile();
+            //Assistant.LoadDataFromFile();
 
             ListBoxHelpers.UpdateChoices(choicesListBox);
             ListBoxHelpers.UpdateGrammar(grammarListBox);
@@ -69,23 +69,31 @@ namespace VoiceAssistantUI
         }
 
         #region Main Window
-        private void Window_Initialized(object sender, EventArgs e)
-        {
-            trayIcon = new NotifyIcon();
-            trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
-            trayIcon.Icon = new Icon(Assistant.Data.TrayIconFilePath);
-            trayIcon.Visible = true;
-        }
+        //private void Window_Initialized(object sender, EventArgs e)
+        //{
+
+        //}
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                //assistantListening.Start();
                 assistantListening = Task.Run(Assistant.StartListening);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                Assistant.WriteLog(e.ToString());
+            }
+
+            try
+            {
+                trayIcon = new NotifyIcon();
+                trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
+                trayIcon.Icon = new Icon(Assistant.Data.FullTrayIconFilePath);
+                trayIcon.Visible = true;
+            }
+            catch (Exception ex)
+            {
+                Assistant.WriteLog(ex.ToString());
             }
         }
 

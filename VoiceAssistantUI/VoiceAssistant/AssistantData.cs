@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Windows;
 using VoiceAssistantBackend.Commands;
 
 namespace VoiceAssistantUI.VoiceAssistant
@@ -24,34 +25,41 @@ namespace VoiceAssistantUI.VoiceAssistant
             {"AssistantName", "Kaladin" }
         };
 
+        private string DebugPath = @"..\..\..";
+        [JsonIgnore]
+        public string FullDataFilePath { get; private set; }
         public string DataFilePath { get; set; } = @"\src\data\data.json";
+
+        [JsonIgnore]
+        public string FullTrayIconFilePath { get; private set; }
         public string TrayIconFilePath { get; set; } = @"\src\img\tray.ico";
+
         public string FoobarExeFilePath { get; set; } = @"C:\Program files (x86)\foobar2000\foobar2000.exe";
         public string MusicDirectoryFilePath { get; set; } = @"D:\Muzyka";
-        public string TimerSoundFilePath { get; set; } = @"\src\sounds\timer.wavs";
+
+        [JsonIgnore]
+        public string FullTimerSoundFilePath { get; private set; }
+        public string TimerSoundFilePath { get; set; } = @"\src\sounds\timer.wav";
 
         public List<AssistantChoice> Choices { get; set; } = new List<AssistantChoice>();
         public List<AssistantGrammar> Grammars { get; set; } = new List<AssistantGrammar>();
 
         public AssistantData()
         {
+            SetWorkingMode();
+            SetSystemPaths();
 
+            if (WorkingMode == WorkingMode.Debug)
+                SetDebugFilePaths();
+
+            if (WorkingMode == WorkingMode.Release)
+                SetReleaseFilePaths();
         }
 
         public void Init()
         {
             Choices.ForEach(c => c.Init());
             Grammars.ForEach(c => c.Init());
-
-            SetWorkingMode();
-
-            SetSystemPaths();
-
-            if (Assistant.Data.WorkingMode == WorkingMode.Debug)
-                SetDebugFilePaths();
-
-            if (Assistant.Data.WorkingMode == WorkingMode.Release)
-                SetReleaseFilePaths();
         }
 
         private void SetWorkingMode()
@@ -62,13 +70,13 @@ namespace VoiceAssistantUI.VoiceAssistant
             if (buildConfigurationName is not null)
             {
                 if (buildConfigurationName.Contains("Debug"))
-                    Assistant.Data.WorkingMode = WorkingMode.Debug;
+                    WorkingMode = WorkingMode.Debug;
                 else
-                    Assistant.Data.WorkingMode = WorkingMode.Release;
+                    WorkingMode = WorkingMode.Release;
             }
             else
             {
-                Assistant.Data.WorkingMode = WorkingMode.Debug;
+                WorkingMode = WorkingMode.Debug;
             }
         }
 
@@ -80,21 +88,21 @@ namespace VoiceAssistantUI.VoiceAssistant
 
         private void SetDebugFilePaths()
         {
-            TrayIconFilePath = @"..\..\.." + TrayIconFilePath;
-            DataFilePath = @"..\..\.." + DataFilePath;
+            FullTrayIconFilePath = DebugPath + TrayIconFilePath;
+            FullDataFilePath = DebugPath + DataFilePath;
 
-            TimerSoundFilePath = @"..\..\.." + TimerSoundFilePath;
-            TimerControl.TimerSoundPath = TimerSoundFilePath;
+            FullTimerSoundFilePath = DebugPath + TimerSoundFilePath;
+            TimerControl.TimerSoundPath = FullTimerSoundFilePath;
         }
 
         private void SetReleaseFilePaths()
         {
             string currDirectory = Directory.GetCurrentDirectory();
-            TrayIconFilePath = currDirectory + TrayIconFilePath;
-            DataFilePath = currDirectory + DataFilePath;
+            FullTrayIconFilePath = currDirectory + TrayIconFilePath;
+            FullDataFilePath = currDirectory + DataFilePath;
 
-            TimerSoundFilePath = currDirectory + TimerSoundFilePath;
-            TimerControl.TimerSoundPath = TimerSoundFilePath;
+            FullTimerSoundFilePath = currDirectory + TimerSoundFilePath;
+            TimerControl.TimerSoundPath = FullTimerSoundFilePath;
         }
     }
 }
