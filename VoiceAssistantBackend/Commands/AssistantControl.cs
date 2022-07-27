@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VoiceAssistantBackend.Commands
+﻿namespace VoiceAssistantBackend.Commands
 {
     public static class AssistantControl
     {
+        public static bool IsAvailable { get; set; } = true;
+
         public static void CallAssistant()
         {
 

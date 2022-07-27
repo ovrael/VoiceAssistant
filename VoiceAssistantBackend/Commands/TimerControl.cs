@@ -6,9 +6,11 @@ namespace VoiceAssistantBackend.Commands
 {
     public static class TimerControl
     {
+        public static bool IsAvailable { get; set; } = true;
+
         private static Timer timer;
         private static Timer soundTimer;
-        static SoundPlayer soundPlayer;
+        private static SoundPlayer soundPlayer;
 
         public static string TimerSoundPath { get; set; } = @"\src\sounds\timer.wav";
 

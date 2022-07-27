@@ -5,6 +5,9 @@ namespace VoiceAssistantBackend.Commands
 {
     public static class EnergyControl
     {
+        public static bool IsAvailable { get; set; } = true;
+
+
         // LOGOUT
         [DllImport("wtsapi32.dll", SetLastError = true)]
         private static extern bool WTSDisconnectSession(IntPtr hServer, int sessionId, bool bWait);

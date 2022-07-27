@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,8 +12,8 @@ namespace VoiceAssistantUI
     public partial class CreateChoicesWindow : Window
     {
         private string choiceName = string.Empty;
-        private List<string> choiceSentences = new List<string>();
-        private List<string> catchChoiceSentences = new List<string>();
+        private readonly List<string> choiceSentences = new List<string>();
+        private readonly List<string> catchChoiceSentences = new List<string>();
 
         public CreateChoicesWindow()
         {
@@ -145,6 +144,7 @@ namespace VoiceAssistantUI
             }
 
             AssistantChoice newChoice = new AssistantChoice(choiceName, choiceSentences);
+            newChoice.IsSpecial = isSpecialCheckBox.IsChecked == null ? false : (bool)isSpecialCheckBox.IsChecked;
             newChoice.SetCatchSentences(catchChoiceSentences);
             Assistant.Data.Choices.Add(newChoice);
             Close();

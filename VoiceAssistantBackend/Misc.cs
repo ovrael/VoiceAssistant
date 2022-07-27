@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
 
-namespace VoiceAssistantBackend.Commands
+namespace VoiceAssistantBackend
 {
     public static class Misc
     {
-        private static readonly MethodInfo[] commandsData;
+        private static MethodInfo[] commandsData;
 
-        static Misc()
+        public static void LoadAvailableCommands()
         {
             List<MethodInfo> availableCommands = new List<MethodInfo>();
 
@@ -20,10 +20,14 @@ namespace VoiceAssistantBackend.Commands
 
             foreach (var commandClass in commandClasses)
             {
-                if (commandClass.Name.Contains("Foobar"))
+                try
                 {
-                    if (!FoobarControl.FoobarExists || !FoobarControl.MusicDirectoryExists)
-                        continue;
+                    var isAvailable = commandClass.GetProperty("IsAvailable").GetValue(null);
+                    System.Diagnostics.Debug.WriteLine(isAvailable);
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine(e.ToString());
                 }
 
                 var methods = commandClass.GetMethods()

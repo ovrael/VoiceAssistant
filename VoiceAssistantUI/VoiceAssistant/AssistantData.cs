@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Windows;
 using VoiceAssistantBackend.Commands;
 
 namespace VoiceAssistantUI.VoiceAssistant
@@ -11,6 +10,16 @@ namespace VoiceAssistantUI.VoiceAssistant
     {
         Debug,
         Release
+    }
+
+    public enum AssistantFile
+    {
+        Data,
+        TrayIcon,
+        MusicPlayer,
+        MusicDirectory,
+        AssistantCallSound,
+        TimerSound
     }
 
     public class AssistantData
@@ -22,24 +31,24 @@ namespace VoiceAssistantUI.VoiceAssistant
         public string Language { get; set; } = "en-US";
         public Dictionary<string, string> ChangeableVariables { get; set; } = new Dictionary<string, string>()
         {
-            {"AssistantName", "Kaladin" }
+            {"AssistantName", "Kaladin" },
+            {"City", "Katowice" }
         };
 
-        private string DebugPath = @"..\..\..";
-        [JsonIgnore]
-        public string FullDataFilePath { get; private set; }
-        public string DataFilePath { get; set; } = @"\src\data\data.json";
+        private readonly string DebugPath = @"..\..\..";
 
         [JsonIgnore]
-        public string FullTrayIconFilePath { get; private set; }
-        public string TrayIconFilePath { get; set; } = @"\src\img\tray.ico";
+        public Dictionary<AssistantFile, string> FullFilePaths { get; set; } = new Dictionary<AssistantFile, string>();
 
-        public string FoobarExeFilePath { get; set; } = @"C:\Program files (x86)\foobar2000\foobar2000.exe";
-        public string MusicDirectoryFilePath { get; set; } = @"D:\Muzyka";
-
-        [JsonIgnore]
-        public string FullTimerSoundFilePath { get; private set; }
-        public string TimerSoundFilePath { get; set; } = @"\src\sounds\timer.wav";
+        public Dictionary<AssistantFile, string> FilePaths { get; set; } = new Dictionary<AssistantFile, string>()
+        {
+            {AssistantFile.Data, @"\src\data\data.json" },
+            {AssistantFile.TrayIcon, @"\src\img\tray.ico" },
+            {AssistantFile.MusicPlayer, @"C:\Program files (x86)\foobar2000\foobar2000.exe" },
+            {AssistantFile.MusicDirectory, @"D:\Muzyka" },
+            {AssistantFile.TimerSound, @"\src\sounds\timer.wav" },
+            {AssistantFile.AssistantCallSound, @"\src\sounds\assistantCall.wav" }
+        };
 
         public List<AssistantChoice> Choices { get; set; } = new List<AssistantChoice>();
         public List<AssistantGrammar> Grammars { get; set; } = new List<AssistantGrammar>();
@@ -54,6 +63,8 @@ namespace VoiceAssistantUI.VoiceAssistant
 
             if (WorkingMode == WorkingMode.Release)
                 SetReleaseFilePaths();
+
+            TimerControl.TimerSoundPath = FullFilePaths[AssistantFile.TimerSound];
         }
 
         public void Init()
@@ -82,27 +93,28 @@ namespace VoiceAssistantUI.VoiceAssistant
 
         private void SetSystemPaths()
         {
-            FoobarControl.FoobarPath = FoobarExeFilePath;
-            FoobarControl.MusicDirectory = MusicDirectoryFilePath;
+            FoobarControl.FoobarPath = FilePaths[AssistantFile.MusicPlayer];
+            FoobarControl.MusicDirectory = FilePaths[AssistantFile.MusicDirectory];
         }
 
         private void SetDebugFilePaths()
         {
-            FullTrayIconFilePath = DebugPath + TrayIconFilePath;
-            FullDataFilePath = DebugPath + DataFilePath;
-
-            FullTimerSoundFilePath = DebugPath + TimerSoundFilePath;
-            TimerControl.TimerSoundPath = FullTimerSoundFilePath;
+            foreach (var filePath in FilePaths)
+            {
+                if (filePath.Value.Contains("src"))
+                    FullFilePaths.Add(filePath.Key, DebugPath + filePath.Value);
+            }
         }
 
         private void SetReleaseFilePaths()
         {
             string currDirectory = Directory.GetCurrentDirectory();
-            FullTrayIconFilePath = currDirectory + TrayIconFilePath;
-            FullDataFilePath = currDirectory + DataFilePath;
 
-            FullTimerSoundFilePath = currDirectory + TimerSoundFilePath;
-            TimerControl.TimerSoundPath = FullTimerSoundFilePath;
+            foreach (var filePath in FilePaths)
+            {
+                if (filePath.Value.Contains("src"))
+                    FullFilePaths.Add(filePath.Key, currDirectory + filePath.Value);
+            }
         }
     }
 }

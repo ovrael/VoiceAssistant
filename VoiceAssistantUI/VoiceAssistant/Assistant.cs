@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Media;
 using System.Speech.Recognition;
 using System.Threading.Tasks;
 using System.Timers;
@@ -28,8 +29,9 @@ namespace VoiceAssistantUI
 
         // Create an in-process speech recognizer for the en-US locale.
         public static bool IsListening = true;
-        public static bool CalledAssistant = false;
+        private static bool calledAssistant = false;
         private static Timer calledAssistantTimer = null;
+        private static readonly SoundPlayer calledAssistantSound = new SoundPlayer(Data.FullFilePaths[AssistantFile.AssistantCallSound]);
 
         public static ListBox outputListBox;
         private static readonly int outputHistoryLength = 300;
@@ -64,6 +66,9 @@ namespace VoiceAssistantUI
         }
         public static void WriteLog(string message, MessageType type = MessageType.Normal)
         {
+            if (logsListBox is null)
+                return;
+
             if (logsListBox.Items.Count >= logsHistoryLength)
                 logsListBox.Items.RemoveAt(0);
 
@@ -89,6 +94,9 @@ namespace VoiceAssistantUI
         }
         public static void WriteOutput(string message, MessageType type = MessageType.Normal)
         {
+            if (logsListBox is null)
+                return;
+
             if (outputListBox.Items.Count >= outputHistoryLength)
                 outputListBox.Items.RemoveAt(0);
 
@@ -183,12 +191,12 @@ namespace VoiceAssistantUI
         public static void SaveDataToFile()
         {
             var dataJson = JsonConvert.SerializeObject(Data);
-            FileManager.SaveToFile(dataJson, Data.FullDataFilePath);
+            FileManager.SaveToFile(dataJson, Data.FullFilePaths[AssistantFile.Data]);
 
         }
         public static void LoadDataFromFile()
         {
-            string dataJson = FileManager.LoadAllText(Data.FullDataFilePath);
+            string dataJson = FileManager.LoadAllText(Data.FullFilePaths[AssistantFile.Data]);
 
             Data = JsonConvert.DeserializeObject<AssistantData>(dataJson);
             Data.Init();
@@ -277,13 +285,13 @@ namespace VoiceAssistantUI
             var result = e.Result;
             string grammar = result.Grammar is null ? "null" : result.Grammar.Name;
 
-            WriteLog($"REJECTED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{grammar}\" grammar. CalledAssistant:{CalledAssistant}", MessageType.Warning);
+            WriteLog($"REJECTED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{grammar}\" grammar. CalledAssistant:{calledAssistant}", MessageType.Warning);
         }
 
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
         {
             var result = e.Result;
-            WriteLog($"RECOGNIZED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{CalledAssistant}", MessageType.Success);
+            WriteLog($"RECOGNIZED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{calledAssistant}", MessageType.Success);
 
             if (result.Confidence < Data.ConfidenceThreshold)
                 return;
@@ -295,7 +303,8 @@ namespace VoiceAssistantUI
 
             if (speakedGrammar.Name == "Call Assistant")
             {
-                CalledAssistant = true;
+                calledAssistant = true;
+                calledAssistantSound.Play();
 
                 calledAssistantTimer = new Timer(5000);
                 calledAssistantTimer.Elapsed += DisableCall;
@@ -304,7 +313,7 @@ namespace VoiceAssistantUI
                 return;
             }
 
-            if (!CalledAssistant)
+            if (!calledAssistant)
                 return;
 
             calledAssistantTimer.Dispose();
@@ -321,14 +330,14 @@ namespace VoiceAssistantUI
                 speakedGrammar.InvokeDelegate(parameters);
             }
 
-            CalledAssistant = false;
+            calledAssistant = false;
             return;
 
         }
 
         private static void DisableCall(object source, ElapsedEventArgs e)
         {
-            CalledAssistant = false;
+            calledAssistant = false;
             (source as Timer).Enabled = false;
         }
 

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using VoiceAssistantBackend;
 
 namespace VoiceAssistantUI
 {
@@ -20,7 +21,8 @@ namespace VoiceAssistantUI
             Create,
             Edit
         }
-        Mode mode;
+
+        private readonly Mode mode;
 
         public CreateEditGrammarWindow()
         {
@@ -85,7 +87,7 @@ namespace VoiceAssistantUI
 
         private void LoadCommandsToComboBox(string commandName = "")
         {
-            string[] availableCommands = VoiceAssistantBackend.Commands.Misc.GetCommandsNames();
+            string[] availableCommands = Misc.GetCommandsNames();
 
             commandsComboBox.Items.Clear();
 
@@ -260,22 +262,41 @@ namespace VoiceAssistantUI
             if (chosenChoicesList.Count <= 0)
                 return false;
 
+            if (GetCommandParametersCount() != GetSpecialChoicesCount())
+                return false;
+
             return true;
+        }
+
+        private int GetCommandParametersCount()
+        {
+            string commandName = commandsComboBox.SelectedItem.ToString();
+            var commandInfo = Misc.GetCommand(commandName);
+            if (commandInfo is null)
+                return -1;
+
+            return commandInfo.GetParameters().Length;
+        }
+
+        private int GetSpecialChoicesCount()
+        {
+            int count = 0;
+
+            foreach (var choices in chosenChoicesList)
+            {
+                string choicesName = choices.Content.ToString();
+                count += Assistant.GetChoice(choicesName).IsSpecial ? 1 : 0;
+            }
+
+            return count;
         }
 
         private void ChangeAcceptButtonEnabling()
         {
-            if (mode == Mode.Edit)
-                return;
+            //if (mode == Mode.Edit)
+            //    return;
 
-            if (ValidateGrammarData())
-            {
-                createEditButton.IsEnabled = true;
-            }
-            else
-            {
-                createEditButton.IsEnabled = false;
-            }
+            createEditButton.IsEnabled = ValidateGrammarData();
         }
 
         private void grammarNameTextBox_KeyUp(object sender, KeyEventArgs e)
