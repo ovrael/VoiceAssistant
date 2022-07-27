@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace VoiceAssistantBackend.Commands
@@ -22,15 +21,15 @@ namespace VoiceAssistantBackend.Commands
 
         public static void Shutdown()
         {
-            var psi = new ProcessStartInfo("shutdown", "/s /t 0");
-            psi.CreateNoWindow = true;
-            psi.UseShellExecute = false;
-            Process.Start(psi);
+            Misc.RunCMDCommand("/s /t 0");
+            //var psi = new ProcessStartInfo("shutdown", );
+            //psi.CreateNoWindow = true;
+            //psi.UseShellExecute = false;
+            //Process.Start(psi);
         }
 
         public static void Logout()
         {
-            Console.WriteLine("Logging out!");
             if (!WTSDisconnectSession(WTS_CURRENT_SERVER_HANDLE, WTS_CURRENT_SESSION, false))
                 throw new Win32Exception();
         }
