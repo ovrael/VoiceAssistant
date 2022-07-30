@@ -25,13 +25,22 @@ namespace VoiceAssistantUI
 
     public static class Assistant
     {
+        private enum Sounds
+        {
+            Call,
+            Uncall,
+            Success,
+            Fail
+        }
+
         public static AssistantData Data = new AssistantData();
 
         // Create an in-process speech recognizer for the en-US locale.
         public static bool IsListening = true;
         private static bool calledAssistant = false;
         private static Timer calledAssistantTimer = null;
-        private static readonly SoundPlayer calledAssistantSound = new SoundPlayer(Data.FullFilePaths[AssistantFile.AssistantCallSound]);
+
+        private static SoundPlayer soundPlayer = new SoundPlayer();
 
         public static ListBox outputListBox;
         private static readonly int outputHistoryLength = 300;
@@ -39,6 +48,7 @@ namespace VoiceAssistantUI
         public static ListBox logsListBox;
         private static readonly int logsHistoryLength = 300;
 
+        private static readonly int uncallAssistantTimeMiliseconds = 8000;
 
         static Assistant()
         {
@@ -257,6 +267,7 @@ namespace VoiceAssistantUI
                     recognizer.LoadGrammar(grammar.Grammar);
                 }
 
+
                 recognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecognizedText);
                 recognizer.SpeechRecognitionRejected += new EventHandler<SpeechRecognitionRejectedEventArgs>(RejectedText);
                 recognizer.SetInputToDefaultAudioDevice();
@@ -282,19 +293,28 @@ namespace VoiceAssistantUI
 
         private static void RejectedText(object sender, SpeechRecognitionRejectedEventArgs e)
         {
-            var result = e.Result;
-            string grammar = result.Grammar is null ? "null" : result.Grammar.Name;
-
-            WriteLog($"REJECTED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{grammar}\" grammar. CalledAssistant:{calledAssistant}", MessageType.Warning);
+            //if (calledAssistant)
+            //    PlaySound(Data.FullFilePaths[AssistantFile.FailSound]);
+            if (e.Result.Grammar is not null)
+                RunAssistant(e.Result);
         }
 
         private static void RecognizedText(object sender, SpeechRecognizedEventArgs e)
         {
-            var result = e.Result;
-            WriteLog($"RECOGNIZED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{calledAssistant}", MessageType.Success);
+            RunAssistant(e.Result);
+        }
 
+        private static void RunAssistant(RecognitionResult result)
+        {
+
+            WriteLog($"RECOGNIZED: \"{result.Text}\" with {result.Confidence * 100:F0}% confidence => runs \"{result.Grammar.Name}\" grammar. CalledAssistant:{calledAssistant}", MessageType.Success);
             if (result.Confidence < Data.ConfidenceThreshold)
+            {
+                if (calledAssistant)
+                    PlaySound(Data.FullFilePaths[AssistantFile.FailSound]);
+
                 return;
+            }
 
             var speakedGrammar = Data.Grammars.Where(g => g.Name == result.Grammar.Name).FirstOrDefault();
             if (speakedGrammar is null)
@@ -304,9 +324,10 @@ namespace VoiceAssistantUI
             if (speakedGrammar.Name == "Call Assistant")
             {
                 calledAssistant = true;
-                calledAssistantSound.Play();
+                PlaySound(Data.FullFilePaths[AssistantFile.CallSound]);
 
-                calledAssistantTimer = new Timer(5000);
+
+                calledAssistantTimer = new Timer(uncallAssistantTimeMiliseconds);
                 calledAssistantTimer.Elapsed += DisableCall;
                 calledAssistantTimer.Enabled = true;
                 calledAssistantTimer.AutoReset = false;
@@ -319,6 +340,7 @@ namespace VoiceAssistantUI
             calledAssistantTimer.Dispose();
 
             int specialIndexesCount = speakedGrammar.SpecialChoicesIndexes.Count;
+            PlaySound(Data.FullFilePaths[AssistantFile.SuccessSound]);
 
             if (specialIndexesCount == 0)
             {
@@ -331,55 +353,18 @@ namespace VoiceAssistantUI
             }
 
             calledAssistant = false;
-            return;
-
         }
 
         private static void DisableCall(object source, ElapsedEventArgs e)
         {
+            PlaySound(Data.FullFilePaths[AssistantFile.UncallSound]);
             calledAssistant = false;
             (source as Timer).Enabled = false;
         }
 
         private static bool BuildParameter(AssistantGrammar grammar, int specialIndex, string sentence)
         {
-            //for (int i = 0; i < grammar.AssistantChoices[specialIndex].CatchSentences.Count; i++)
-            //{
-            //    if (grammar.AssistantChoices[specialIndex].CatchSentences[i].StartsWith(sentence))
-            //    {
-            //        return true;
-            //    }
-            //}
-
-            //return false;
-
             return grammar.AssistantChoices[specialIndex].CatchSentences.Any(s => s.Contains(sentence));
-
-            //AssistantChoice choices = null;
-            ////var choices = grammar.AssistantChoices.Where(c => c.Sentences.Contains(sentence)).First();
-            //for (int i = 0; i < grammar.AssistantChoices.Count; i++)
-            //{
-            //    for (int j = 0; j < grammar.AssistantChoices[i].CatchSentences.Count; j++)
-            //    {
-            //        if (grammar.AssistantChoices[i].CatchSentences[j] == sentence)
-            //        {
-            //            choices = grammar.AssistantChoices[i];
-            //            return (choices.IsSpecial, choices.Name);
-            //        }
-            //    }
-            //}
-
-
-            //return (false, "");
-            //foreach (var choices in grammar.AssistantChoices)
-            //{
-            //    if (choices.IsSpecial)
-            //        continue;
-
-            //    if (choices.Sentences.Contains(sentence))
-            //        return true;
-            //}
-            //return false;
         }
 
         private static object[] GetParameters(AssistantGrammar grammar, IEnumerable<RecognizedWordUnit> text)
@@ -413,10 +398,14 @@ namespace VoiceAssistantUI
                 parameters[i] = sentence;
             }
 
-
-
-
             return parameters;
+        }
+
+        private static void PlaySound(string soundPath)
+        {
+            WriteLog("Played: " + soundPath, MessageType.Warning);
+            soundPlayer.SoundLocation = soundPath;
+            soundPlayer.Play();
         }
         #endregion
     }

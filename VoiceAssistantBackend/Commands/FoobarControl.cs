@@ -1,5 +1,13 @@
 ﻿namespace VoiceAssistantBackend.Commands
 {
+    public enum FoobarPlayback
+    {
+        Default,
+        Repeat,
+        Shuffle,
+        Random
+    }
+
     public static class FoobarControl
     {
         public static bool IsAvailable { get; set; } = true;
@@ -129,7 +137,7 @@
             return songFiles;
         }
 
-        private static string FindSong(object title, object artist)
+        private static string FindSongPath(object title, object artist)
         {
             string songPath = string.Empty;
             string sTitle = (string)title;
@@ -140,7 +148,7 @@
             return songPath;
         }
 
-        private static string FindSong(object title)
+        private static string FindSongPath(object title)
         {
             string songPath = string.Empty;
             string sTitle = (string)title;
@@ -152,7 +160,7 @@
 
         public static void FoobarPlaySong(object title, object artist)
         {
-            var song = FindSong(title, artist);
+            var song = FindSongPath(title, artist);
 
             if (song is null || song.Length == 0)
                 return;
@@ -162,7 +170,7 @@
 
         public static void FoobarPlaySong(object title)
         {
-            var song = FindSong(title);
+            var song = FindSongPath(title);
 
             if (song is null || song.Length == 0)
                 return;
@@ -230,5 +238,53 @@
                 Misc.RunCMDCommand(strCmdText);
             }
         }
+
+        // ADD TO QUEUE
+        public static void FoobarAddSongToQueue(object songTitle)
+        {
+            if (!FoobarExists)
+                return;
+
+            var song = FindSongPath(songTitle);
+
+            if (song is null || song.Length == 0)
+                return;
+
+            string strCmdText = $"/c C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /context_command:\"Add to playback queue\" \"{song}\"";
+            Misc.RunCMDCommand(strCmdText);
+        }
+
+        public static void FoobarAddSongToQueue(object songTitle, object artist)
+        {
+            if (!FoobarExists)
+                return;
+
+            var song = FindSongPath(songTitle, artist);
+
+            if (song is null || song.Length == 0)
+                return;
+
+            string strCmdText = $"/c C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe /context_command:\"Add to playback queue\" \"{song}\"";
+            Misc.RunCMDCommand(strCmdText);
+        }
+
+        // REPEAT / SHUFFLE ETC.
+        public static void FoobarPlaybackOrder(object order)
+        {
+            if (!Enum.TryParse(order.ToString(), out FoobarPlayback orderEnum))
+            {
+                return;
+            }
+
+            string orderName = order.ToString();
+            if (orderEnum == FoobarPlayback.Repeat)
+                orderName += " (track)";
+            if (orderEnum == FoobarPlayback.Shuffle)
+                orderName += " (tracks)";
+
+            string strCmdText = $"/c C:\\\"Program Files (x86)\"\\foobar2000\\foobar2000.exe \"/runcmd=Playback/Order/{order}\"";
+            Misc.RunCMDCommand(strCmdText);
+        }
+
     }
 }

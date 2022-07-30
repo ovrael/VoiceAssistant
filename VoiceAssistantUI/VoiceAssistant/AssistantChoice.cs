@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Speech.Recognition;
 using Newtonsoft.Json;
@@ -45,6 +46,13 @@ namespace VoiceAssistantUI
                     var songs = FoobarControl.GetSongsTitlesFromMusicDirectory();
                     SetCatchSentences(songs.ToList());
                     Choice = new Choices(songs);
+                }
+
+                if (Name.ToLower() == "$playbackorder")
+                {
+                    var orders = Enum.GetNames(typeof(FoobarPlayback));
+                    SetCatchSentences(orders.ToList());
+                    Choice = new Choices(orders);
                 }
             }
             else

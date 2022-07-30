@@ -18,7 +18,10 @@ namespace VoiceAssistantUI.VoiceAssistant
         TrayIcon,
         MusicPlayer,
         MusicDirectory,
-        AssistantCallSound,
+        CallSound,
+        UncallSound,
+        SuccessSound,
+        FailSound,
         TimerSound
     }
 
@@ -46,8 +49,11 @@ namespace VoiceAssistantUI.VoiceAssistant
             {AssistantFile.TrayIcon, @"\src\img\tray.ico" },
             {AssistantFile.MusicPlayer, @"C:\Program files (x86)\foobar2000\foobar2000.exe" },
             {AssistantFile.MusicDirectory, @"D:\Muzyka" },
-            {AssistantFile.TimerSound, @"\src\sounds\timer.wav" },
-            {AssistantFile.AssistantCallSound, @"\src\sounds\assistantCall.wav" }
+            {AssistantFile.CallSound, @"\src\sounds\assistantCall.wav" },
+            {AssistantFile.UncallSound, @"\src\sounds\assistantUncall.wav" },
+            {AssistantFile.SuccessSound, @"\src\sounds\successCommand.wav" },
+            {AssistantFile.FailSound, @"\src\sounds\failedCommand.wav" },
+            {AssistantFile.TimerSound, @"\src\sounds\timer.wav" }
         };
 
         public List<AssistantChoice> Choices { get; set; } = new List<AssistantChoice>();

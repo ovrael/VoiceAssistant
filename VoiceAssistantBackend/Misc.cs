@@ -20,21 +20,22 @@ namespace VoiceAssistantBackend
 
             foreach (var commandClass in commandClasses)
             {
-                try
-                {
-                    var isAvailable = commandClass.GetProperty("IsAvailable").GetValue(null);
-                    System.Diagnostics.Debug.WriteLine(isAvailable);
-                }
-                catch (Exception e)
-                {
-                    System.Diagnostics.Debug.WriteLine(e.ToString());
-                }
+                //try
+                //{
+                //    var isAvailable = commandClass.GetProperty("IsAvailable").GetValue(null);
+                //    System.Diagnostics.Debug.WriteLine(isAvailable);
+                //}
+                //catch (Exception e)
+                //{
+                //    System.Diagnostics.Debug.WriteLine(e.ToString());
+                //}
 
-                var methods = commandClass.GetMethods()
+                var methods = commandClass.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
                     .Where(
-                        m => m.IsPublic
-                        && m.IsStatic
-                        && m.ReturnType == typeof(void)
+                        //m => m.IsPublic
+                        //&& m.IsStatic
+                        m => m.ReturnType == typeof(void)
+                        && !m.IsSpecialName
                     )
                     .ToList();
 

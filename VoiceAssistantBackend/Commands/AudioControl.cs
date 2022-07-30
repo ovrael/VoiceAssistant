@@ -17,7 +17,7 @@ namespace VoiceAssistantBackend.Commands
 
         public static void LoadDevice()
         {
-            var device = new CoreAudioController().GetDefaultDeviceAsync(deviceType: DeviceType.Playback, Role.Multimedia);
+            var device = new CoreAudioController().GetDefaultDeviceAsync(DeviceType.Playback, Role.Multimedia);
             playbackDevice = device.Result;
         }
 
