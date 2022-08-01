@@ -12,6 +12,8 @@ namespace VoiceAssistantBackend.Commands
         {
             if (weatherClient == null)
                 IsAvailable = false;
+
+            Console.WriteLine("test");
         }
     }
 }

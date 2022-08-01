@@ -8,17 +8,16 @@ namespace VoiceAssistantBackend.Commands
     {
         public static bool IsAvailable { get; set; } = true;
 
-        private static CoreAudioDevice playbackDevice;
+        private static readonly CoreAudioDevice playbackDevice = new CoreAudioController().GetDefaultDevice(DeviceType.Playback, Role.Multimedia);
 
         private const byte VK_VOLUME_MUTE = 0xAD;
 
         private const UInt32 KEYEVENTF_EXTENDEDKEY = 0x0001;
         private const UInt32 KEYEVENTF_KEYUP = 0x0002;
 
-        public static void LoadDevice()
+        static AudioControl()
         {
-            var device = new CoreAudioController().GetDefaultDeviceAsync(DeviceType.Playback, Role.Multimedia);
-            playbackDevice = device.Result;
+            IsAvailable = playbackDevice is not null;
         }
 
         [DllImport("user32.dll")]
@@ -30,26 +29,25 @@ namespace VoiceAssistantBackend.Commands
         public static void VolumeUpByPercent(object percent)
         {
             if (int.TryParse(percent.ToString(), out var result))
-                playbackDevice.Volume += playbackDevice.Volume * result / 100d;
-
+                playbackDevice.SetVolumeAsync(playbackDevice.Volume * result / 100.0);
         }
 
         public static void VolumeUpByValue(object value)
         {
             if (int.TryParse(value.ToString(), out var result))
-                playbackDevice.Volume += result;
+                playbackDevice.SetVolumeAsync(playbackDevice.Volume + result);
         }
 
         public static void VolumeDownByPercent(object percent)
         {
             if (int.TryParse(percent.ToString(), out var result))
-                playbackDevice.Volume -= playbackDevice.Volume * result / 100d;
+                playbackDevice.SetVolumeAsync(playbackDevice.Volume * result / 100.0);
         }
 
         public static void VolumeDownByValue(object value)
         {
             if (int.TryParse(value.ToString(), out var result))
-                playbackDevice.Volume -= result;
+                playbackDevice.SetVolumeAsync(playbackDevice.Volume - result);
         }
 
         public static void VolumeMute()
@@ -66,7 +64,7 @@ namespace VoiceAssistantBackend.Commands
         public static void VolumeSet(object newVolume)
         {
             if (int.TryParse(newVolume.ToString(), out var result))
-                playbackDevice.Volume = result;
+                playbackDevice.SetVolumeAsync(result);
         }
     }
 }

@@ -30,6 +30,9 @@ namespace VoiceAssistantBackend
                 //    System.Diagnostics.Debug.WriteLine(e.ToString());
                 //}
 
+                //if (commandClass.Name == "AudioControl")
+                //    continue;
+
                 var methods = commandClass.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
                     .Where(
                         //m => m.IsPublic

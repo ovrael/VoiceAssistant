@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using VoiceAssistantBackend;
-using VoiceAssistantBackend.Commands;
 using Interaction = Microsoft.VisualBasic.Interaction;
 using MessageBox = System.Windows.MessageBox;
 
@@ -60,8 +59,7 @@ namespace VoiceAssistantUI
                 if (trayIcon != null)
                 {
                     trayIcon.Visible = false;
-                    //trayIcon.Icon = null;
-                    trayIcon.Icon.Dispose();
+                    trayIcon.Icon = null;
                     trayIcon.Dispose();
                     trayIcon = null;
                 }
@@ -82,7 +80,6 @@ namespace VoiceAssistantUI
             try
             {
                 assistantListening = Task.Run(Assistant.StartListening);
-                AudioControl.LoadDevice();
             }
             catch (Exception ex)
             {
@@ -95,7 +92,6 @@ namespace VoiceAssistantUI
                 trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
                 trayIcon.Icon = new Icon(Assistant.Data.FullFilePaths[VoiceAssistant.AssistantFile.TrayIcon]);
                 trayIcon.Visible = true;
-
             }
             catch (Exception ex)
             {
@@ -105,8 +101,21 @@ namespace VoiceAssistantUI
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            trayIcon.Visible = false;
-            trayIcon = null;
+            try
+            {
+                if (trayIcon != null)
+                {
+                    trayIcon.Visible = false;
+                    trayIcon.Icon = null;
+                    trayIcon.Dispose();
+                    trayIcon = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Assistant.WriteLog(ex.ToString());
+            }
+
             App.Current.Shutdown();
         }
 
