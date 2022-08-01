@@ -48,7 +48,7 @@ namespace VoiceAssistantUI
         public static ListBox logsListBox;
         private static readonly int logsHistoryLength = 300;
 
-        private static readonly int uncallAssistantTimeMiliseconds = 8000;
+        private static readonly int uncallAssistantTimeSeconds = 10;
 
         static Assistant()
         {
@@ -326,8 +326,7 @@ namespace VoiceAssistantUI
                 calledAssistant = true;
                 PlaySound(Data.FullFilePaths[AssistantFile.CallSound]);
 
-
-                calledAssistantTimer = new Timer(uncallAssistantTimeMiliseconds);
+                calledAssistantTimer = new Timer(uncallAssistantTimeSeconds * 1000);
                 calledAssistantTimer.Elapsed += DisableCall;
                 calledAssistantTimer.Enabled = true;
                 calledAssistantTimer.AutoReset = false;
