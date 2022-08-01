@@ -24,5 +24,10 @@ namespace VoiceAssistantUI.Helpers
 
             return new(latitude, longitude);
         }
+
+        public static double KelvinToCelsius(double kelvins)
+        {
+            return kelvins - 273.15;
+        }
     }
 }

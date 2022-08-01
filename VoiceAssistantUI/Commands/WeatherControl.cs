@@ -1,4 +1,5 @@
 ﻿using Weather.NET;
+using Weather.NET.Models.PollutionModel;
 using Weather.NET.Models.WeatherModel;
 
 namespace VoiceAssistantUI.Commands
@@ -15,7 +16,7 @@ namespace VoiceAssistantUI.Commands
                 IsAvailable = false;
         }
 
-        public static void GetWeather(object city)
+        public static void GetCurrentWeather(object city)
         {
             if (city.ToString().Length == 0)
                 return;
@@ -23,15 +24,15 @@ namespace VoiceAssistantUI.Commands
             string oldDecimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = ".";
 
-            var query = weatherClient.GetCurrentWeather(city.ToString());
-
+            // THIS CAN CREATE POLISH TEXT TOO!!
+            var query = weatherClient.GetCurrentWeather(city.ToString(), );
             if (query is null)
                 return;
 
             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = oldDecimalSeparator;
         }
 
-        public static void GetWeatherAndAirPollution(object city)
+        public static void GetCurrentWeatherAndAirPollution(object city)
         {
             if (city.ToString().Length == 0)
                 return;
@@ -56,7 +57,7 @@ namespace VoiceAssistantUI.Commands
             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = oldDecimalSeparator;
         }
 
-        public static void GetAirPollution(object city)
+        public static void GetCurrentAirPollution(object city)
         {
             if (city.ToString().Length == 0)
                 return;
@@ -77,7 +78,27 @@ namespace VoiceAssistantUI.Commands
             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = oldDecimalSeparator;
         }
 
-        private static string CreateWeatherText(WeatherModel weather)
+        private static string GetCurrentPolishWeather(string city)
+        {
+            string text = string.Empty;
+
+
+
+            return text;
+        }
+
+        private static string CreateCurrentEnglishWeatherText(WeatherModel weather)
+        {
+            string text = string.Empty;
+
+            weather.Weather[0].Description;
+
+
+
+            return text;
+        }
+
+        private static string CreatePolishWeatherText(WeatherModel weather)
         {
             string text = string.Empty;
 
@@ -85,18 +106,24 @@ namespace VoiceAssistantUI.Commands
             return text;
         }
 
-        private static string CreateEnglishText(WeatherModel weather)
+        private static string CreateAirPollutionText(PollutionModel pollution)
         {
             string text = string.Empty;
 
-            Clouds x = weather.Clouds;
+
+            return text;
+        }
+
+        private static string CreateEnglishAirPollutionText(PollutionModel pollution)
+        {
+            string text = string.Empty;
 
 
 
             return text;
         }
 
-        private static string CreatePolishText(WeatherModel weather)
+        private static string CreatePolishAirPoluttionText(PollutionModel pollution)
         {
             string text = string.Empty;
 
