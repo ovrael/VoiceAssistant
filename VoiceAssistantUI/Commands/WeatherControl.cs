@@ -1,6 +1,6 @@
 ﻿using OpenWeatherAPI;
 
-namespace VoiceAssistantBackend.Commands
+namespace VoiceAssistantUI.Commands
 {
     public static class WeatherControl
     {
@@ -17,11 +17,12 @@ namespace VoiceAssistantBackend.Commands
         public static void GetWeather(object city)
         {
             string oldDecimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = ".";
+
             var query = weatherClient.QueryAsync(city.ToString()).Result;
 
             string text = "";
-
-            Assistan
+            //Assistan
 
 
             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = oldDecimalSeparator;

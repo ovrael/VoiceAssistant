@@ -1,12 +1,11 @@
-﻿using System.Speech.Synthesis;
+﻿using System.Linq;
+using System.Speech.Synthesis;
 
-namespace VoiceAssistantBackend
+namespace VoiceAssistantUI.Helpers
 {
     public static class Speech
     {
         private static readonly SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer();
-        public static bool UseSpeech { get; set; } = true;
-
         public static void SetVoice(string name)
         {
             if (!GetVoiceNamesWithCulture().Contains(name))

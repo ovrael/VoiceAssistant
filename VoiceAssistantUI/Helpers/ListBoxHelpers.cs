@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Windows.Controls;
-using VoiceAssistantUI;
 
-namespace VoiceAssistantUI
+namespace VoiceAssistantUI.Helpers
 {
     public static class ListBoxHelpers
     {
         public static void UpdateChoices(ListBox listBox)
         {
             listBox.Items.Clear();
-            foreach (var choice in Assistant.Data.Choices)
+            foreach (var choice in Assistant.Data.Choices.OrderBy(c => c.Name))
             {
                 listBox.Items.Add(choice.Name);
             }
@@ -22,7 +17,7 @@ namespace VoiceAssistantUI
         public static void UpdateChoicesWithTooltips(ListBox listBox)
         {
             listBox.Items.Clear();
-            foreach (var choice in Assistant.Data.Choices)
+            foreach (var choice in Assistant.Data.Choices.OrderBy(c => c.Name))
             {
                 ListBoxItem item = new ListBoxItem();
                 item.Content = choice.Name;
@@ -37,7 +32,7 @@ namespace VoiceAssistantUI
         public static void UpdateGrammar(ListBox listBox)
         {
             listBox.Items.Clear();
-            foreach (var grammar in Assistant.Data.Grammars)
+            foreach (var grammar in Assistant.Data.Grammars.OrderBy(g => g.Name))
             {
                 ListBoxItem item = new ListBoxItem();
                 item.Content = grammar.Name;
@@ -46,7 +41,7 @@ namespace VoiceAssistantUI
             }
         }
 
-        public static void UpdateChoiceWords(ListBox listBox, string currentChoiceName)
+        public static void UpdateChoiceSentences(ListBox listBox, string currentChoiceName)
         {
             AssistantChoice currentChoice = Assistant.GetChoice(currentChoiceName);
             if (currentChoice is null)
@@ -55,13 +50,13 @@ namespace VoiceAssistantUI
             }
 
             listBox.Items.Clear();
-            foreach (var value in currentChoice.Sentences)
+            foreach (var value in currentChoice.Sentences.OrderBy(s => s))
             {
                 listBox.Items.Add(value);
             }
         }
 
-        public static void UpdateChoiceWords(ListBox listBox, AssistantChoice currentChoice)
+        public static void UpdateChoiceSentences(ListBox listBox, AssistantChoice currentChoice)
         {
             if (currentChoice is null)
             {
@@ -96,7 +91,7 @@ namespace VoiceAssistantUI
             for (int i = 0; i < choice.Sentences.Count; i++)
             {
 
-                tooltip += $"{ choice.Sentences[i]}";
+                tooltip += $"{choice.Sentences[i]}";
                 if (i < choice.Sentences.Count - 1)
                     tooltip += ", ";
             }

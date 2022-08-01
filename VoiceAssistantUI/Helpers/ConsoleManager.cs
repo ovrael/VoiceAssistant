@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace VoiceAssistantUI
+namespace VoiceAssistantUI.Helpers
 {
     public static class ConsoleManager
     {
         [DllImport(@"kernel32.dll", SetLastError = true)]
-        static extern bool AllocConsole();
+        private static extern bool AllocConsole();
 
         [DllImport(@"kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
+        private static extern IntPtr GetConsoleWindow();
 
         [DllImport(@"user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
-        const int SwHide = 0;
-        const int SwShow = 5;
+        private const int SwHide = 0;
+        private const int SwShow = 5;
 
 
         public static void ShowConsoleWindow()

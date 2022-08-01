@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Media;
 using System.Speech.Recognition;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using VoiceAssistantUI.Helpers;
 using VoiceAssistantUI.VoiceAssistant;
 
 namespace VoiceAssistantUI
@@ -39,8 +39,6 @@ namespace VoiceAssistantUI
         public static bool IsListening = true;
         private static bool calledAssistant = false;
         private static Timer calledAssistantTimer = null;
-
-        private static SoundPlayer soundPlayer = new SoundPlayer();
 
         public static ListBox outputListBox;
         private static readonly int outputHistoryLength = 300;
@@ -311,7 +309,7 @@ namespace VoiceAssistantUI
             if (result.Confidence < Data.ConfidenceThreshold)
             {
                 if (calledAssistant)
-                    PlaySound(Data.FullFilePaths[AssistantFile.FailSound]);
+                    SoundPlayerHelper.PlaySound(Data.FullFilePaths[AssistantFile.FailSound]);
 
                 return;
             }
@@ -324,7 +322,7 @@ namespace VoiceAssistantUI
             if (speakedGrammar.Name == "Call Assistant")
             {
                 calledAssistant = true;
-                PlaySound(Data.FullFilePaths[AssistantFile.CallSound]);
+                SoundPlayerHelper.PlaySound(Data.FullFilePaths[AssistantFile.CallSound]);
 
                 calledAssistantTimer = new Timer(uncallAssistantTimeSeconds * 1000);
                 calledAssistantTimer.Elapsed += DisableCall;
@@ -339,7 +337,7 @@ namespace VoiceAssistantUI
             calledAssistantTimer.Dispose();
 
             int specialIndexesCount = speakedGrammar.SpecialChoicesIndexes.Count;
-            PlaySound(Data.FullFilePaths[AssistantFile.SuccessSound]);
+            SoundPlayerHelper.PlaySound(Data.FullFilePaths[AssistantFile.SuccessSound]);
 
             if (specialIndexesCount == 0)
             {
@@ -356,7 +354,7 @@ namespace VoiceAssistantUI
 
         private static void DisableCall(object source, ElapsedEventArgs e)
         {
-            PlaySound(Data.FullFilePaths[AssistantFile.UncallSound]);
+            SoundPlayerHelper.PlaySound(Data.FullFilePaths[AssistantFile.UncallSound]);
             calledAssistant = false;
             (source as Timer).Enabled = false;
         }
@@ -398,13 +396,6 @@ namespace VoiceAssistantUI
             }
 
             return parameters;
-        }
-
-        private static void PlaySound(string soundPath)
-        {
-            WriteLog("Played: " + soundPath, MessageType.Warning);
-            soundPlayer.SoundLocation = soundPath;
-            soundPlayer.Play();
         }
         #endregion
     }

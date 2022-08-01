@@ -4,11 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceAssistantUI", "VoiceAssistantUI\VoiceAssistantUI.csproj", "{F9B6DA61-561C-444E-AD55-88695F24CBB5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{42DE290B-0364-484E-89D8-37BFFB6FB1EB} = {42DE290B-0364-484E-89D8-37BFFB6FB1EB}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceAssistantBackend", "VoiceAssistantBackend\VoiceAssistantBackend.csproj", "{42DE290B-0364-484E-89D8-37BFFB6FB1EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,10 +15,6 @@ Global
 		{F9B6DA61-561C-444E-AD55-88695F24CBB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9B6DA61-561C-444E-AD55-88695F24CBB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9B6DA61-561C-444E-AD55-88695F24CBB5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{42DE290B-0364-484E-89D8-37BFFB6FB1EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{42DE290B-0364-484E-89D8-37BFFB6FB1EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{42DE290B-0364-484E-89D8-37BFFB6FB1EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{42DE290B-0364-484E-89D8-37BFFB6FB1EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

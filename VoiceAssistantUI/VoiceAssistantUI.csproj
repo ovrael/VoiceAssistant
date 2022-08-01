@@ -12,11 +12,8 @@
 	  <PackageReference Include="AudioSwitcher.AudioApi" Version="4.0.0-alpha5" />
 	  <PackageReference Include="AudioSwitcher.AudioApi.CoreAudio" Version="4.0.0-alpha5" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	  <PackageReference Include="OpenWeatherAPI" Version="1.0.2" />
 	  <PackageReference Include="System.Speech" Version="6.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\VoiceAssistantBackend\VoiceAssistantBackend.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

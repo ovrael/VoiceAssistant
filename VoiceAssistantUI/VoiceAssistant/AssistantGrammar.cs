@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Speech.Recognition;
-using VoiceAssistantBackend;
 
 
 namespace VoiceAssistantUI
@@ -93,7 +92,7 @@ namespace VoiceAssistantUI
 
         private void CreateDelegate(string commandName)
         {
-            var command = Misc.GetCommand(commandName);
+            var command = Helpers.CommandsData.GetCommand(commandName);
             if (command is null)
             {
                 Assistant.WriteLog($"Couldn't create delegate. There is no command: {commandName}!", MessageType.Error);
