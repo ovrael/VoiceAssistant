@@ -598,5 +598,13 @@ namespace VoiceAssistantUI
         }
         #endregion
 
+        private void testButton_Click(object sender, RoutedEventArgs e)
+        {
+            Commands.WeatherControl.GetCurrentWeather("Katowice");
+
+            Commands.WeatherControl.GetCurrentAirPollution("Katowice");
+
+            Commands.WeatherControl.GetForecast("Katowice");
+        }
     }
 }

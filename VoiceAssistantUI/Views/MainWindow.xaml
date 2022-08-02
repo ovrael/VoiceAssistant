@@ -110,6 +110,7 @@
                     <!--<Button x:Name="newChoiceValueButton" Content="Add choice value" FontSize="12" Background="#7F80DA4F" Click="NewChoiceValueButton_Click" Margin="0,51,0,0" Width="120" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" HorizontalAlignment="Center" Height="25" VerticalAlignment="Top"/>-->
                     <!--<Button x:Name="editButton" Content="Edit" HorizontalAlignment="Center" VerticalAlignment="Top" Background="#7FDFA231" Width="120" FontSize="12" Height="25" FontFamily="Consolas" FontWeight="Normal" FontStyle="Normal" Click="ManageButton_Click" Margin="0,100,0,0"/>-->
                 </Grid>
+                <Button x:Name="testButton" Content="TEST" HorizontalAlignment="Left" Margin="305,177,0,0" VerticalAlignment="Top" Height="49" Width="79" FontSize="26" Click="testButton_Click"/>
 
             </Grid>
         </TabItem>
