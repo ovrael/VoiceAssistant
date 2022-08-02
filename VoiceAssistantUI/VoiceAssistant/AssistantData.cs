@@ -64,6 +64,9 @@ namespace VoiceAssistantUI.VoiceAssistant
 
         public AssistantData()
         {
+            FullFilePaths.Add(AssistantFile.MusicPlayer, FilePaths[AssistantFile.MusicPlayer]);
+            FullFilePaths.Add(AssistantFile.MusicDirectory, FilePaths[AssistantFile.MusicDirectory]);
+
             SetWorkingMode();
 
             if (WorkingMode == WorkingMode.Debug)

@@ -27,8 +27,8 @@ namespace VoiceAssistantUI.Commands
 
         static FoobarControl()
         {
-            Assistant.Data.FullFilePaths[VoiceAssistant.AssistantFile.MusicPlayer] = Assistant.Data.FilePaths[VoiceAssistant.AssistantFile.MusicPlayer];
-            Assistant.Data.FullFilePaths[VoiceAssistant.AssistantFile.MusicDirectory] = Assistant.Data.FilePaths[VoiceAssistant.AssistantFile.MusicDirectory];
+            //Assistant.Data.FullFilePaths[VoiceAssistant.AssistantFile.MusicPlayer] = Assistant.Data.FilePaths[VoiceAssistant.AssistantFile.MusicPlayer];
+            //Assistant.Data.FullFilePaths[VoiceAssistant.AssistantFile.MusicDirectory] = Assistant.Data.FilePaths[VoiceAssistant.AssistantFile.MusicDirectory];
 
             if (!File.Exists(Assistant.Data.FullFilePaths[VoiceAssistant.AssistantFile.MusicPlayer]))
             {
