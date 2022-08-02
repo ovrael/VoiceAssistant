@@ -26,6 +26,62 @@ namespace VoiceAssistantUI.Commands
                 IsAvailable = false;
         }
 
+
+        #region Public commands
+
+        public static void GetCurrentWeather(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Current));
+        }
+
+        public static void GetCurrentWeatherInMyCity()
+        {
+            GetCurrentWeather(Assistant.Data.MyCity);
+        }
+
+        public static void GetCurrentWeatherAndAirPollution(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Current));
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.AirPollution));
+        }
+
+        public static void GetCurrentWeatherAndAirPollutionInMyCity()
+        {
+            GetCurrentWeatherAndAirPollution(Assistant.Data.MyCity);
+        }
+
+        public static void GetCurrentAirPollution(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.AirPollution));
+        }
+
+        public static void GetCurrentAirPollutionInMyCity()
+        {
+            GetCurrentAirPollution(Assistant.Data.MyCity);
+        }
+
+        public static void GetForecast(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Forecast));
+        }
+
+        public static void GetForecastInMyCity()
+        {
+            GetForecast(Assistant.Data.MyCity);
+        }
+
+        public static void GetTommorowWeather(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.TommorowForecast));
+        }
+
+        public static void GetTommorowWeatherInMyCity()
+        {
+            GetTommorowWeather(Assistant.Data.MyCity);
+        }
+        #endregion
+
+        #region Privates
         private static Weather.NET.Enums.Language ConvertToWeatherLanguage(SpeechLanguage speechLanguage)
         {
             return speechLanguage switch
@@ -35,7 +91,6 @@ namespace VoiceAssistantUI.Commands
                 _ => Weather.NET.Enums.Language.English,
             };
         }
-
         private static void GetWeather(object cityName, WeatherControlType weatherType)
         {
             string city = cityName.ToString();
@@ -85,33 +140,6 @@ namespace VoiceAssistantUI.Commands
 
             //System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = oldDecimalSeparator;
         }
-
-        public static void GetCurrentWeather(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Current));
-        }
-
-        public static void GetCurrentWeatherAndAirPollution(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Current));
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.AirPollution));
-        }
-
-        public static void GetCurrentAirPollution(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.AirPollution));
-        }
-
-        public static void GetForecast(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Forecast));
-        }
-
-        public static void GetTommorowWeather(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.TommorowForecast));
-        }
-
         private static async Task<string> CreateCurrentWeatherTextAsync(string city)
         {
             string text = string.Empty;
@@ -282,5 +310,6 @@ namespace VoiceAssistantUI.Commands
 
             return text;
         }
+        #endregion
     }
 }
