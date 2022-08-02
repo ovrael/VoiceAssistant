@@ -1,8 +1,11 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
-namespace VoiceAssistantBackend
+namespace VoiceAssistantUI.Helpers
 {
-    public static class Misc
+    public static class CommandsData
     {
         private static MethodInfo[] commandsData;
 
@@ -11,10 +14,10 @@ namespace VoiceAssistantBackend
             List<MethodInfo> availableCommands = new List<MethodInfo>();
 
             var commandClasses = Assembly.GetExecutingAssembly().GetTypes()
-                      .Where(t => t.Namespace == "VoiceAssistantBackend.Commands"
+                      .Where(t => t.Namespace == "VoiceAssistantUI.Commands"
                              && t.IsAbstract
                              && t.IsClass
-                             && t.Name != typeof(Misc).Name
+                             && t.Name != typeof(CommandsData).Name
                              )
                       .ToList();
 

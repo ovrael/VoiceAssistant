@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using VoiceAssistantBackend.Commands;
+using VoiceAssistantUI.Commands;
+using Weather.NET.Enums;
 
 namespace VoiceAssistantUI.VoiceAssistant
 {
@@ -27,17 +28,19 @@ namespace VoiceAssistantUI.VoiceAssistant
 
     public class AssistantData
     {
+        public Measurement WeatherMeasurement { get; set; } = Measurement.Metric;
         [JsonIgnore]
         public WorkingMode WorkingMode { get; set; }
-
+        public bool UseSpeech { get; set; } = true;
         public double ConfidenceThreshold { get; set; } = 0.55;
         public string Language { get; set; } = "en-US";
         public Dictionary<string, string> ChangeableVariables { get; set; } = new Dictionary<string, string>()
         {
             {"AssistantName", "Kaladin" },
-            {"City", "Katowice" }
+            {"MyCity", "Katowice" }
         };
 
+        [JsonIgnore]
         private readonly string DebugPath = @"..\..\..";
 
         [JsonIgnore]
@@ -62,15 +65,12 @@ namespace VoiceAssistantUI.VoiceAssistant
         public AssistantData()
         {
             SetWorkingMode();
-            SetSystemPaths();
 
             if (WorkingMode == WorkingMode.Debug)
                 SetDebugFilePaths();
 
             if (WorkingMode == WorkingMode.Release)
                 SetReleaseFilePaths();
-
-            TimerControl.TimerSoundPath = FullFilePaths[AssistantFile.TimerSound];
         }
 
         public void Init()
@@ -97,12 +97,6 @@ namespace VoiceAssistantUI.VoiceAssistant
             }
         }
 
-        private void SetSystemPaths()
-        {
-            FoobarControl.FoobarPath = FilePaths[AssistantFile.MusicPlayer];
-            FoobarControl.MusicDirectory = FilePaths[AssistantFile.MusicDirectory];
-        }
-
         private void SetDebugFilePaths()
         {
             foreach (var filePath in FilePaths)
@@ -120,6 +114,32 @@ namespace VoiceAssistantUI.VoiceAssistant
             {
                 if (filePath.Value.Contains("src"))
                     FullFilePaths.Add(filePath.Key, currDirectory + filePath.Value);
+            }
+        }
+
+        public void ChangeFoobarPathIfExists(string path)
+        {
+            if (!File.Exists(path))
+            {
+                FoobarControl.FoobarExists = false;
+            }
+            else
+            {
+                FoobarControl.FoobarExists = true;
+                FullFilePaths[AssistantFile.MusicPlayer] = path;
+            }
+        }
+
+        public void ChangeMusicDirectoryIfExists(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                FoobarControl.MusicDirectoryExists = false;
+            }
+            else
+            {
+                FoobarControl.MusicDirectoryExists = true;
+                FullFilePaths[AssistantFile.MusicDirectory] = path;
             }
         }
     }

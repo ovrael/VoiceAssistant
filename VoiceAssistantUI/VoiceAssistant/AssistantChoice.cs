@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Speech.Recognition;
-using Newtonsoft.Json;
-using VoiceAssistantBackend.Commands;
+using VoiceAssistantUI.Commands;
 
 namespace VoiceAssistantUI
 {
@@ -29,29 +29,30 @@ namespace VoiceAssistantUI
             {
                 if (Name.ToLower() == "$number")
                 {
-                    var numbers = Helpers.GetStringNumbers(min: 0, max: 100);
-                    SetCatchSentences(numbers.ToList());
+                    string[] numbers = Enumerable.Range(0, 101).Select(c => c.ToString()).ToArray();
+
+                    SetCatchSentences(numbers);
                     Choice = new Choices(numbers);
                 }
 
                 if (Name.ToLower() == "$artist")
                 {
                     var artists = FoobarControl.GetArtistsFromMusicDirectory();
-                    SetCatchSentences(artists.ToList());
+                    SetCatchSentences(artists);
                     Choice = new Choices(artists);
                 }
 
                 if (Name.ToLower() == "$songtitle")
                 {
                     var songs = FoobarControl.GetSongsTitlesFromMusicDirectory();
-                    SetCatchSentences(songs.ToList());
+                    SetCatchSentences(songs);
                     Choice = new Choices(songs);
                 }
 
                 if (Name.ToLower() == "$playbackorder")
                 {
                     var orders = Enum.GetNames(typeof(FoobarPlayback));
-                    SetCatchSentences(orders.ToList());
+                    SetCatchSentences(orders);
                     Choice = new Choices(orders);
                 }
             }
@@ -86,6 +87,15 @@ namespace VoiceAssistantUI
             CatchSentences = choicesValues;
 
             Choice = new Choices(choicesValues.ToArray());
+        }
+
+        public void SetCatchSentences(string[] newCatchSentences)
+        {
+            CatchSentences = new List<string>();
+            foreach (var item in newCatchSentences)
+            {
+                CatchSentences.Add(Assistant.ReplaceSpecialVariablesKeysToValues(item));
+            }
         }
 
         public void SetCatchSentences(List<string> newCatchSentences)

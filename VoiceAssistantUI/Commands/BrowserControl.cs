@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace VoiceAssistantBackend.Commands
+namespace VoiceAssistantUI.Commands
 {
     public static class BrowserControl
     {

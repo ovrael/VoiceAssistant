@@ -10,8 +10,21 @@ namespace VoiceAssistantBackend.Commands
 
         static WeatherControl()
         {
-            if (weatherClient == null)
+            if (weatherClient is null)
                 IsAvailable = false;
+        }
+
+        public static void GetWeather(object city)
+        {
+            string oldDecimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            var query = weatherClient.QueryAsync(city.ToString()).Result;
+
+            string text = "";
+
+            Assistan
+
+
+            System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = oldDecimalSeparator;
         }
     }
 }

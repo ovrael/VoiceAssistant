@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using VoiceAssistantBackend;
+using VoiceAssistantUI.Helpers;
 
 namespace VoiceAssistantUI
 {
@@ -87,7 +87,7 @@ namespace VoiceAssistantUI
 
         private void LoadCommandsToComboBox(string commandName = "")
         {
-            string[] availableCommands = Misc.GetCommandsNames();
+            string[] availableCommands = CommandsData.GetCommandsNames();
 
             commandsComboBox.Items.Clear();
 
@@ -271,7 +271,7 @@ namespace VoiceAssistantUI
         private int GetCommandParametersCount()
         {
             string commandName = commandsComboBox.SelectedItem.ToString();
-            var commandInfo = Misc.GetCommand(commandName);
+            var commandInfo = Helpers.CommandsData.GetCommand(commandName);
             if (commandInfo is null)
                 return -1;
 

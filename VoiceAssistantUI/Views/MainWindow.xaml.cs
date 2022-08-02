@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using VoiceAssistantBackend;
-using VoiceAssistantBackend.Commands;
+using VoiceAssistantUI.Helpers;
 using Interaction = Microsoft.VisualBasic.Interaction;
 using MessageBox = System.Windows.MessageBox;
 
@@ -26,7 +25,7 @@ namespace VoiceAssistantUI
         {
             try
             {
-                Misc.LoadAvailableCommands();
+                CommandsData.LoadAvailableCommands();
                 Assistant.LoadDataFromFile();
                 if (Assistant.Data.WorkingMode == VoiceAssistant.WorkingMode.Debug)
                     ConsoleManager.ShowConsoleWindow();
@@ -53,6 +52,21 @@ namespace VoiceAssistantUI
         }
 
 
+        #region Enums
+        private enum CurrentClick
+        {
+            Choices,
+            ChoiceWords,
+            Grammar
+        }
+        private enum Operation
+        {
+            Edit,
+            Delete
+        }
+        #endregion
+
+        #region Main Window
         private void OnApplicationExit(object sender, EventArgs e)
         {
             try
@@ -60,8 +74,7 @@ namespace VoiceAssistantUI
                 if (trayIcon != null)
                 {
                     trayIcon.Visible = false;
-                    //trayIcon.Icon = null;
-                    trayIcon.Icon.Dispose();
+                    trayIcon.Icon = null;
                     trayIcon.Dispose();
                     trayIcon = null;
                 }
@@ -71,18 +84,11 @@ namespace VoiceAssistantUI
                 Assistant.WriteLog(ex.ToString());
             }
         }
-
-        #region Main Window
-        //private void Window_Initialized(object sender, EventArgs e)
-        //{
-
-        //}
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
                 assistantListening = Task.Run(Assistant.StartListening);
-                AudioControl.LoadDevice();
             }
             catch (Exception ex)
             {
@@ -95,24 +101,58 @@ namespace VoiceAssistantUI
                 trayIcon.DoubleClick += new EventHandler(TrayIconDoubleClick);
                 trayIcon.Icon = new Icon(Assistant.Data.FullFilePaths[VoiceAssistant.AssistantFile.TrayIcon]);
                 trayIcon.Visible = true;
-
             }
             catch (Exception ex)
             {
                 Assistant.WriteLog(ex.ToString());
             }
         }
-
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            trayIcon.Visible = false;
-            trayIcon = null;
+            try
+            {
+                if (trayIcon != null)
+                {
+                    trayIcon.Visible = false;
+                    trayIcon.Icon = null;
+                    trayIcon.Dispose();
+                    trayIcon = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Assistant.WriteLog(ex.ToString());
+            }
+
             App.Current.Shutdown();
         }
-
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             MoveTabs();
+        }
+        private void SetWindowWidth(string header)
+        {
+            if (header == "Logs")
+            {
+                MaxWidth = 1600;
+                if (Width < 1000)
+                    Width = 1000;
+
+                return;
+            }
+
+            if (header == "Output")
+            {
+                MaxWidth = 1400;
+                if (Width < 900)
+                    Width = 900;
+
+                return;
+            }
+
+            MaxWidth = 710;
+            if (Width < 710)
+                Width = 710;
         }
         private void MoveTabs()
         {
@@ -127,7 +167,16 @@ namespace VoiceAssistantUI
             settingsTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
             logsTab.Margin = new Thickness(marginSpace - offset, 0, -marginSpace + offset, 0);
         }
+        private void mainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var tabControl = sender as System.Windows.Controls.TabControl;
+            if (tabControl.SelectedIndex < 0)
+                return;
 
+            var currentTabHeader = (string)(tabControl.SelectedItem as TabItem).Header;
+
+            SetWindowWidth(currentTabHeader);
+        }
         protected override void OnStateChanged(EventArgs e)
         {
             if (WindowState == WindowState.Minimized)
@@ -170,7 +219,7 @@ namespace VoiceAssistantUI
                 .Where(g => g.Name == (grammarListBox.SelectedItem as ListBoxItem).Content)
                 .FirstOrDefault();
         }
-        private string GetCurrentAssistantChoiceWord()
+        private string GetCurrentAssistantChoiceSentence()
         {
             return (string)choiceSentencesListBox.SelectedItem;
         }
@@ -187,7 +236,7 @@ namespace VoiceAssistantUI
             currentClick = CurrentClick.Choices;
             var currentChoice = GetCurrentAssistantChoice();
 
-            ListBoxHelpers.UpdateChoiceWords(choiceSentencesListBox, currentChoice);
+            ListBoxHelpers.UpdateChoiceSentences(choiceSentencesListBox, currentChoice);
 
             if (currentChoice is not null)
             {
@@ -247,7 +296,7 @@ namespace VoiceAssistantUI
             currentChoice.AddChoiceSentence(newSentence);
             Assistant.SaveDataToFile();
 
-            ListBoxHelpers.UpdateChoiceWords(choiceSentencesListBox, GetCurrentAssistantChoice());
+            ListBoxHelpers.UpdateChoiceSentences(choiceSentencesListBox, GetCurrentAssistantChoice());
         }
 
         #endregion
@@ -321,6 +370,8 @@ namespace VoiceAssistantUI
 
         #endregion
 
+        #region Assistant
+
         private void ResetAssistant()
         {
             Assistant.SaveDataToFile();
@@ -348,21 +399,8 @@ namespace VoiceAssistantUI
 
             assistantListening = Task.Run(Assistant.StartListening);
         }
-
-        #region Enums
-        private enum CurrentClick
-        {
-            Choices,
-            ChoiceWords,
-            Grammar
-        }
-        private enum Operation
-        {
-            Edit,
-            Delete
-        }
-
         #endregion
+
         private void ManageButton_Click(object sender, RoutedEventArgs e)
         {
             Operation operation = Operation.Edit;
@@ -414,7 +452,7 @@ namespace VoiceAssistantUI
                         break;
                 }
 
-                ListBoxHelpers.UpdateChoiceWords(choiceSentencesListBox, GetCurrentAssistantChoice());
+                ListBoxHelpers.UpdateChoiceSentences(choiceSentencesListBox, GetCurrentAssistantChoice());
             }
 
             if (currentClick == CurrentClick.Grammar)
@@ -515,7 +553,7 @@ namespace VoiceAssistantUI
             if (choiceSentencesListBox.SelectedIndex < 0)
                 return;
 
-            string oldSentence = GetCurrentAssistantChoiceWord();
+            string oldSentence = GetCurrentAssistantChoiceSentence();
             string newSentence = Interaction.InputBox($"Provide new choice sentence for \"{oldSentence}\"", "Changing choice sentence", oldSentence);
             newSentence = Assistant.ReplaceSpecialVariablesKeysToValues(newSentence);
 
@@ -541,16 +579,12 @@ namespace VoiceAssistantUI
                 MessageBox.Show("You can't delete last value of choice.\nDelete choice instead.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            choice.RemoveChoiceSentence(GetCurrentAssistantChoiceWord());
+            choice.RemoveChoiceSentence(GetCurrentAssistantChoiceSentence());
         }
 
         #endregion
 
         #region Manage grammar
-        private void EditGrammar(AssistantGrammar grammar)
-        {
-            throw new Exception("CREATE NEW WINDOW WITH GRAMMAR ARGUMENT");
-        }
         private void DeleteGrammar(AssistantGrammar grammar)
         {
             var result = MessageBox.Show($"Are you sure to delete \"{grammar.Name}\" grammar?", "Delete quesiton", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -562,44 +596,15 @@ namespace VoiceAssistantUI
                 StartAssistant();
             }
         }
-
-
         #endregion
 
-        private void mainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void testButton_Click(object sender, RoutedEventArgs e)
         {
-            var tabControl = sender as System.Windows.Controls.TabControl;
-            if (tabControl.SelectedIndex < 0)
-                return;
+            Commands.WeatherControl.GetCurrentWeather("Katowice");
 
-            var currentTabHeader = (string)(tabControl.SelectedItem as TabItem).Header;
+            Commands.WeatherControl.GetCurrentAirPollution("Katowice");
 
-            SetWindowWidth(currentTabHeader);
-        }
-
-        private void SetWindowWidth(string header)
-        {
-            if (header == "Logs")
-            {
-                MaxWidth = 1600;
-                if (Width < 1000)
-                    Width = 1000;
-
-                return;
-            }
-
-            if (header == "Output")
-            {
-                MaxWidth = 1400;
-                if (Width < 900)
-                    Width = 900;
-
-                return;
-            }
-
-            MaxWidth = 710;
-            if (Width < 710)
-                Width = 710;
+            Commands.WeatherControl.GetForecast("Katowice");
         }
     }
 }

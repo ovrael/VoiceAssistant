@@ -1,8 +1,9 @@
 ﻿using AudioSwitcher.AudioApi;
 using AudioSwitcher.AudioApi.CoreAudio;
+using System;
 using System.Runtime.InteropServices;
 
-namespace VoiceAssistantBackend.Commands
+namespace VoiceAssistantUI.Commands
 {
     public static class AudioControl
     {
