@@ -1,4 +1,5 @@
-﻿using Weather.NET;
+﻿using VoiceAssistantUI.Helpers;
+using Weather.NET;
 using Weather.NET.Models.PollutionModel;
 using Weather.NET.Models.WeatherModel;
 
@@ -24,8 +25,18 @@ namespace VoiceAssistantUI.Commands
             string oldDecimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = ".";
 
+            switch (Speech.Language)
+            {
+                case SpeechLanguage.English:
+                    break;
+                case SpeechLanguage.Polish:
+                    break;
+                default:
+                    break;
+            }
+
             // THIS CAN CREATE POLISH TEXT TOO!!
-            var query = weatherClient.GetCurrentWeather(city.ToString(), );
+            var query = weatherClient.GetCurrentWeather();
             if (query is null)
                 return;
 

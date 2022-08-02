@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using VoiceAssistantUI.Commands;
+using Weather.NET.Enums;
 
 namespace VoiceAssistantUI.VoiceAssistant
 {
@@ -27,6 +28,7 @@ namespace VoiceAssistantUI.VoiceAssistant
 
     public class AssistantData
     {
+        public Measurement WeatherMeasurement { get; set; } = Measurement.Metric;
         [JsonIgnore]
         public WorkingMode WorkingMode { get; set; }
         public bool UseSpeech { get; set; } = true;
@@ -38,6 +40,7 @@ namespace VoiceAssistantUI.VoiceAssistant
             {"MyCity", "Katowice" }
         };
 
+        [JsonIgnore]
         private readonly string DebugPath = @"..\..\..";
 
         [JsonIgnore]
