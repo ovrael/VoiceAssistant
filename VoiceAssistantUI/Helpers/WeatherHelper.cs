@@ -1,33 +1,28 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Linq;
 using System.Net.Http;
 
 namespace VoiceAssistantUI.Helpers
 {
     public static class WeatherHelper
     {
+        public static readonly string ApiKey = @"d6bee5902ff44fec66206b7abfb6498b";
+
         public static (double Latitude, double Longitude) GetCoordinates(string city)
         {
             HttpClient client = new HttpClient();
-            string url = @$"http://api.positionstack.com/v1/forward?access_key=70b22fe4487feda6b513c1423c708df7&query={city}&output=json";
+            string url = @$"http://api.openweathermap.org/geo/1.0/direct?q={city}&limit=1&appid={ApiKey}";
 
             var getResult = client.GetAsync(url).Result;
             var contentResult = getResult.Content.ReadAsStringAsync().Result;
-            var jsonResult = Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(contentResult);
+            var jsonResult = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(contentResult);
 
-            var data = jsonResult["data"];
-            if (data.Count() == 0)
-                return new(404, 404);
+            if (jsonResult.Count == 0)
+                return (404, 404);
 
-            var latitude = data[0]["latitude"].Value<double>();
-            var longitude = data[0]["longitude"].Value<double>();
+            var latitude = jsonResult[0]["lat"].Value<double>();
+            var longitude = jsonResult[0]["lon"].Value<double>();
 
             return new(latitude, longitude);
-        }
-
-        public static double KelvinToCelsius(double kelvins)
-        {
-            return kelvins - 273.15;
         }
     }
 }

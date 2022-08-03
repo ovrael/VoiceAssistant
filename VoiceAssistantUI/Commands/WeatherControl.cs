@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using VoiceAssistantUI.Helpers;
 using Weather.NET;
@@ -18,7 +19,7 @@ namespace VoiceAssistantUI.Commands
 
         public static bool IsAvailable { get; set; } = true;
 
-        private static readonly WeatherClient? weatherClient = new WeatherClient("d6bee5902ff44fec66206b7abfb6498b");
+        private static readonly WeatherClient? weatherClient = new WeatherClient(WeatherHelper.ApiKey);
 
         static WeatherControl()
         {
@@ -82,15 +83,6 @@ namespace VoiceAssistantUI.Commands
         #endregion
 
         #region Privates
-        private static Weather.NET.Enums.Language ConvertToWeatherLanguage(SpeechLanguage speechLanguage)
-        {
-            return speechLanguage switch
-            {
-                SpeechLanguage.English => Weather.NET.Enums.Language.English,
-                SpeechLanguage.Polish => Weather.NET.Enums.Language.Polish,
-                _ => Weather.NET.Enums.Language.English,
-            };
-        }
         private static void GetWeather(object cityName, WeatherControlType weatherType)
         {
             string city = cityName.ToString();
@@ -140,21 +132,30 @@ namespace VoiceAssistantUI.Commands
 
             //System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = oldDecimalSeparator;
         }
+
         private static async Task<string> CreateCurrentWeatherTextAsync(string city)
         {
             string text = string.Empty;
-            var query = await weatherClient.GetCurrentWeatherAsync(city, Assistant.Data.WeatherMeasurement, ConvertToWeatherLanguage(Speech.Language));
+
+            var geo = WeatherHelper.GetCoordinates(city);
+            if (geo == (404, 404))
+                return text;
+
+            var query = await weatherClient.GetCurrentWeatherAsync(geo.Latitude, geo.Longitude, Assistant.Data.WeatherMeasurement, ConvertToWeatherLanguage(Speech.Language));
             if (query is null)
                 return text;
 
             switch (Speech.Language)
             {
                 case SpeechLanguage.English:
-                    text = $@"Now is {query.Weather[0].Description} and {query.Main.Temperature:F0} degrees.";
+                    text = $"Now is {query.Weather[0].Description}" +
+                        $" and {(int)query.Main.Temperature} degrees in {city}.";
                     break;
 
                 case SpeechLanguage.Polish:
-                    text = $@"Aktualnie jest {query.Weather[0].Description} oraz {CreatePolishTemperatureText((int)query.Main.Temperature)}.";
+                    text = $"Aktualnie jest {query.Weather[0].Description}" +
+                        $" oraz {CreatePolishTemperatureText((int)query.Main.Temperature)}" +
+                        $" w miejscowości {city}.";
                     break;
 
                 default:
@@ -163,7 +164,6 @@ namespace VoiceAssistantUI.Commands
 
             return text;
         }
-
         private static async Task<string> CreatePollutionTextAsync(string city)
         {
             string text = string.Empty;
@@ -179,12 +179,14 @@ namespace VoiceAssistantUI.Commands
             switch (Speech.Language)
             {
                 case SpeechLanguage.English:
-                    text = $@"Air pollution is {query.AirDescriptions[0].AirQualityDescription} at level {query.AirDescriptions[0].Main.AirQuality} out of five.";
+                    text = $"Air pollution is {query.AirDescriptions[0].AirQualityDescription}" +
+                        $" at level {query.AirDescriptions[0].Main.AirQuality} out of five in {city}.";
                     break;
 
                 case SpeechLanguage.Polish:
                     string polishAirQuality = AirQualityToPolishDescription(query.AirDescriptions[0].Main.AirQuality);
-                    text = $@"Zanieczyszczenie powietrza jest na poziomie {polishAirQuality} w skali {query.AirDescriptions[0].Main.AirQuality} na pięć.";
+                    text = $"Zanieczyszczenie powietrza jest na poziomie {polishAirQuality} " +
+                        $"w skali {query.AirDescriptions[0].Main.AirQuality} na pięć w miejscowości {city}..";
                     break;
 
                 default:
@@ -193,39 +195,16 @@ namespace VoiceAssistantUI.Commands
 
             return text;
         }
-
-        private static string AirQualityToPolishDescription(int airQuality)
-        {
-            return airQuality switch
-            {
-                1 => "dobrym",
-                2 => "umiarkowanym",
-                3 => "średnim",
-                4 => "słabym",
-                5 => "bardzo słabym",
-                _ => "brak danych",
-            };
-        }
-
-        private static string CreatePolishTemperatureText(int temperature)
-        {
-            string polishDegrees = "stopni";
-
-            int absTemperature = Math.Abs(temperature);
-            if (absTemperature == 1)
-                polishDegrees = "stopień";
-            else if (absTemperature < 5 || (absTemperature > 20 && absTemperature % 10 < 5 && absTemperature % 10 != 0))
-                polishDegrees = "stopnie";
-
-            return $"{temperature} {polishDegrees}";
-        }
-
         private static async Task<string> CreateForecastTextAsync(string city)
         {
             string text = string.Empty;
 
+            var geo = WeatherHelper.GetCoordinates(city);
+            if (geo == (404, 404))
+                return text;
+
             const int timestamps = 4; // 1 timestamp = 3h weather forecast
-            var query = await weatherClient.GetForecastAsync(city, timestamps, Assistant.Data.WeatherMeasurement, ConvertToWeatherLanguage(Speech.Language));
+            var query = await weatherClient.GetForecastAsync(geo.Latitude, geo.Longitude, timestamps, Assistant.Data.WeatherMeasurement, ConvertToWeatherLanguage(Speech.Language));
             if (query is null)
                 return text;
 
@@ -245,11 +224,48 @@ namespace VoiceAssistantUI.Commands
             switch (Speech.Language)
             {
                 case SpeechLanguage.English:
-                    text = $"For next 12 hours weather will be {forecastText} with average temperature at {averageTemperature:F0} degrees.";
+                    text = $"For next 12 hours weather will be {forecastText} " +
+                        $"with average temperature at {averageTemperature:F0} degrees in {city}.";
                     break;
 
                 case SpeechLanguage.Polish:
-                    text = $"Przez następne 12 godzin pogoda będzie {forecastText} ze średnią temperaturą {CreatePolishTemperatureText((int)averageTemperature)}.";
+                    text = $"Przez następne 12 godzin pogoda będzie {forecastText} " +
+                        $"ze średnią temperaturą {CreatePolishTemperatureText((int)averageTemperature)} w miejscowości {city}.";
+                    break;
+
+                default:
+                    return text;
+            }
+
+            return text;
+        }
+        private static async Task<string> CreateTommorowForecastTextAsync(string city)
+        {
+            string text = string.Empty;
+
+            var geo = WeatherHelper.GetCoordinates(city);
+            if (geo == (404, 404))
+                return text;
+
+            int timestamps = ComputeTimestampsForTommorowForecast();
+            var query = await weatherClient.GetForecastAsync(geo.Latitude, geo.Longitude, timestamps, Assistant.Data.WeatherMeasurement, ConvertToWeatherLanguage(Speech.Language));
+            if (query is null)
+                return text;
+
+            WeatherModel morning = query.Where(q => q.AnalysisDate.Hour > 10 && q.AnalysisDate.Hour <= 13).Last();
+            WeatherModel evening = query.Where(q => q.AnalysisDate.Hour > 16 && q.AnalysisDate.Hour <= 19).Last();
+
+            switch (Speech.Language)
+            {
+                case SpeechLanguage.English:
+                    text = $"Tommorow at twelve a m will be {morning.Weather[0].Description} and {(int)morning.Main.Temperature} degrees. " +
+                        $"Six hours later at six pm will be {evening.Weather[0].Description} and {(int)evening.Main.Temperature} degrees in {city}.";
+                    break;
+
+                case SpeechLanguage.Polish:
+                    text = $"Jutro o dwunastej będzie {morning.Weather[0].Description} oraz {CreatePolishTemperatureText((int)morning.Main.Temperature)}. " +
+                        $"Sześć godzin później o osiemnastej będzie {evening.Weather[0].Description} oraz {CreatePolishTemperatureText((int)evening.Main.Temperature)}" +
+                        $" w miejscowości {city}.";
                     break;
 
                 default:
@@ -259,6 +275,39 @@ namespace VoiceAssistantUI.Commands
             return text;
         }
 
+        private static Weather.NET.Enums.Language ConvertToWeatherLanguage(SpeechLanguage speechLanguage)
+        {
+            return speechLanguage switch
+            {
+                SpeechLanguage.English => Weather.NET.Enums.Language.English,
+                SpeechLanguage.Polish => Weather.NET.Enums.Language.Polish,
+                _ => Weather.NET.Enums.Language.English,
+            };
+        }
+        private static string AirQualityToPolishDescription(int airQuality)
+        {
+            return airQuality switch
+            {
+                1 => "dobrym",
+                2 => "umiarkowanym",
+                3 => "średnim",
+                4 => "słabym",
+                5 => "bardzo słabym",
+                _ => "brak danych",
+            };
+        }
+        private static string CreatePolishTemperatureText(int temperature)
+        {
+            string polishDegrees = "stopni";
+
+            int absTemperature = Math.Abs(temperature);
+            if (absTemperature == 1)
+                polishDegrees = "stopień";
+            else if (absTemperature < 5 || (absTemperature > 20 && absTemperature % 10 < 5 && absTemperature % 10 != 0))
+                polishDegrees = "stopnie";
+
+            return $"{temperature} {polishDegrees}";
+        }
         private static int ComputeTimestampsForTommorowForecast()
         {
             const int timestampHours = 3;
@@ -266,49 +315,23 @@ namespace VoiceAssistantUI.Commands
             const int nextSixHoursForecastTimestamps = 2;
 
             DateTime now = DateTime.Now;
-            DateTime targetDate = new DateTime(now.Year, now.Month, now.Day + 1, 11, 00, 00);
+            DateTime targetDate = new DateTime(now.Year, now.Month, now.Day + 1, 10, 00, 00);
 
-            do
-            {
-                now = now.AddHours(timestampHours);
-                timestamps++;
+            if (now.Hour <= 4)
+                return 8;
+            else
+                return 16;
 
-            } while (now <= targetDate);
+            //do
+            //{
+            //    now = now.AddHours(timestampHours);
+            //    timestamps++;
 
-            timestamps += nextSixHoursForecastTimestamps;
+            //} while (now <= targetDate);
 
-            return timestamps;
-        }
+            //timestamps += nextSixHoursForecastTimestamps;
 
-        private static async Task<string> CreateTommorowForecastTextAsync(string city)
-        {
-            string text = string.Empty;
-
-            int timestamps = ComputeTimestampsForTommorowForecast();
-            var query = await weatherClient.GetForecastAsync(city, timestamps, Assistant.Data.WeatherMeasurement, ConvertToWeatherLanguage(Speech.Language));
-            if (query is null)
-                return text;
-
-            WeatherModel morning = query[timestamps - 3];
-            WeatherModel evening = query[timestamps - 1];
-
-            switch (Speech.Language)
-            {
-                case SpeechLanguage.English:
-                    text = $"Tommorow about eleven am will be {morning.Weather[0].Description} and {(int)morning.Main.Temperature} degrees. " +
-                        $"Six hours later about seventeen will be {evening.Weather[0].Description} and {(int)evening.Main.Temperature} degrees.";
-                    break;
-
-                case SpeechLanguage.Polish:
-                    text = $"Jutro około jedenastej będzie {morning.Weather[0].Description} oraz {(int)morning.Main.Temperature} stopni. " +
-                        $"Sześć godzin później około siedemnastej będzie {evening.Weather[0].Description} oraz {(int)evening.Main.Temperature} stopni.";
-                    break;
-
-                default:
-                    return text;
-            }
-
-            return text;
+            //return timestamps;
         }
         #endregion
     }

@@ -600,7 +600,14 @@ namespace VoiceAssistantUI
 
         private void testButton_Click(object sender, RoutedEventArgs e)
         {
-            Commands.WeatherControl.GetTommorowWeather("Katowice");
+            //var engVoice = Speech.GetVoiceNamesWithCulture().Where(v => v.Contains("en-")).First();
+
+            //Speech.SetVoice(engVoice);
+
+            Commands.WeatherControl.GetCurrentWeatherInMyCity();
+            Commands.WeatherControl.GetCurrentAirPollutionInMyCity();
+            Commands.WeatherControl.GetForecastInMyCity();
+            Commands.WeatherControl.GetTommorowWeatherInMyCity();
 
         }
     }
