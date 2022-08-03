@@ -70,7 +70,7 @@ namespace VoiceAssistantUI.Commands
                 return;
             }
 
-            Assistant.WriteLog($"{weatherTypeText} {text}", MessageType.Success);
+            Assistant.WriteOutput($"{weatherTypeText} {text}", MessageType.Success);
             if (Assistant.Data.UseSpeech)
                 Speech.Speak(text);
 
