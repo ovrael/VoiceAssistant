@@ -34,6 +34,7 @@ namespace VoiceAssistantUI.VoiceAssistant
         public bool UseSpeech { get; set; } = true;
         public double ConfidenceThreshold { get; set; } = 0.55;
         public string Language { get; set; } = "en-US";
+        public string MyCity { get; set; } = "Katowice";
         public Dictionary<string, string> ChangeableVariables { get; set; } = new Dictionary<string, string>()
         {
             {"AssistantName", "Kaladin" },
@@ -64,6 +65,9 @@ namespace VoiceAssistantUI.VoiceAssistant
 
         public AssistantData()
         {
+            FullFilePaths.Add(AssistantFile.MusicPlayer, FilePaths[AssistantFile.MusicPlayer]);
+            FullFilePaths.Add(AssistantFile.MusicDirectory, FilePaths[AssistantFile.MusicDirectory]);
+
             SetWorkingMode();
 
             if (WorkingMode == WorkingMode.Debug)

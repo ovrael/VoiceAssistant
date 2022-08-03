@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using VoiceAssistantUI.Helpers;
 using Weather.NET;
+using Weather.NET.Models.WeatherModel;
 
 namespace VoiceAssistantUI.Commands
 {
@@ -11,6 +12,7 @@ namespace VoiceAssistantUI.Commands
         {
             Current,
             Forecast,
+            TommorowForecast,
             AirPollution
         }
 
@@ -24,6 +26,62 @@ namespace VoiceAssistantUI.Commands
                 IsAvailable = false;
         }
 
+
+        #region Public commands
+
+        public static void GetCurrentWeather(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Current));
+        }
+
+        public static void GetCurrentWeatherInMyCity()
+        {
+            GetCurrentWeather(Assistant.Data.MyCity);
+        }
+
+        public static void GetCurrentWeatherAndAirPollution(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Current));
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.AirPollution));
+        }
+
+        public static void GetCurrentWeatherAndAirPollutionInMyCity()
+        {
+            GetCurrentWeatherAndAirPollution(Assistant.Data.MyCity);
+        }
+
+        public static void GetCurrentAirPollution(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.AirPollution));
+        }
+
+        public static void GetCurrentAirPollutionInMyCity()
+        {
+            GetCurrentAirPollution(Assistant.Data.MyCity);
+        }
+
+        public static void GetForecast(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Forecast));
+        }
+
+        public static void GetForecastInMyCity()
+        {
+            GetForecast(Assistant.Data.MyCity);
+        }
+
+        public static void GetTommorowWeather(object city)
+        {
+            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.TommorowForecast));
+        }
+
+        public static void GetTommorowWeatherInMyCity()
+        {
+            GetTommorowWeather(Assistant.Data.MyCity);
+        }
+        #endregion
+
+        #region Privates
         private static Weather.NET.Enums.Language ConvertToWeatherLanguage(SpeechLanguage speechLanguage)
         {
             return speechLanguage switch
@@ -33,7 +91,6 @@ namespace VoiceAssistantUI.Commands
                 _ => Weather.NET.Enums.Language.English,
             };
         }
-
         private static void GetWeather(object cityName, WeatherControlType weatherType)
         {
             string city = cityName.ToString();
@@ -51,10 +108,17 @@ namespace VoiceAssistantUI.Commands
                     weatherTypeText = "[CURRENT WEATHER]";
                     text = CreateCurrentWeatherTextAsync(city).Result;
                     break;
+
                 case WeatherControlType.Forecast:
                     weatherTypeText = "[WEATHER FORECAST]";
                     text = CreateForecastTextAsync(city).Result;
                     break;
+
+                case WeatherControlType.TommorowForecast:
+                    weatherTypeText = "[TOMMOROW FORECAST]";
+                    text = CreateTommorowForecastTextAsync(city).Result;
+                    break;
+
                 case WeatherControlType.AirPollution:
                     weatherTypeText = "[AIR POLLUTION]";
                     text = CreatePollutionTextAsync(city).Result;
@@ -76,28 +140,6 @@ namespace VoiceAssistantUI.Commands
 
             //System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator = oldDecimalSeparator;
         }
-
-        public static void GetCurrentWeather(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Current));
-        }
-
-        public static void GetCurrentWeatherAndAirPollution(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Current));
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.AirPollution));
-        }
-
-        public static void GetCurrentAirPollution(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.AirPollution));
-        }
-
-        public static void GetForecast(object city)
-        {
-            Task.Factory.StartNew(() => GetWeather(city, WeatherControlType.Forecast));
-        }
-
         private static async Task<string> CreateCurrentWeatherTextAsync(string city)
         {
             string text = string.Empty;
@@ -112,19 +154,7 @@ namespace VoiceAssistantUI.Commands
                     break;
 
                 case SpeechLanguage.Polish:
-
-                    string polishDegrees = "stopni";
-                    int temperature = (int)query.Main.Temperature;
-                    if (Assistant.Data.WeatherMeasurement == Weather.NET.Enums.Measurement.Metric)
-                    {
-                        int absTemperature = Math.Abs(temperature);
-                        if (absTemperature == 1)
-                            polishDegrees = "stopień";
-                        else if (absTemperature < 5 || (absTemperature > 20 && absTemperature % 10 < 5 && absTemperature % 10 != 0))
-                            polishDegrees = "stopnie";
-                    }
-
-                    text = $@"Aktualnie jest {query.Weather[0].Description} oraz {temperature} {polishDegrees}.";
+                    text = $@"Aktualnie jest {query.Weather[0].Description} oraz {CreatePolishTemperatureText((int)query.Main.Temperature)}.";
                     break;
 
                 default:
@@ -177,13 +207,22 @@ namespace VoiceAssistantUI.Commands
             };
         }
 
+        private static string CreatePolishTemperatureText(int temperature)
+        {
+            string polishDegrees = "stopni";
+
+            int absTemperature = Math.Abs(temperature);
+            if (absTemperature == 1)
+                polishDegrees = "stopień";
+            else if (absTemperature < 5 || (absTemperature > 20 && absTemperature % 10 < 5 && absTemperature % 10 != 0))
+                polishDegrees = "stopnie";
+
+            return $"{temperature} {polishDegrees}";
+        }
+
         private static async Task<string> CreateForecastTextAsync(string city)
         {
             string text = string.Empty;
-
-            var geocode = WeatherHelper.GetCoordinates(city);
-            if (geocode == (404, 404))
-                return text;
 
             const int timestamps = 4; // 1 timestamp = 3h weather forecast
             var query = await weatherClient.GetForecastAsync(city, timestamps, Assistant.Data.WeatherMeasurement, ConvertToWeatherLanguage(Speech.Language));
@@ -210,19 +249,7 @@ namespace VoiceAssistantUI.Commands
                     break;
 
                 case SpeechLanguage.Polish:
-
-                    string polishDegrees = "stopni";
-                    int temperature = (int)averageTemperature;
-                    if (Assistant.Data.WeatherMeasurement == Weather.NET.Enums.Measurement.Metric)
-                    {
-                        int absTemperature = Math.Abs(temperature);
-                        if (absTemperature == 1)
-                            polishDegrees = "stopień";
-                        else if (absTemperature < 5 || (absTemperature > 20 && absTemperature % 10 < 5 && absTemperature % 10 != 0))
-                            polishDegrees = "stopnie";
-                    }
-
-                    text = $"Przez następne 12 godzin pogoda będzie {forecastText} ze średnią temperaturą {temperature} {polishDegrees}.";
+                    text = $"Przez następne 12 godzin pogoda będzie {forecastText} ze średnią temperaturą {CreatePolishTemperatureText((int)averageTemperature)}.";
                     break;
 
                 default:
@@ -231,5 +258,58 @@ namespace VoiceAssistantUI.Commands
 
             return text;
         }
+
+        private static int ComputeTimestampsForTommorowForecast()
+        {
+            const int timestampHours = 3;
+            int timestamps = 0;
+            const int nextSixHoursForecastTimestamps = 2;
+
+            DateTime now = DateTime.Now;
+            DateTime targetDate = new DateTime(now.Year, now.Month, now.Day + 1, 11, 00, 00);
+
+            do
+            {
+                now = now.AddHours(timestampHours);
+                timestamps++;
+
+            } while (now <= targetDate);
+
+            timestamps += nextSixHoursForecastTimestamps;
+
+            return timestamps;
+        }
+
+        private static async Task<string> CreateTommorowForecastTextAsync(string city)
+        {
+            string text = string.Empty;
+
+            int timestamps = ComputeTimestampsForTommorowForecast();
+            var query = await weatherClient.GetForecastAsync(city, timestamps, Assistant.Data.WeatherMeasurement, ConvertToWeatherLanguage(Speech.Language));
+            if (query is null)
+                return text;
+
+            WeatherModel morning = query[timestamps - 3];
+            WeatherModel evening = query[timestamps - 1];
+
+            switch (Speech.Language)
+            {
+                case SpeechLanguage.English:
+                    text = $"Tommorow about eleven am will be {morning.Weather[0].Description} and {(int)morning.Main.Temperature} degrees. " +
+                        $"Six hours later about seventeen will be {evening.Weather[0].Description} and {(int)evening.Main.Temperature} degrees.";
+                    break;
+
+                case SpeechLanguage.Polish:
+                    text = $"Jutro około jedenastej będzie {morning.Weather[0].Description} oraz {(int)morning.Main.Temperature} stopni. " +
+                        $"Sześć godzin później około siedemnastej będzie {evening.Weather[0].Description} oraz {(int)evening.Main.Temperature} stopni.";
+                    break;
+
+                default:
+                    return text;
+            }
+
+            return text;
+        }
+        #endregion
     }
 }
